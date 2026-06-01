@@ -1,0 +1,43 @@
+{
+  "name": "Adventure",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Adventure title"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the adventure"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location name"
+    },
+    "distance": {
+      "type": "string",
+      "description": "Distance covered e.g. 12 Miles"
+    },
+    "elevation": {
+      "type": "string",
+      "description": "Elevation gain e.g. 2,400 ft"
+    },
+    "skill": {
+      "type": "string",
+      "description": "Primary skill learned"
+    },
+    "description": {
+      "type": "string",
+      "description": "Adventure description"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Cover image URL"
+    }
+  },
+  "required": [
+    "title",
+    "date"
+  ]
+}
