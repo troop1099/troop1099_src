@@ -1,0 +1,27 @@
+{
+  "name": "Eagle",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Full name of Eagle Scout"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date Eagle rank was earned"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Photo of the Eagle Scout"
+    },
+    "project": {
+      "type": "string",
+      "description": "Eagle project description"
+    }
+  },
+  "required": [
+    "name",
+    "date"
+  ]
+}

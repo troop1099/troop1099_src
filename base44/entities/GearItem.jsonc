@@ -1,0 +1,34 @@
+{
+  "name": "GearItem",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "caption": {
+      "type": "string"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "buy_link": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "clothing",
+        "camping",
+        "cooking",
+        "navigation",
+        "tools",
+        "other"
+      ],
+      "default": "other"
+    }
+  },
+  "required": [
+    "title",
+    "image_url"
+  ]
+}

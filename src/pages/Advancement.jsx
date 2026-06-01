@@ -1,221 +1,186 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, Award } from 'lucide-react';
+import { X, ChevronRight, Award, User, Users, FileText } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { useToast } from '@/components/ui/use-toast';
 
 const ranks = [
-  {
-    name: 'Scout',
-    color: '#8B7355',
-    description: 'The beginning of the trail. Learn the Scout Oath, Law, and basic outdoor skills.',
-    requirements: ['Learn the Scout Oath and Law', 'Understand the patrol method', 'Demonstrate the Scout sign, salute, and handshake', 'Tie a square knot', 'Describe and identify the BSA uniform'],
-  },
-  {
-    name: 'Tenderfoot',
-    color: '#6B8E23',
-    description: 'First steps into outdoor skills, fitness, and citizenship.',
-    requirements: ['Participate in a campout', 'Cook a meal on a campout', 'Demonstrate first aid for simple injuries', 'Complete a 1-mile hike', 'Identify local poisonous plants'],
-  },
-  {
-    name: 'Second Class',
-    color: '#4682B4',
-    description: 'Building competence in navigation, cooking, and nature.',
-    requirements: ['Use a compass to take a bearing', 'Complete a 5-mile hike', 'Cook a full meal without utensils', 'Identify 10 native plants', 'Earn a swimming merit badge requirement', 'Demonstrate knife safety'],
-  },
-  {
-    name: 'First Class',
-    color: '#CD853F',
-    description: 'A skilled scout ready to lead patrols and teach others.',
-    requirements: ['Complete a 10-mile day hike', 'Plan and lead a patrol campout', 'Use a map and compass together on a hike', 'Demonstrate rescue breathing', 'Identify local constellations', 'Complete a service project'],
-  },
-  {
-    name: 'Star',
-    color: '#DAA520',
-    description: 'Stepping into leadership through merit badges and service.',
-    requirements: ['Earn 6 merit badges (4 Eagle-required)', 'Serve actively in a troop leadership position for 4 months', 'Complete 6 hours of community service', 'Plan a community service project'],
-  },
-  {
-    name: 'Life',
-    color: '#B22222',
-    description: 'A proven leader with deep commitment to service and growth.',
-    requirements: ['Earn 11 merit badges (7 Eagle-required)', 'Serve in a leadership position for 6 months', 'Complete 6 additional hours of service', 'Participate in a Scoutmaster conference'],
-  },
-  {
-    name: 'Eagle',
-    color: '#D95D39',
-    description: 'The pinnacle of Scouting achievement. A leader for life.',
-    requirements: ['Earn 21 merit badges (13 Eagle-required)', 'Serve in a leadership position for 6 months', 'Plan and lead an Eagle service project', 'Complete an Eagle board of review', 'Demonstrate Scout spirit throughout your journey'],
-  },
+  { name: 'Scout', color: '#8B7355', description: 'The beginning of the trail.', requirements: ['Learn the Scout Oath and Law', 'Understand the patrol method', 'Demonstrate the Scout sign, salute, and handshake', 'Tie a square knot', 'Describe and identify the BSA uniform'] },
+  { name: 'Tenderfoot', color: '#6B8E23', description: 'First steps into outdoor skills, fitness, and citizenship.', requirements: ['Participate in a campout', 'Cook a meal on a campout', 'Demonstrate first aid for simple injuries', 'Complete a 1-mile hike', 'Identify local poisonous plants'] },
+  { name: 'Second Class', color: '#4682B4', description: 'Building competence in navigation, cooking, and nature.', requirements: ['Use a compass to take a bearing', 'Complete a 5-mile hike', 'Cook a full meal without utensils', 'Identify 10 native plants', 'Demonstrate knife safety'] },
+  { name: 'First Class', color: '#CD853F', description: 'A skilled scout ready to lead patrols and teach others.', requirements: ['Complete a 10-mile day hike', 'Plan and lead a patrol campout', 'Use a map and compass together on a hike', 'Demonstrate rescue breathing', 'Identify local constellations', 'Complete a service project'] },
+  { name: 'Star', color: '#DAA520', description: 'Stepping into leadership through merit badges and service.', requirements: ['Earn 6 merit badges (4 Eagle-required)', 'Serve actively in a troop leadership position for 4 months', 'Complete 6 hours of community service', 'Plan a community service project'] },
+  { name: 'Life', color: '#B22222', description: 'A proven leader with deep commitment to service and growth.', requirements: ['Earn 11 merit badges (7 Eagle-required)', 'Serve in a leadership position for 6 months', 'Complete 6 additional hours of service', 'Participate in a Scoutmaster conference'] },
+  { name: 'Eagle', color: '#D95D39', description: 'The pinnacle of Scouting achievement.', requirements: ['Earn 21 merit badges (13 Eagle-required)', 'Serve in a leadership position for 6 months', 'Plan and lead an Eagle service project', 'Complete an Eagle board of review', 'Demonstrate Scout spirit throughout your journey'] },
 ];
+
+const requestTypes = [
+  { type: 'scoutmaster_conference', icon: User, color: 'bg-blue-100 text-blue-700 border-blue-200', btnColor: 'bg-[#1a2744] hover:bg-[#1a2744]/90', title: 'Scoutmaster Conference', description: 'Ready for your next rank? Request a conference with the Scoutmaster.' },
+  { type: 'board_of_review', icon: Users, color: 'bg-red-100 text-red-700 border-red-200', btnColor: 'bg-red-600 hover:bg-red-700', title: 'Board of Review', description: 'Completed your conference? Schedule your Board of Review with the committee.' },
+  { type: 'blue_card', icon: FileText, color: 'bg-yellow-100 text-yellow-700 border-yellow-200', btnColor: 'bg-yellow-600 hover:bg-yellow-700', title: 'Blue Cards', description: 'Starting a new merit badge? Request a signed blue card.' },
+];
+
+function RequestModal({ reqType, onClose }) {
+  const { toast } = useToast();
+  const [form, setForm] = useState({ scout_name: '', scout_email: '', rank: '', merit_badge: '', notes: '' });
+  const mutation = useMutation({
+    mutationFn: (data) => base44.entities.AdvancementRequest.create({ ...data, type: reqType.type }),
+    onSuccess: () => {
+      toast({ title: 'Request submitted!', description: 'The Scoutmaster will follow up soon.' });
+      onClose();
+    }
+  });
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg max-w-md w-full p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-bold text-[#1a2744] text-lg">Request: {reqType.title}</h3>
+          <button onClick={onClose}><X className="w-5 h-5" /></button>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Scout Name *</label>
+            <input className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.scout_name} onChange={e => setForm(f => ({...f, scout_name: e.target.value}))} />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Scout Email</label>
+            <input type="email" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.scout_email} onChange={e => setForm(f => ({...f, scout_email: e.target.value}))} />
+          </div>
+          {(reqType.type === 'scoutmaster_conference' || reqType.type === 'board_of_review') && (
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1">Rank Being Pursued</label>
+              <select className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.rank} onChange={e => setForm(f => ({...f, rank: e.target.value}))}>
+                <option value="">Select rank...</option>
+                {ranks.map(r => <option key={r.name}>{r.name}</option>)}
+              </select>
+            </div>
+          )}
+          {reqType.type === 'blue_card' && (
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1">Merit Badge Name</label>
+              <input className="w-full border border-gray-300 rounded px-3 py-2 text-sm" placeholder="e.g. Cooking" value={form.merit_badge} onChange={e => setForm(f => ({...f, merit_badge: e.target.value}))} />
+            </div>
+          )}
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Additional Notes</label>
+            <textarea className="w-full border border-gray-300 rounded px-3 py-2 text-sm" rows={3} value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))} />
+          </div>
+        </div>
+        <div className="flex gap-2 mt-5">
+          <button onClick={onClose} className="flex-1 py-2 border border-gray-300 rounded text-sm">Cancel</button>
+          <button onClick={() => mutation.mutate(form)} disabled={!form.scout_name || mutation.isPending} className={`flex-1 py-2 text-white rounded text-sm font-semibold disabled:opacity-50 ${reqType.btnColor}`}>
+            {mutation.isPending ? 'Submitting...' : 'Submit Request'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Advancement() {
   const [selectedRank, setSelectedRank] = useState(null);
+  const [requestModal, setRequestModal] = useState(null);
 
   return (
     <div className="pt-14">
       {/* Header */}
-      <section className="px-[5vw] md:px-[10vw] pb-16 md:pb-24 topo-pattern">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          <p className="font-heading text-xs tracking-[0.3em] uppercase text-accent mb-4">
-            Advancement
-          </p>
-          <h1 className="font-heading font-bold text-4xl md:text-6xl lg:text-7xl text-foreground leading-tight">
-            Trail to Eagle
-          </h1>
-          <p className="font-body text-lg text-muted-foreground mt-4 max-w-xl leading-relaxed">
-            The path from Scout to Eagle is a journey of growth, leadership, and service.
-            Click on any rank to see the requirements.
-          </p>
-        </motion.div>
+      <div className="bg-[#1a2744] text-white py-10 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-3xl font-bold">Advancement Center</h1>
+          <p className="text-white/70 mt-2">Track your progress and request advancement steps.</p>
+        </div>
+      </div>
+
+      {/* Request Cards */}
+      <section className="bg-gray-50 py-10 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-bold text-[#1a2744] text-xl mb-6">Request Advancement Steps</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {requestTypes.map(rt => (
+              <div key={rt.type} className={`bg-white rounded-lg border-2 ${rt.color} p-6 text-center`}>
+                <div className={`w-14 h-14 rounded-full ${rt.color} flex items-center justify-center mx-auto mb-4`}>
+                  <rt.icon className="w-7 h-7" />
+                </div>
+                <h3 className="font-bold text-[#1a2744] text-lg mb-2">{rt.title}</h3>
+                <p className="text-gray-600 text-sm mb-5">{rt.description}</p>
+                <button
+                  onClick={() => setRequestModal(rt)}
+                  className={`w-full py-2 text-white rounded font-semibold text-sm ${rt.btnColor} transition-colors`}
+                >
+                  Request {rt.title}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* Progress Ribbon */}
-      <section className="px-[5vw] md:px-[10vw] pb-24 md:pb-36">
-        {/* Horizontal ribbon - desktop */}
-        <div className="hidden md:block relative">
-          {/* The trail line */}
-          <div className="absolute top-12 left-0 right-0 h-px bg-border" />
-          <motion.div
-            className="absolute top-12 left-0 h-px bg-accent"
-            initial={{ width: 0 }}
-            whileInView={{ width: '100%' }}
-            viewport={{ once: true }}
-            transition={{ duration: 2, ease: 'easeInOut' }}
-          />
+      {/* Trail to Eagle */}
+      <section className="py-12 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-bold text-[#1a2744] text-xl mb-2">Trail to Eagle</h2>
+          <p className="text-gray-500 text-sm mb-8">Click any rank to see requirements.</p>
 
-          <div className="grid grid-cols-7 gap-4">
-            {ranks.map((rank, i) => (
-              <motion.button
-                key={rank.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.12 }}
-                onClick={() => setSelectedRank(rank)}
-                className="group flex flex-col items-center text-center pt-4"
-              >
-                <div
-                  className="w-16 h-16 rounded-full border-2 flex items-center justify-center mb-4 transition-all group-hover:scale-110 group-hover:shadow-lg bg-background"
-                  style={{ borderColor: rank.color }}
-                >
-                  <Award className="w-6 h-6" style={{ color: rank.color }} />
-                </div>
-                <h3 className="font-heading font-semibold text-sm text-foreground group-hover:text-accent transition-colors">
-                  {rank.name}
-                </h3>
-                <p className="font-heading text-[10px] tracking-wider text-muted-foreground mt-1 uppercase">
-                  Rank {i + 1}
-                </p>
-              </motion.button>
-            ))}
+          {/* Desktop ribbon */}
+          <div className="hidden md:block relative">
+            <div className="absolute top-12 left-0 right-0 h-px bg-gray-200" />
+            <div className="grid grid-cols-7 gap-4">
+              {ranks.map((rank, i) => (
+                <motion.button key={rank.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} onClick={() => setSelectedRank(rank)} className="group flex flex-col items-center text-center pt-4">
+                  <div className="w-16 h-16 rounded-full border-2 flex items-center justify-center mb-4 transition-all group-hover:scale-110 bg-white" style={{ borderColor: rank.color }}>
+                    <Award className="w-6 h-6" style={{ color: rank.color }} />
+                  </div>
+                  <h3 className="font-semibold text-sm text-[#1a2744] group-hover:text-red-600 transition-colors">{rank.name}</h3>
+                </motion.button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Vertical ribbon - mobile */}
-        <div className="md:hidden relative">
-          <div className="absolute left-5 top-0 bottom-0 w-px bg-border" />
-
-          <div className="space-y-6">
-            {ranks.map((rank, i) => (
-              <motion.button
-                key={rank.name}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-                onClick={() => setSelectedRank(rank)}
-                className="group relative flex items-center gap-5 w-full text-left"
-              >
-                <div
-                  className="relative z-10 w-10 h-10 rounded-full border-2 flex items-center justify-center bg-background shrink-0"
-                  style={{ borderColor: rank.color }}
-                >
-                  <Award className="w-4 h-4" style={{ color: rank.color }} />
+          {/* Mobile */}
+          <div className="md:hidden space-y-4">
+            {ranks.map(rank => (
+              <button key={rank.name} onClick={() => setSelectedRank(rank)} className="w-full flex items-center gap-4 bg-white rounded-lg border border-gray-200 p-4 text-left hover:border-[#1a2744] transition-colors">
+                <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0" style={{ borderColor: rank.color }}>
+                  <Award className="w-5 h-5" style={{ color: rank.color }} />
                 </div>
                 <div>
-                  <h3 className="font-heading font-semibold text-foreground group-hover:text-accent transition-colors">
-                    {rank.name}
-                  </h3>
-                  <p className="font-body text-sm text-muted-foreground">
-                    {rank.description}
-                  </p>
+                  <p className="font-semibold text-[#1a2744]">{rank.name}</p>
+                  <p className="text-xs text-gray-500">{rank.description}</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors shrink-0 ml-auto" />
-              </motion.button>
+                <ChevronRight className="w-4 h-4 text-gray-400 ml-auto shrink-0" />
+              </button>
             ))}
           </div>
-        </div>
-
-        {/* Rank Detail Cards (Desktop) */}
-        <div className="hidden md:grid grid-cols-7 gap-4 mt-6">
-          {ranks.map((rank) => (
-            <div key={rank.name} className="text-center">
-              <p className="font-body text-xs text-muted-foreground leading-relaxed">
-                {rank.description}
-              </p>
-            </div>
-          ))}
         </div>
       </section>
 
       {/* Rank Modal */}
       <AnimatePresence>
         {selectedRank && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-[#142319]/70 flex items-center justify-center p-4"
-            onClick={() => setSelectedRank(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 30, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className="bg-background rounded-sm max-w-lg w-full max-h-[80vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-8">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className="w-14 h-14 rounded-full border-2 flex items-center justify-center"
-                      style={{ borderColor: selectedRank.color }}
-                    >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4" onClick={() => setSelectedRank(null)}>
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }} className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full border-2 flex items-center justify-center" style={{ borderColor: selectedRank.color }}>
                       <Award className="w-6 h-6" style={{ color: selectedRank.color }} />
                     </div>
                     <div>
-                      <h2 className="font-heading font-bold text-2xl text-foreground">
-                        {selectedRank.name}
-                      </h2>
-                      <p className="font-body text-sm text-muted-foreground">
-                        {selectedRank.description}
-                      </p>
+                      <h2 className="font-bold text-xl text-[#1a2744]">{selectedRank.name}</h2>
+                      <p className="text-sm text-gray-500">{selectedRank.description}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => setSelectedRank(null)}
-                    className="w-10 h-10 flex items-center justify-center rounded-sm hover:bg-muted transition-colors"
-                  >
-                    <X className="w-5 h-5 text-muted-foreground" />
-                  </button>
+                  <button onClick={() => setSelectedRank(null)}><X className="w-5 h-5 text-gray-400" /></button>
                 </div>
-
-                <div className="border-t border-border pt-6">
-                  <p className="font-heading text-xs tracking-[0.3em] uppercase text-accent mb-4">
-                    Key Requirements
-                  </p>
-                  <ul className="space-y-3">
+                <div className="border-t pt-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-red-600 mb-3">Key Requirements</p>
+                  <ul className="space-y-2">
                     {selectedRank.requirements.map((req, i) => (
                       <li key={i} className="flex items-start gap-3">
-                        <div className="w-5 h-5 rounded-full border border-border flex items-center justify-center shrink-0 mt-0.5">
-                          <span className="font-heading text-[10px] text-muted-foreground">{i + 1}</span>
-                        </div>
-                        <span className="font-body text-foreground leading-relaxed">{req}</span>
+                        <span className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center text-[10px] text-gray-500 shrink-0 mt-0.5">{i + 1}</span>
+                        <span className="text-gray-700 text-sm">{req}</span>
                       </li>
                     ))}
                   </ul>
@@ -225,6 +190,8 @@ export default function Advancement() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {requestModal && <RequestModal reqType={requestModal} onClose={() => setRequestModal(null)} />}
     </div>
   );
 }

@@ -1,177 +1,182 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Calendar, MapPin, Download, FileText, ArrowRight } from 'lucide-react';
-import { format, isAfter, parseISO } from 'date-fns';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-
-const fallbackEvents = [
-  { id: 'e1', title: 'Weekly Troop Meeting', date: '2026-06-08', type: 'meeting', location: 'Community Center', description: 'Regular troop meeting with skill-building activities and patrol time.' },
-  { id: 'e2', title: 'Summer Camp — Camp Sequoyah', date: '2026-06-15', end_date: '2026-06-21', type: 'campout', location: 'Sequoyah Scout Reservation', description: 'Week-long summer camp with merit badge classes, swimming, and more.' },
-  { id: 'e3', title: 'Community Service Day', date: '2026-06-22', type: 'service', location: 'Riverside Park', description: 'Trail maintenance and park cleanup for our adopted trail section.' },
-  { id: 'e4', title: 'Night Hike & Navigation', date: '2026-07-05', type: 'hike', location: 'Appalachian Trail Spur', description: 'Nighttime navigation exercise using map, compass, and stars.' },
-  { id: 'e5', title: 'Court of Honor', date: '2026-07-14', type: 'special', location: 'Community Center', description: 'Quarterly advancement ceremony recognizing scout achievements.' },
-  { id: 'e6', title: 'Canoe Trip — New River', date: '2026-07-19', end_date: '2026-07-20', type: 'campout', location: 'New River Gorge, WV', description: 'Weekend canoe camping trip down the New River.' },
-  { id: 'e7', title: 'Fundraiser: Popcorn Kickoff', date: '2026-08-01', type: 'fundraiser', location: 'Various Locations', description: 'Annual popcorn sale kickoff — help fund next year\'s adventures.' },
-];
-
-const resources = [
-  { title: 'Permission Slip (General)', icon: FileText },
-  { title: 'Medical Form A & B', icon: FileText },
-  { title: 'Summer Camp Gear List', icon: FileText },
-  { title: 'Camping Gear Checklist', icon: FileText },
-  { title: 'Parent Handbook', icon: FileText },
-];
+import { format } from 'date-fns';
+import { Calendar, MapPin, Plus, X, Clock, Trash2 } from 'lucide-react';
 
 const typeConfig = {
-  meeting: { color: 'bg-foreground/10 text-foreground', label: 'Meeting' },
-  campout: { color: 'bg-accent/15 text-accent', label: 'Campout' },
-  hike: { color: 'bg-accent/15 text-accent', label: 'Hike' },
-  service: { color: 'bg-foreground/10 text-foreground', label: 'Service' },
-  fundraiser: { color: 'bg-foreground/10 text-foreground', label: 'Fundraiser' },
-  special: { color: 'bg-accent/15 text-accent', label: 'Special' },
+  meeting: { color: 'bg-gray-100 text-gray-600', label: 'Meeting' },
+  campout: { color: 'bg-green-100 text-green-700', label: 'Campout' },
+  hike: { color: 'bg-blue-100 text-blue-700', label: 'Hike' },
+  service: { color: 'bg-purple-100 text-purple-700', label: 'Service' },
+  fundraiser: { color: 'bg-yellow-100 text-yellow-700', label: 'Fundraiser' },
+  special: { color: 'bg-red-100 text-red-700', label: 'Special' },
 };
 
+const resources = [
+  'Permission Slip (General)',
+  'Medical Form A & B',
+  'Summer Camp Gear List',
+  'Camping Gear Checklist',
+  'Parent Handbook',
+];
+
+function AddEventModal({ onClose, onSave }) {
+  const [form, setForm] = useState({ title: '', date: '', end_date: '', location: '', type: 'meeting', description: '' });
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-bold text-[#1a2744] text-lg">Add Event</h3>
+          <button onClick={onClose}><X className="w-5 h-5" /></button>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Title *</label>
+            <input className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.title} onChange={e => setForm(f => ({...f, title: e.target.value}))} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1">Start Date *</label>
+              <input type="date" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.date} onChange={e => setForm(f => ({...f, date: e.target.value}))} />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1">End Date</label>
+              <input type="date" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.end_date} onChange={e => setForm(f => ({...f, end_date: e.target.value}))} />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Type</label>
+            <select className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.type} onChange={e => setForm(f => ({...f, type: e.target.value}))}>
+              {Object.entries(typeConfig).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Location</label>
+            <input className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.location} onChange={e => setForm(f => ({...f, location: e.target.value}))} />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Description</label>
+            <textarea className="w-full border border-gray-300 rounded px-3 py-2 text-sm" rows={3} value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} />
+          </div>
+        </div>
+        <div className="flex gap-2 mt-5">
+          <button onClick={onClose} className="flex-1 py-2 border border-gray-300 rounded text-sm">Cancel</button>
+          <button onClick={() => onSave(form)} disabled={!form.title || !form.date} className="flex-1 py-2 bg-[#1a2744] text-white rounded text-sm font-semibold disabled:opacity-50">Add Event</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const fallbackEvents = [
+  { id: 'e1', title: 'Weekly Troop Meeting', date: '2026-06-08', type: 'meeting', location: 'Lanier UMC', description: 'Regular troop meeting with skill-building activities and patrol time.' },
+  { id: 'e2', title: 'Summer Camp — Camp Sequoyah', date: '2026-06-15', end_date: '2026-06-21', type: 'campout', location: 'Sequoyah Scout Reservation', description: 'Week-long summer camp with merit badge classes, swimming, and more.' },
+  { id: 'e3', title: 'Community Service Day', date: '2026-06-22', type: 'service', location: 'Riverside Park', description: 'Trail maintenance and park cleanup.' },
+];
+
 export default function Events() {
-  const { data: events } = useQuery({
+  const [showAdd, setShowAdd] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: events = [] } = useQuery({
     queryKey: ['events'],
     queryFn: () => base44.entities.Event.list('date', 50),
-    initialData: [],
+  });
+
+  const addMutation = useMutation({
+    mutationFn: (data) => base44.entities.Event.create(data),
+    onSuccess: () => { queryClient.invalidateQueries(['events']); setShowAdd(false); }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Event.delete(id),
+    onSuccess: () => queryClient.invalidateQueries(['events'])
   });
 
   const displayEvents = events.length > 0 ? events : fallbackEvents;
 
   return (
-    <div className="pt-14">
+    <div className="pt-14 min-h-screen bg-gray-50">
       {/* Header */}
-      <section className="px-[5vw] md:px-[10vw] pb-16 md:pb-24 topo-pattern">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          <p className="font-heading text-xs tracking-[0.3em] uppercase text-accent mb-4">
-            Muster Station
-          </p>
-          <h1 className="font-heading font-bold text-4xl md:text-6xl lg:text-7xl text-foreground leading-tight">
-            Events & Resources
-          </h1>
-        </motion.div>
-      </section>
-
-      {/* Split pane: Timeline + Resources */}
-      <section className="px-[5vw] md:px-[10vw] pb-24 md:pb-36">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-          {/* Timeline */}
-          <div className="lg:col-span-7">
-            <p className="font-heading text-xs tracking-[0.3em] uppercase text-accent mb-8">
-              Upcoming Schedule
-            </p>
-            <div className="relative">
-              {/* Vertical timeline line */}
-              <div className="absolute left-[31px] top-0 bottom-0 w-px bg-border" />
-
-              <div className="space-y-0">
-                {displayEvents.map((event, i) => {
-                  const cfg = typeConfig[event.type] || typeConfig.meeting;
-                  return (
-                    <motion.div
-                      key={event.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true, margin: '-30px' }}
-                      transition={{ duration: 0.5, delay: i * 0.05 }}
-                      className="relative flex gap-6 pb-8 group"
-                    >
-                      {/* Timeline dot */}
-                      <div className="relative z-10 shrink-0 w-16 flex flex-col items-center">
-                        <div className="w-4 h-4 rounded-full border-2 border-accent bg-background group-hover:bg-accent transition-colors" />
-                      </div>
-
-                      <div className="flex-1 -mt-1 pb-6 border-b border-border/50">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <p className="font-heading text-xs tracking-wider text-muted-foreground">
-                              {format(new Date(event.date), 'EEEE, MMMM d')}
-                              {event.end_date && ` — ${format(new Date(event.end_date), 'MMMM d')}`}
-                            </p>
-                            <h3 className="font-heading font-semibold text-lg text-foreground mt-1 group-hover:text-accent transition-colors">
-                              {event.title}
-                            </h3>
-                            <div className="flex items-center gap-3 mt-2">
-                              <span className={`font-heading text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm ${cfg.color}`}>
-                                {cfg.label}
-                              </span>
-                              {event.location && (
-                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <MapPin className="w-3 h-3" />
-                                  {event.location}
-                                </span>
-                              )}
-                            </div>
-                            {event.description && (
-                              <p className="font-body text-sm text-muted-foreground mt-3 leading-relaxed">
-                                {event.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
+      <div className="bg-[#1a2744] text-white py-10 px-6">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Troop Calendar</h1>
+            <p className="text-white/70 mt-1">Upcoming events and activities.</p>
           </div>
+          <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold text-sm">
+            <Plus className="w-4 h-4" /> Add Event
+          </button>
+        </div>
+      </div>
 
-          {/* Resource Vault */}
-          <div className="lg:col-span-4 lg:col-start-9">
-            <div className="lg:sticky lg:top-28">
-              <p className="font-heading text-xs tracking-[0.3em] uppercase text-accent mb-8">
-                Resource Vault
-              </p>
-              <div className="bg-muted/50 rounded-sm p-6 space-y-4">
-                {resources.map((resource, i) => (
-                  <motion.div
-                    key={resource.title}
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: i * 0.08 }}
-                    className="group flex items-center gap-4 p-3 rounded-sm hover:bg-background transition-colors cursor-pointer"
-                  >
-                    <div className="w-10 h-10 rounded-sm bg-accent/10 flex items-center justify-center shrink-0">
-                      <resource.icon className="w-4 h-4 text-accent" />
+      <div className="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Events list */}
+        <div className="lg:col-span-2 space-y-3">
+          {displayEvents.map(event => {
+            const cfg = typeConfig[event.type] || typeConfig.meeting;
+            return (
+              <div key={event.id} className="bg-white rounded-lg border border-gray-200 p-5 flex gap-4 group hover:shadow-sm transition-shadow">
+                <div className="text-center w-14 shrink-0">
+                  <p className="font-bold text-red-600 text-2xl leading-none">{format(new Date(event.date), 'd')}</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">{format(new Date(event.date), 'MMM')}</p>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-[#1a2744]">{event.title}</h3>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.color}`}>{cfg.label}</span>
+                      {event.id && !event.id.startsWith('e') && (
+                        <button onClick={() => deleteMutation.mutate(event.id)} className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-opacity">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
-                    <span className="font-heading text-sm text-foreground group-hover:text-accent transition-colors flex-1">
-                      {resource.title}
-                    </span>
-                    <Download className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-colors" />
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-8 p-6 bg-secondary rounded-sm">
-                <p className="font-heading text-xs tracking-[0.3em] uppercase text-accent mb-3">
-                  Meeting Info
-                </p>
-                <p className="font-heading font-semibold text-secondary-foreground">
-                  Every Monday at 7:00 PM
-                </p>
-                <p className="font-body text-sm text-secondary-foreground/60 mt-1">
-                  Community Center, Room 204
-                </p>
-                <div className="mt-4 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-accent" />
-                  <span className="font-heading text-xs text-secondary-foreground/60">
-                    September through June
-                  </span>
+                  </div>
+                  {event.location && (
+                    <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                      <MapPin className="w-3 h-3" /> {event.location}
+                    </div>
+                  )}
+                  {event.end_date && (
+                    <p className="text-xs text-gray-400 mt-0.5">Through {format(new Date(event.end_date), 'MMM d')}</p>
+                  )}
+                  {event.description && <p className="text-sm text-gray-600 mt-2">{event.description}</p>}
                 </div>
               </div>
-            </div>
+            );
+          })}
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-5">
+          {/* Meeting info */}
+          <div className="bg-[#1a2744] text-white rounded-lg p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#FFD700] mb-3">Regular Meetings</p>
+            <p className="font-bold text-lg">Every Monday</p>
+            <p className="text-white/70 text-sm">7:00 PM – 8:30 PM</p>
+            <p className="text-white/70 text-sm mt-2">Lanier United Methodist Church</p>
+            <p className="text-white/50 text-xs mt-1">Not held on school holidays</p>
+            <a href="https://maps.google.com/?q=Lanier+United+Methodist+Church+Cumming+GA" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-[#FFD700] text-sm hover:underline">
+              📍 View on Maps
+            </a>
+          </div>
+
+          {/* Resources */}
+          <div className="bg-white rounded-lg border border-gray-200 p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Resource Vault</p>
+            {resources.map(r => (
+              <div key={r} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0 hover:text-[#1a2744] cursor-pointer">
+                <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-700">{r}</span>
+              </div>
+            ))}
           </div>
         </div>
-      </section>
+      </div>
+
+      {showAdd && <AddEventModal onClose={() => setShowAdd(false)} onSave={(d) => addMutation.mutate(d)} />}
     </div>
   );
 }

@@ -23,8 +23,16 @@ export default function HeroSection() {
           Adventure, Leadership, Service | Cumming, GA
         </p>
         <p className="text-white/75 text-sm mt-1 font-medium">
-          Meets Mondays 7:00 PM at Cumming First UMC
+          Meets Mondays 7:00 PM – 8:30 PM at Lanier United Methodist Church, Cumming, GA
         </p>
+        <a
+          href="https://maps.google.com/?q=Lanier+United+Methodist+Church+Cumming+GA"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#FFD700] text-xs mt-1 inline-block hover:underline"
+        >
+          📍 View on Google Maps
+        </a>
         <Link
           to="/contact"
           className="mt-8 bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded text-base transition-colors inline-block"

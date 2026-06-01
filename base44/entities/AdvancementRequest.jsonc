@@ -1,0 +1,45 @@
+{
+  "name": "AdvancementRequest",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "scoutmaster_conference",
+        "board_of_review",
+        "blue_card"
+      ]
+    },
+    "scout_name": {
+      "type": "string"
+    },
+    "scout_email": {
+      "type": "string"
+    },
+    "rank": {
+      "type": "string",
+      "description": "For conference/BOR: rank being pursued"
+    },
+    "merit_badge": {
+      "type": "string",
+      "description": "For blue card: merit badge name"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "scheduled",
+        "completed"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "type",
+    "scout_name"
+  ]
+}

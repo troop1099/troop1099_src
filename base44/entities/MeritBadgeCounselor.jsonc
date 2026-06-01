@@ -1,0 +1,20 @@
+{
+  "name": "MeritBadgeCounselor",
+  "type": "object",
+  "properties": {
+    "badge_id": {
+      "type": "string",
+      "description": "Merit badge identifier slug"
+    },
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "badge_id",
+    "name"
+  ]
+}

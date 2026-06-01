@@ -13,6 +13,13 @@ import Events from './pages/Events';
 import Advancement from './pages/Advancement';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import EaglesNest from './pages/EaglesNest';
+import Leadership from './pages/Leadership';
+import MeritBadges from './pages/MeritBadges';
+import Gear from './pages/Gear';
+import NewScoutInfo from './pages/NewScoutInfo';
+import TroopGuidelines from './pages/TroopGuidelines';
+import LifeToEagle from './pages/LifeToEagle';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -21,31 +28,34 @@ const AuthenticatedApp = () => {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-          <span className="font-heading text-xs tracking-[0.3em] uppercase text-muted-foreground">Loading</span>
+          <div className="w-8 h-8 border-2 border-[#1a2744]/30 border-t-[#1a2744] rounded-full animate-spin" />
+          <span className="text-xs tracking-widest text-gray-500">Loading</span>
         </div>
       </div>
     );
   }
 
   if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      navigateToLogin();
-      return null;
-    }
+    if (authError.type === 'user_not_registered') return <UserNotRegisteredError />;
+    else if (authError.type === 'auth_required') { navigateToLogin(); return null; }
   }
 
   return (
     <Routes>
       <Route element={<SiteLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
         <Route path="/adventures" element={<Adventures />} />
         <Route path="/events" element={<Events />} />
         <Route path="/advancement" element={<Advancement />} />
-        <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/eagles" element={<EaglesNest />} />
+        <Route path="/leadership" element={<Leadership />} />
+        <Route path="/merit-badges" element={<MeritBadges />} />
+        <Route path="/gear" element={<Gear />} />
+        <Route path="/new-scout" element={<NewScoutInfo />} />
+        <Route path="/guidelines" element={<TroopGuidelines />} />
+        <Route path="/life-to-eagle" element={<LifeToEagle />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
