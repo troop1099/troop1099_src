@@ -42,7 +42,7 @@ export default function Events() {
   const displayEvents = events.length > 0 ? events : fallbackEvents;
 
   return (
-    <div className="pt-24 md:pt-32">
+    <div className="pt-14">
       {/* Header */}
       <section className="px-[5vw] md:px-[10vw] pb-16 md:pb-24 topo-pattern">
         <motion.div

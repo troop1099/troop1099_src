@@ -1,91 +1,82 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Calendar, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
+import { ChevronRight, Info } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
-const sampleEvents = [
-  { title: 'Weekly Troop Meeting', date: '2026-06-08', type: 'meeting', location: 'Community Center' },
-  { title: 'Summer Camp — Camp Sequoyah', date: '2026-06-15', type: 'campout', location: 'Sequoyah Scout Reservation' },
-  { title: 'Community Service Day', date: '2026-06-22', type: 'service', location: 'Riverside Park' },
-  { title: 'Night Hike & Navigation', date: '2026-07-05', type: 'hike', location: 'Appalachian Trail Spur' },
+const fallbackEvents = [
+  { id: 'e1', title: 'Troop Meeting', date: '2026-06-08', time: '7:00 PM' },
+  { id: 'e2', title: 'Fall Campout', date: '2026-06-15', time: '5:00 PM' },
+  { id: 'e3', title: 'Service Project', date: '2026-06-22', time: '9:00 AM' },
 ];
 
-const typeColors = {
-  meeting: 'bg-foreground/10 text-foreground',
-  campout: 'bg-accent/10 text-accent',
-  hike: 'bg-accent/10 text-accent',
-  service: 'bg-foreground/10 text-foreground',
-  fundraiser: 'bg-accent/10 text-accent',
-  special: 'bg-accent/10 text-accent',
-};
+const announcements = [
+  { title: 'Dues Deadline Extended', date: 'Oct 1', body: 'Annual dues deadline moved to Oct 15.', color: 'border-yellow-400 bg-yellow-50' },
+  { title: 'Summer Camp Signups', date: 'Sep 25', body: 'Deposits for Summer Camp 2024 are now being accepted.', color: 'border-yellow-400 bg-yellow-50' },
+];
 
 export default function UpcomingEvents() {
+  const { data: events } = useQuery({
+    queryKey: ['events'],
+    queryFn: () => base44.entities.Event.list('date', 5),
+    initialData: [],
+  });
+
+  const displayEvents = events.length > 0 ? events : fallbackEvents;
+
   return (
-    <section className="relative py-24 md:py-36 px-[5vw] md:px-[10vw] topo-pattern">
-      <div className="absolute top-0 right-[10vw] w-px h-24 bg-accent/20" />
-
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.7 }}
-        >
-          <p className="font-heading text-xs tracking-[0.3em] uppercase text-accent mb-4">
-            Muster Station
-          </p>
-          <h2 className="font-heading font-bold text-3xl md:text-5xl leading-tight text-foreground">
-            Upcoming Events
+    <section className="bg-white py-12 px-4">
+      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* News & Announcements */}
+        <div>
+          <h2 className="flex items-center gap-2 font-heading font-bold text-[#1a2744] text-xl mb-6">
+            <Info className="w-5 h-5 text-[#1a2744]" />
+            News &amp; Announcements
           </h2>
-        </motion.div>
-        <Link
-          to="/events"
-          className="mt-6 md:mt-0 group flex items-center gap-2 font-heading text-sm tracking-wider text-accent hover:text-accent/80 transition-colors"
-        >
-          Full Calendar
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </Link>
-      </div>
-
-      <div className="space-y-0">
-        {sampleEvents.map((event, i) => (
-          <motion.div
-            key={event.title + event.date}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-30px' }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="group border-t border-border py-6 md:py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-8 hover:bg-muted/50 -mx-6 px-6 transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-4 md:gap-6">
-              <div className="w-16 text-center shrink-0">
-                <p className="font-heading font-bold text-2xl text-foreground leading-none">
-                  {format(new Date(event.date), 'd')}
-                </p>
-                <p className="font-heading text-xs tracking-wider text-muted-foreground uppercase mt-0.5">
-                  {format(new Date(event.date), 'MMM')}
-                </p>
-              </div>
-              <div>
-                <h3 className="font-heading font-semibold text-lg text-foreground group-hover:text-accent transition-colors">
-                  {event.title}
-                </h3>
-                <div className="flex items-center gap-3 mt-1">
-                  <span className={`font-heading text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm ${typeColors[event.type]}`}>
-                    {event.type}
-                  </span>
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <MapPin className="w-3 h-3" />
-                    {event.location}
-                  </span>
+          <div className="space-y-3">
+            {announcements.map((a) => (
+              <div key={a.title} className={`border-l-4 px-4 py-3 rounded-r ${a.color}`}>
+                <div className="flex justify-between items-start">
+                  <span className="font-semibold text-[#1a2744] text-sm">{a.title}</span>
+                  <span className="text-xs text-red-600 font-semibold ml-4 shrink-0">{a.date}</span>
                 </div>
+                <p className="text-gray-600 text-xs mt-1">{a.body}</p>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Upcoming Events */}
+        <div>
+          <div className="border-l-4 border-[#1a2744] pl-4">
+            <h2 className="font-heading font-bold text-[#1a2744] text-xl mb-5">Upcoming Events</h2>
+            <div className="space-y-4">
+              {displayEvents.slice(0, 3).map((event) => (
+                <div key={event.id} className="flex items-start gap-4">
+                  <div className="text-center w-10 shrink-0">
+                    <p className="font-heading text-[10px] uppercase text-gray-500 tracking-wider">
+                      {format(new Date(event.date), 'MMM')}
+                    </p>
+                    <p className="font-heading font-bold text-[#1a2744] text-2xl leading-none">
+                      {format(new Date(event.date), 'd')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-[#1a2744] text-sm">{event.title}</p>
+                    <p className="text-gray-500 text-xs mt-0.5">{event.time || '7:00 PM'}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-accent transition-all md:group-hover:translate-x-1 hidden md:block" />
-          </motion.div>
-        ))}
-        <div className="border-t border-border" />
+            <Link
+              to="/events"
+              className="inline-flex items-center gap-1 text-[#1a2744] text-sm font-semibold mt-6 hover:text-red-600 transition-colors"
+            >
+              View Calendar <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
       </div>
     </section>
   );
