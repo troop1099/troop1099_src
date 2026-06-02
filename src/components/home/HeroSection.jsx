@@ -1,21 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const HERO_IMAGE = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/27fa56982_generated_5ff523de.png';
+const TROOP_PHOTO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/ce0b69cb3_Screenshot2026-06-01at100800PM.png';
+const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
 
 export default function HeroSection() {
   return (
-    <section className="relative w-full overflow-hidden" style={{ minHeight: '340px' }}>
+    <section className="relative w-full overflow-hidden" style={{ minHeight: '420px' }}>
       <div className="absolute inset-0">
         <img
-          src={HERO_IMAGE}
+          src={TROOP_PHOTO}
           alt="BSA Troop 1099"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-top"
         />
-        <div className="absolute inset-0 bg-[#1a2744]/65" />
+        <div className="absolute inset-0 bg-[#1a2744]/70" />
       </div>
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 py-20 md:py-28">
+        <img src={LOGO} alt="Troop 1099 Logo" className="w-24 h-24 rounded-full object-contain bg-white/10 backdrop-blur p-2 mb-4 border-2 border-[#FFD700]/50" />
         <h1 className="font-heading font-bold text-4xl md:text-5xl text-white leading-tight">
           BSA Troop 1099
         </h1>
@@ -33,12 +35,20 @@ export default function HeroSection() {
         >
           📍 View on Google Maps
         </a>
-        <Link
-          to="/contact"
-          className="mt-8 bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded text-base transition-colors inline-block"
-        >
-          Join Troop 1099
-        </Link>
+        <div className="flex flex-wrap gap-3 mt-8 justify-center">
+          <a
+            href="/dues"
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-8 py-3 rounded text-base transition-colors"
+          >
+            Join Troop 1099
+          </a>
+          <Link
+            to="/about"
+            className="bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold px-6 py-3 rounded text-base transition-colors"
+          >
+            Learn More
+          </Link>
+        </div>
       </div>
     </section>
   );

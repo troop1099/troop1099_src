@@ -15,6 +15,8 @@ const navLinks = [
 
 const moreLinks = [
   { label: 'Adventures', path: '/adventures' },
+  { label: 'Photo Gallery', path: '/photos' },
+  { label: 'Pine Straw Orders', path: '/pinestraw' },
   { label: 'New Scout Info', path: '/new-scout' },
   { label: 'Troop Guidelines', path: '/guidelines' },
   { label: 'Life to Eagle', path: '/life-to-eagle' },
@@ -33,7 +35,7 @@ export default function TacticalNav() {
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 text-white font-bold text-lg tracking-wide shrink-0">
-          <span className="text-[#FFD700] text-2xl">⚜</span>
+          <img src="https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png" alt="Troop 1099" className="w-9 h-9 rounded-full object-contain bg-white p-0.5" />
           <span>TROOP 1099</span>
         </Link>
 

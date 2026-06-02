@@ -1,0 +1,39 @@
+{
+  "name": "PinestrawOrder",
+  "type": "object",
+  "properties": {
+    "customer_name": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "bales": {
+      "type": "number",
+      "description": "Number of bales ordered"
+    },
+    "special_instructions": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "scheduled",
+        "delivered"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "customer_name",
+    "address",
+    "bales"
+  ]
+}

@@ -3,11 +3,57 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Star, Plus, X, User, ExternalLink, ChevronLeft } from 'lucide-react';
 
+// Real BSA merit badge images from meritbadge.org
+const BADGE_IMAGES = {
+  'first-aid': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/First_Aid.jpg',
+  'citizenship-community': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Citizenship_in_the_Community.jpg',
+  'citizenship-nation': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Citizenship_in_the_Nation.jpg',
+  'citizenship-world': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Citizenship_in_the_World.jpg',
+  'citizenship-society': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Citizenship_in_Society.jpg',
+  'communication': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Communications.jpg',
+  'cooking': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Cooking.jpg',
+  'personal-fitness': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Personal_Fitness.jpg',
+  'personal-management': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Personal_Management.jpg',
+  'camping': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Camping.jpg',
+  'family-life': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Family_Life.jpg',
+  'emergency-preparedness': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Emergency_Preparedness.jpg',
+  'lifesaving': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Lifesaving.jpg',
+  'environmental-science': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Environmental_Science.jpg',
+  'sustainability': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Sustainability.jpg',
+  'swimming': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Swimming.jpg',
+  'hiking': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Hiking.jpg',
+  'cycling': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Cycling.jpg',
+};
+
+// BSA official requirements pages
+const BSA_LINKS = {
+  'first-aid': 'https://www.scouting.org/merit-badges/first-aid/',
+  'citizenship-community': 'https://www.scouting.org/merit-badges/citizenship-in-the-community/',
+  'citizenship-nation': 'https://www.scouting.org/merit-badges/citizenship-in-the-nation/',
+  'citizenship-world': 'https://www.scouting.org/merit-badges/citizenship-in-the-world/',
+  'citizenship-society': 'https://www.scouting.org/merit-badges/citizenship-in-society/',
+  'communication': 'https://www.scouting.org/merit-badges/communications/',
+  'cooking': 'https://www.scouting.org/merit-badges/cooking/',
+  'personal-fitness': 'https://www.scouting.org/merit-badges/personal-fitness/',
+  'personal-management': 'https://www.scouting.org/merit-badges/personal-management/',
+  'camping': 'https://www.scouting.org/merit-badges/camping/',
+  'family-life': 'https://www.scouting.org/merit-badges/family-life/',
+  'emergency-preparedness': 'https://www.scouting.org/merit-badges/emergency-preparedness/',
+  'lifesaving': 'https://www.scouting.org/merit-badges/lifesaving/',
+  'environmental-science': 'https://www.scouting.org/merit-badges/environmental-science/',
+  'sustainability': 'https://www.scouting.org/merit-badges/sustainability/',
+  'swimming': 'https://www.scouting.org/merit-badges/swimming/',
+  'hiking': 'https://www.scouting.org/merit-badges/hiking/',
+  'cycling': 'https://www.scouting.org/merit-badges/cycling/',
+};
+
+const FALLBACK_IMG = 'https://filestore.scouting.org/filestore/merit_badge_reqandres/First_Aid.jpg';
+
 const BADGES = [
   {
     id: 'first-aid',
     name: 'First Aid',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/first_aid-1.jpg',
+    image: BADGE_IMAGES['first-aid'],
     description: 'Scouts learn to manage emergency situations and treat injuries. First Aid merit badge teaches scouts to handle everything from minor cuts and burns to serious emergencies — a fundamental skill for every Scout.',
     requirements: [
       'Demonstrate to your counselor the rescues techniques for a person who is not breathing.',
@@ -25,7 +71,7 @@ const BADGES = [
   {
     id: 'citizenship-community',
     name: 'Citizenship in the Community',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/citizenship_in_the_community.jpg',
+    image: BADGE_IMAGES['citizenship-community'],
     description: 'This merit badge helps Scouts understand and meet the responsibilities of citizenship in their community, learning how local government works and contributing to their neighborhoods.',
     requirements: [
       'Discuss the meaning of citizenship and what it means to be a good citizen in your community.',
@@ -40,7 +86,7 @@ const BADGES = [
   {
     id: 'citizenship-nation',
     name: 'Citizenship in the Nation',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/citizenship_in_the_nation.jpg',
+    image: BADGE_IMAGES['citizenship-nation'],
     description: 'Scouts learn about the U.S. government, the rights and duties of citizens, and the importance of civic involvement at the national level.',
     requirements: [
       'Explain what citizenship in the nation means and what it takes to be a good citizen.',
@@ -55,7 +101,7 @@ const BADGES = [
   {
     id: 'citizenship-world',
     name: 'Citizenship in the World',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/citizenship_in_the_world.jpg',
+    image: BADGE_IMAGES['citizenship-world'],
     description: 'Scouts explore international relations, world organizations, and what it means to be a citizen of the global community.',
     requirements: [
       'Explain what citizenship in the world means to you and how you can demonstrate good citizenship locally, nationally, and internationally.',
@@ -70,7 +116,7 @@ const BADGES = [
   {
     id: 'citizenship-society',
     name: 'Citizenship in Society',
-    image: 'https://www.scouting.org/wp-content/uploads/2021/07/citizenship-in-society.jpg',
+    image: BADGE_IMAGES['citizenship-society'],
     description: 'This badge focuses on diversity, equity, and inclusion — helping Scouts understand and respect different perspectives and identities in American society.',
     requirements: [
       'Research and define the following terms: Diversity, Equity, Inclusion, Discrimination, Bias, Stereotype, Racism.',
@@ -84,7 +130,7 @@ const BADGES = [
   {
     id: 'communication',
     name: 'Communication',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/communication.jpg',
+    image: BADGE_IMAGES['communication'],
     description: 'Scouts learn the fundamentals of effective communication — listening, writing, speaking, and presenting — skills that are vital for leadership and life.',
     requirements: [
       'Do the following: Tell a story at a Scouts BSA or family gathering. Write a short story and have it reviewed by your counselor.',
@@ -99,7 +145,7 @@ const BADGES = [
   {
     id: 'cooking',
     name: 'Cooking',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/cooking-1.jpg',
+    image: BADGE_IMAGES['cooking'],
     description: 'Scouts learn food safety, nutrition, and how to cook in various settings — from home to backcountry. Cooking merit badge fosters self-reliance and teamwork.',
     requirements: [
       'Health and safety: Explain to your counselor the most likely hazards you may encounter while participating in cooking activities.',
@@ -114,7 +160,7 @@ const BADGES = [
   {
     id: 'personal-fitness',
     name: 'Personal Fitness',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/personal_fitness-1.jpg',
+    image: BADGE_IMAGES['personal-fitness'],
     description: 'Scouts develop a personal fitness program and learn the importance of physical health, mental well-being, and making good lifestyle choices.',
     requirements: [
       'Before completing requirements 2 through 9, have a physical examination from a physician.',
@@ -129,7 +175,7 @@ const BADGES = [
   {
     id: 'personal-management',
     name: 'Personal Management',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/personal_management.jpg',
+    image: BADGE_IMAGES['personal-management'],
     description: 'Scouts learn financial literacy, goal setting, and time management — practical life skills that apply long after Scouting.',
     requirements: [
       'Do the following: Choose an item you would like to purchase. Make a list of the steps necessary to save enough money to buy it.',
@@ -144,7 +190,7 @@ const BADGES = [
   {
     id: 'camping',
     name: 'Camping',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/camping-1.jpg',
+    image: BADGE_IMAGES['camping'],
     description: 'One of the most comprehensive merit badges — Scouts learn outdoor skills, Leave No Trace principles, and campsite preparation through actual camping experience.',
     requirements: [
       'Show you know first aid for and how to prevent injuries or illnesses that could occur while camping.',
@@ -159,7 +205,7 @@ const BADGES = [
   {
     id: 'family-life',
     name: 'Family Life',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/family_life.jpg',
+    image: BADGE_IMAGES['family-life'],
     description: 'Scouts learn about the importance of strong family relationships, their role in the family, and how to contribute positively at home.',
     requirements: [
       'Prepare an outline on what a family is and how the actions of one member can affect other members.',
@@ -173,7 +219,7 @@ const BADGES = [
   {
     id: 'emergency-preparedness',
     name: 'Emergency Preparedness',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/emergency_preparedness.jpg',
+    image: BADGE_IMAGES['emergency-preparedness'],
     description: 'Scouts learn to prepare for and respond to various types of emergencies at home, in their community, and outdoors.',
     requirements: [
       'Earn the First Aid merit badge.',
@@ -188,7 +234,7 @@ const BADGES = [
   {
     id: 'lifesaving',
     name: 'Lifesaving',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/lifesaving.jpg',
+    image: BADGE_IMAGES['lifesaving'],
     description: 'Scouts learn water rescue skills, CPR, and how to respond to emergencies. Scouts must be strong swimmers before beginning this badge.',
     requirements: [
       'Earn the Swimming merit badge.',
@@ -205,7 +251,7 @@ const BADGES = [
   {
     id: 'environmental-science',
     name: 'Environmental Science',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/environmental_science.jpg',
+    image: BADGE_IMAGES['environmental-science'],
     description: 'Scouts investigate different ecosystems, human impacts on the environment, and how to protect natural resources for future generations.',
     requirements: [
       'Make a time line of the history of environmental science and explain how it relates to today.',
@@ -219,7 +265,7 @@ const BADGES = [
   {
     id: 'sustainability',
     name: 'Sustainability',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/sustainability.jpg',
+    image: BADGE_IMAGES['sustainability'],
     description: 'Scouts explore how to meet the needs of today without compromising the ability of future generations to meet their needs — across food, water, community, energy, and stuff.',
     requirements: [
       'Before beginning work on this merit badge, complete the Sustainability Merit Badge introduction.',
@@ -234,7 +280,7 @@ const BADGES = [
   {
     id: 'swimming',
     name: 'Swimming',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/swimming.jpg',
+    image: BADGE_IMAGES['swimming'],
     description: 'Scouts develop swimming skills and water safety knowledge — a prerequisite for many other water-based merit badges and outdoor activities.',
     requirements: [
       'Do the following: Explain safe-swimming rules. Explain the meaning of Safe Swim Defense.',
@@ -249,7 +295,7 @@ const BADGES = [
   {
     id: 'hiking',
     name: 'Hiking',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/hiking.jpg',
+    image: BADGE_IMAGES['hiking'],
     description: 'Scouts complete a series of increasingly longer hikes, learning trail skills, safety, first aid, and how to plan and prepare for outdoor adventures.',
     requirements: [
       'Explain to your counselor the most likely hazards you may encounter while hiking and what you should do to anticipate, help prevent, mitigate, and respond to these hazards.',
@@ -264,7 +310,7 @@ const BADGES = [
   {
     id: 'cycling',
     name: 'Cycling',
-    image: 'https://www.scouting.org/wp-content/uploads/2019/09/cycling.jpg',
+    image: BADGE_IMAGES['cycling'],
     description: 'Scouts develop cycling skills, bike safety, and fitness through a series of progressively longer rides — an alternative to the Hiking or Swimming elective.',
     requirements: [
       'Explain to your counselor the most likely hazards you may encounter while cycling and what you should do to help prevent or mitigate these hazards.',
@@ -322,9 +368,14 @@ function BadgeDetail({ badge, onBack }) {
       <div className="max-w-4xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left: image + counselors */}
         <div>
-          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-[#FFD700] mx-auto mb-4">
-            <img src={badge.image} alt={badge.name} className="w-full h-full object-cover" onError={e => e.target.src='https://www.scouting.org/wp-content/uploads/2019/09/first_aid-1.jpg'} />
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-[#FFD700] mx-auto mb-4 bg-gray-50">
+            <img src={badge.image} alt={badge.name} className="w-full h-full object-contain p-2" onError={e => e.target.src=FALLBACK_IMG} />
           </div>
+          {BSA_LINKS[badge.id] && (
+            <a href={BSA_LINKS[badge.id]} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1 text-xs text-blue-600 hover:underline mt-1 mb-2">
+              <ExternalLink className="w-3 h-3" /> Official BSA Page
+            </a>
+          )}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <p className="font-semibold text-[#1a2744] text-sm mb-3 flex items-center gap-1">
               <User className="w-4 h-4" /> Available Counselors ({counselors.length})
@@ -439,8 +490,8 @@ export default function MeritBadges() {
                 onClick={() => setSelected(badge)}
                 className="bg-white border-2 border-[#FFD700]/40 hover:border-[#FFD700] rounded-lg p-4 text-center hover:shadow-md transition-all group"
               >
-                <div className="w-16 h-16 rounded-full overflow-hidden mx-auto mb-3 border-2 border-[#FFD700]/30">
-                  <img src={badge.image} alt={badge.name} className="w-full h-full object-cover" onError={e => e.target.src='https://www.scouting.org/wp-content/uploads/2019/09/first_aid-1.jpg'} />
+                <div className="w-16 h-16 rounded-full overflow-hidden mx-auto mb-3 border-2 border-[#FFD700]/30 bg-gray-50">
+                  <img src={badge.image} alt={badge.name} className="w-full h-full object-contain p-1" onError={e => e.target.src=FALLBACK_IMG} />
                 </div>
                 <p className="font-semibold text-[#1a2744] text-xs leading-tight group-hover:text-[#1a2744]">{badge.name}</p>
                 <p className="text-gray-400 text-xs mt-1">{count} Counselor{count !== 1 ? 's' : ''}</p>

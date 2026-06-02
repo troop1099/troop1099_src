@@ -20,6 +20,9 @@ import Gear from './pages/Gear';
 import NewScoutInfo from './pages/NewScoutInfo';
 import TroopGuidelines from './pages/TroopGuidelines';
 import LifeToEagle from './pages/LifeToEagle';
+import PhotoGallery from './pages/PhotoGallery';
+import Pinestraw from './pages/Pinestraw';
+import Dues from './pages/Dues';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -56,6 +59,9 @@ const AuthenticatedApp = () => {
         <Route path="/new-scout" element={<NewScoutInfo />} />
         <Route path="/guidelines" element={<TroopGuidelines />} />
         <Route path="/life-to-eagle" element={<LifeToEagle />} />
+        <Route path="/photos" element={<PhotoGallery />} />
+        <Route path="/pinestraw" element={<Pinestraw />} />
+        <Route path="/dues" element={<Dues />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

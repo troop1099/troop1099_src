@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { MapPin, Mail, Phone, Clock, Send, ArrowRight } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { MapPin, Mail, Clock, Send, Phone, ExternalLink } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+
+const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
 
 export default function Contact() {
   const { toast } = useToast();
@@ -18,159 +16,128 @@ export default function Contact() {
       return;
     }
     setSending(true);
-    // Simulate send
     await new Promise(r => setTimeout(r, 1000));
-    toast({ title: 'Message sent!', description: 'We\'ll get back to you soon.' });
+    toast({ title: 'Message sent!', description: "We'll get back to you soon." });
     setForm({ name: '', email: '', message: '' });
     setSending(false);
   };
 
   return (
-    <div className="pt-14">
+    <div className="pt-14 min-h-screen bg-gray-50">
       {/* Header */}
-      <section className="px-[5vw] md:px-[10vw] pb-16 md:pb-24 topo-pattern">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          <p className="font-heading text-xs tracking-[0.3em] uppercase text-accent mb-4">
-            Contact
-          </p>
-          <h1 className="font-heading font-bold text-4xl md:text-6xl lg:text-7xl text-foreground leading-tight">
-            Get in Touch
-          </h1>
-          <p className="font-body text-lg text-muted-foreground mt-4 max-w-xl leading-relaxed">
-            Interested in joining Troop 1099 or have a question? We'd love to hear from you.
-          </p>
-        </motion.div>
-      </section>
+      <div className="bg-[#1a2744] text-white py-12 px-6">
+        <div className="max-w-5xl mx-auto flex items-center gap-5">
+          <img src={LOGO} alt="Troop 1099" className="w-16 h-16 rounded-full object-contain bg-white p-1.5 shrink-0 hidden sm:block" />
+          <div>
+            <h1 className="text-3xl font-bold">Contact Troop 1099</h1>
+            <p className="text-white/70 mt-1">Interested in joining or have a question? We'd love to hear from you.</p>
+          </div>
+        </div>
+      </div>
 
-      <section className="px-[5vw] md:px-[10vw] pb-24 md:pb-36">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-          {/* Contact Form */}
-          <div className="lg:col-span-7">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="font-heading text-xs tracking-wider uppercase text-muted-foreground mb-2 block">
-                    Your Name
-                  </label>
-                  <Input
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="John Smith"
-                    className="bg-background border-border font-body text-base h-12 rounded-sm"
-                  />
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* Form */}
+          <div className="lg:col-span-3">
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+              <h2 className="font-bold text-[#1a2744] text-lg mb-5">Send Us a Message</h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-gray-600 block mb-1">Your Name</label>
+                    <input
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]"
+                      value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))}
+                      placeholder="John Smith"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-gray-600 block mb-1">Email Address</label>
+                    <input
+                      type="email"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]"
+                      value={form.email} onChange={e => setForm(f => ({...f, email: e.target.value}))}
+                      placeholder="you@example.com"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <label className="font-heading text-xs tracking-wider uppercase text-muted-foreground mb-2 block">
-                    Email Address
-                  </label>
-                  <Input
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="john@example.com"
-                    className="bg-background border-border font-body text-base h-12 rounded-sm"
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">Message</label>
+                  <textarea
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744] resize-none"
+                    rows={5}
+                    value={form.message} onChange={e => setForm(f => ({...f, message: e.target.value}))}
+                    placeholder="Tell us about your interest in Troop 1099..."
                   />
                 </div>
-              </div>
-              <div>
-                <label className="font-heading text-xs tracking-wider uppercase text-muted-foreground mb-2 block">
-                  Message
-                </label>
-                <Textarea
-                  value={form.message}
-                  onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  placeholder="Tell us about your interest in Troop 1099..."
-                  rows={6}
-                  className="bg-background border-border font-body text-base rounded-sm resize-none"
-                />
-              </div>
-              <Button
-                type="submit"
-                disabled={sending}
-                className="bg-accent hover:bg-accent/90 text-accent-foreground font-heading font-semibold text-sm tracking-wider uppercase h-12 px-8 rounded-sm"
-              >
-                {sending ? 'Sending...' : 'Send Message'}
-                <Send className="w-4 h-4 ml-2" />
-              </Button>
-            </form>
+                <button
+                  type="submit"
+                  disabled={sending}
+                  className="w-full flex items-center justify-center gap-2 bg-[#1a2744] hover:bg-[#1a2744]/90 text-white py-3 rounded-lg font-semibold text-sm disabled:opacity-50 transition-colors"
+                >
+                  {sending ? 'Sending...' : <><Send className="w-4 h-4" /> Send Message</>}
+                </button>
+              </form>
+            </div>
           </div>
 
-          {/* Contact Info */}
-          <div className="lg:col-span-4 lg:col-start-9">
-            <div className="space-y-8">
-              <div>
-                <p className="font-heading text-xs tracking-[0.3em] uppercase text-accent mb-6">
-                  Contact Info
-                </p>
-                <div className="space-y-5">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-sm bg-accent/10 flex items-center justify-center shrink-0">
-                      <MapPin className="w-4 h-4 text-accent" />
-                    </div>
-                    <div>
-                      <p className="font-heading font-semibold text-sm text-foreground">Meeting Location</p>
-                      <p className="font-body text-sm text-muted-foreground mt-0.5">
-                        Community Center, Room 204
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-sm bg-accent/10 flex items-center justify-center shrink-0">
-                      <Clock className="w-4 h-4 text-accent" />
-                    </div>
-                    <div>
-                      <p className="font-heading font-semibold text-sm text-foreground">Meeting Time</p>
-                      <p className="font-body text-sm text-muted-foreground mt-0.5">
-                        Every Monday, 7:00 PM
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-sm bg-accent/10 flex items-center justify-center shrink-0">
-                      <Mail className="w-4 h-4 text-accent" />
-                    </div>
-                    <div>
-                      <p className="font-heading font-semibold text-sm text-foreground">Email</p>
-                      <p className="font-body text-sm text-muted-foreground mt-0.5">
-                        troop1099@bsa.org
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-sm bg-accent/10 flex items-center justify-center shrink-0">
-                      <Phone className="w-4 h-4 text-accent" />
-                    </div>
-                    <div>
-                      <p className="font-heading font-semibold text-sm text-foreground">Phone</p>
-                      <p className="font-body text-sm text-muted-foreground mt-0.5">
-                        (555) 109-9000
-                      </p>
-                    </div>
+          {/* Info column */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Meeting info */}
+            <div className="bg-[#1a2744] text-white rounded-xl p-5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#FFD700] mb-4">Visit a Meeting</p>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Clock className="w-4 h-4 text-[#FFD700] mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm">Every Monday</p>
+                    <p className="text-white/70 text-xs">7:00 PM – 8:30 PM</p>
+                    <p className="text-white/50 text-xs">Not held on school holidays</p>
                   </div>
                 </div>
-              </div>
-
-              <div className="bg-muted/50 rounded-sm p-6">
-                <p className="font-heading text-xs tracking-[0.3em] uppercase text-accent mb-3">
-                  Visit a Meeting
-                </p>
-                <p className="font-body text-sm text-muted-foreground leading-relaxed">
-                  The best way to learn about Troop 1099 is to attend a Monday meeting.
-                  Prospective scouts and families are always welcome — no RSVP needed.
-                </p>
-                <div className="flex items-center gap-2 mt-4 text-accent font-heading text-sm font-semibold">
-                  <span>Just show up</span>
-                  <ArrowRight className="w-4 h-4" />
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-4 h-4 text-[#FFD700] mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm">Lanier United Methodist Church</p>
+                    <p className="text-white/70 text-xs">Cumming, GA</p>
+                    <a href="https://maps.google.com/?q=Lanier+United+Methodist+Church+Cumming+GA" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[#FFD700] text-xs mt-1 hover:underline">
+                      View on Google Maps <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
+
+            {/* Contact details */}
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">Contact Info</p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-[#1a2744]/10 rounded-full flex items-center justify-center shrink-0">
+                    <Mail className="w-4 h-4 text-[#1a2744]" />
+                  </div>
+                  <p className="text-sm text-gray-700">troop1099@bsa.org</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-[#1a2744]/10 rounded-full flex items-center justify-center shrink-0">
+                    <Phone className="w-4 h-4 text-[#1a2744]" />
+                  </div>
+                  <p className="text-sm text-gray-700">(770) 555-1099</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Join CTA */}
+            <div className="bg-red-600 text-white rounded-xl p-5 text-center">
+              <p className="font-bold text-lg mb-1">Ready to Join?</p>
+              <p className="text-white/80 text-sm mb-4">Prospective scouts and families are always welcome. No RSVP needed — just show up!</p>
+              <a href="/dues" className="block bg-white text-red-600 font-bold text-sm py-2.5 rounded-lg hover:bg-red-50 transition-colors">
+                Register &amp; Pay Dues
+              </a>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

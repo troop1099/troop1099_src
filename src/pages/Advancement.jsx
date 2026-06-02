@@ -5,6 +5,16 @@ import { useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 
+const RANK_IMAGES = {
+  'Scout': 'https://filestore.scouting.org/filestore/advancement/pdf/Scout_Rank.jpg',
+  'Tenderfoot': 'https://filestore.scouting.org/filestore/advancement/pdf/Tenderfoot_Rank.jpg',
+  'Second Class': 'https://filestore.scouting.org/filestore/advancement/pdf/Second_Class_Rank.jpg',
+  'First Class': 'https://filestore.scouting.org/filestore/advancement/pdf/First_Class_Rank.jpg',
+  'Star': 'https://filestore.scouting.org/filestore/advancement/pdf/Star_Rank.jpg',
+  'Life': 'https://filestore.scouting.org/filestore/advancement/pdf/Life_Rank.jpg',
+  'Eagle': 'https://filestore.scouting.org/filestore/advancement/pdf/Eagle_Rank.jpg',
+};
+
 const ranks = [
   { name: 'Scout', color: '#8B7355', description: 'The beginning of the trail.', requirements: ['Learn the Scout Oath and Law', 'Understand the patrol method', 'Demonstrate the Scout sign, salute, and handshake', 'Tie a square knot', 'Describe and identify the BSA uniform'] },
   { name: 'Tenderfoot', color: '#6B8E23', description: 'First steps into outdoor skills, fitness, and citizenship.', requirements: ['Participate in a campout', 'Cook a meal on a campout', 'Demonstrate first aid for simple injuries', 'Complete a 1-mile hike', 'Identify local poisonous plants'] },
@@ -129,8 +139,11 @@ export default function Advancement() {
             <div className="grid grid-cols-7 gap-4">
               {ranks.map((rank, i) => (
                 <motion.button key={rank.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} onClick={() => setSelectedRank(rank)} className="group flex flex-col items-center text-center pt-4">
-                  <div className="w-16 h-16 rounded-full border-2 flex items-center justify-center mb-4 transition-all group-hover:scale-110 bg-white" style={{ borderColor: rank.color }}>
-                    <Award className="w-6 h-6" style={{ color: rank.color }} />
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all group-hover:scale-110 bg-white border-2 overflow-hidden" style={{ borderColor: rank.color }}>
+                    <img src={RANK_IMAGES[rank.name]} alt={rank.name} className="w-full h-full object-contain p-0.5" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
+                    <div style={{display:'none'}} className="w-full h-full items-center justify-center">
+                      <Award className="w-6 h-6" style={{ color: rank.color }} />
+                    </div>
                   </div>
                   <h3 className="font-semibold text-sm text-[#1a2744] group-hover:text-red-600 transition-colors">{rank.name}</h3>
                 </motion.button>
@@ -142,8 +155,8 @@ export default function Advancement() {
           <div className="md:hidden space-y-4">
             {ranks.map(rank => (
               <button key={rank.name} onClick={() => setSelectedRank(rank)} className="w-full flex items-center gap-4 bg-white rounded-lg border border-gray-200 p-4 text-left hover:border-[#1a2744] transition-colors">
-                <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0" style={{ borderColor: rank.color }}>
-                  <Award className="w-5 h-5" style={{ color: rank.color }} />
+                <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 overflow-hidden" style={{ borderColor: rank.color }}>
+                  <img src={RANK_IMAGES[rank.name]} alt={rank.name} className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; }} />
                 </div>
                 <div>
                   <p className="font-semibold text-[#1a2744]">{rank.name}</p>
@@ -164,8 +177,8 @@ export default function Advancement() {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full border-2 flex items-center justify-center" style={{ borderColor: selectedRank.color }}>
-                      <Award className="w-6 h-6" style={{ color: selectedRank.color }} />
+                    <div className="w-12 h-12 rounded-full border-2 flex items-center justify-center overflow-hidden bg-white" style={{ borderColor: selectedRank.color }}>
+                      <img src={RANK_IMAGES[selectedRank.name]} alt={selectedRank.name} className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; }} />
                     </div>
                     <div>
                       <h2 className="font-bold text-xl text-[#1a2744]">{selectedRank.name}</h2>

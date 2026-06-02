@@ -3,7 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Shield, Users, Plus, X, Pencil, Trash2 } from 'lucide-react';
 
-const ROLES = ['Scoutmaster', 'Assistant Scoutmaster', 'Committee Chair', 'Treasurer', 'Advancement Coordinator', 'Other'];
+const ADULT_ROLES = ['Scoutmaster', 'Assistant Scoutmaster', 'Committee Chair', 'Treasurer', 'Advancement Coordinator', 'Other'];
+const YOUTH_ROLES = ['Senior Patrol Leader', 'Assistant Senior Patrol Leader', 'Patrol Leader', 'Troop Guide', 'Quartermaster', 'Instructor', 'Bugler', 'Historian', 'Scribe', 'Den Chief', 'Webmaster', 'Chaplains Aide', 'Outdoor Ethics Guide'];
 
 function LeaderModal({ leader, onClose, onSave }) {
   const [form, setForm] = useState(leader || { name: '', role: 'Assistant Scoutmaster', email: '', type: 'adult', patrol: '' });
@@ -30,10 +31,13 @@ function LeaderModal({ leader, onClose, onSave }) {
             <label className="text-xs font-semibold text-gray-600 block mb-1">Role *</label>
             {form.type === 'adult' ? (
               <select className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.role} onChange={e => setForm(f => ({...f, role: e.target.value}))}>
-                {ROLES.map(r => <option key={r}>{r}</option>)}
+                {ADULT_ROLES.map(r => <option key={r}>{r}</option>)}
               </select>
             ) : (
-              <input className="w-full border border-gray-300 rounded px-3 py-2 text-sm" placeholder="e.g. Senior Patrol Leader" value={form.role} onChange={e => setForm(f => ({...f, role: e.target.value}))} />
+              <select className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.role} onChange={e => setForm(f => ({...f, role: e.target.value}))}>
+                <option value="">Select position...</option>
+                {YOUTH_ROLES.map(r => <option key={r}>{r}</option>)}
+              </select>
             )}
           </div>
           {form.type === 'youth' && (

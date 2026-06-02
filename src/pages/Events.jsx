@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Calendar, MapPin, Plus, X, Clock, Trash2 } from 'lucide-react';
+import { Plus, X, MapPin, Trash2, Settings } from 'lucide-react';
+
+const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
 
 const typeConfig = {
   meeting: { color: 'bg-gray-100 text-gray-600', label: 'Meeting' },
@@ -13,13 +15,11 @@ const typeConfig = {
   special: { color: 'bg-red-100 text-red-700', label: 'Special' },
 };
 
-const resources = [
-  'Permission Slip (General)',
-  'Medical Form A & B',
-  'Summer Camp Gear List',
-  'Camping Gear Checklist',
-  'Parent Handbook',
-];
+// TROOP: Paste your Google Calendar embed src URL below.
+// 1. Open Google Calendar → gear icon → Settings
+// 2. Click your calendar → "Integrate calendar"
+// 3. Copy the "Embed code" src URL and paste it below.
+const GOOGLE_CALENDAR_SRC = 'https://calendar.google.com/calendar/embed?src=YOUR_CALENDAR_ID%40group.calendar.google.com&ctz=America%2FNew_York&showNav=1&showTitle=0&showPrint=0&height=600';
 
 function AddEventModal({ onClose, onSave }) {
   const [form, setForm] = useState({ title: '', date: '', end_date: '', location: '', type: 'meeting', description: '' });
@@ -69,14 +69,11 @@ function AddEventModal({ onClose, onSave }) {
   );
 }
 
-const fallbackEvents = [
-  { id: 'e1', title: 'Weekly Troop Meeting', date: '2026-06-08', type: 'meeting', location: 'Lanier UMC', description: 'Regular troop meeting with skill-building activities and patrol time.' },
-  { id: 'e2', title: 'Summer Camp — Camp Sequoyah', date: '2026-06-15', end_date: '2026-06-21', type: 'campout', location: 'Sequoyah Scout Reservation', description: 'Week-long summer camp with merit badge classes, swimming, and more.' },
-  { id: 'e3', title: 'Community Service Day', date: '2026-06-22', type: 'service', location: 'Riverside Park', description: 'Trail maintenance and park cleanup.' },
-];
+const isPlaceholderCalendar = GOOGLE_CALENDAR_SRC.includes('YOUR_CALENDAR_ID');
 
 export default function Events() {
   const [showAdd, setShowAdd] = useState(false);
+  const [tab, setTab] = useState(isPlaceholderCalendar ? 'list' : 'calendar');
   const queryClient = useQueryClient();
 
   const { data: events = [] } = useQuery({
@@ -94,16 +91,17 @@ export default function Events() {
     onSuccess: () => queryClient.invalidateQueries(['events'])
   });
 
-  const displayEvents = events.length > 0 ? events : fallbackEvents;
-
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-[#1a2744] text-white py-10 px-6">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Troop Calendar</h1>
-            <p className="text-white/70 mt-1">Upcoming events and activities.</p>
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <img src={LOGO} alt="Troop 1099" className="w-12 h-12 rounded-full object-contain bg-white p-1 hidden sm:block" />
+            <div>
+              <h1 className="text-3xl font-bold">Troop Calendar</h1>
+              <p className="text-white/70 mt-1">Upcoming events and activities for Troop 1099.</p>
+            </div>
           </div>
           <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold text-sm">
             <Plus className="w-4 h-4" /> Add Event
@@ -111,69 +109,102 @@ export default function Events() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Events list */}
-        <div className="lg:col-span-2 space-y-3">
-          {displayEvents.map(event => {
-            const cfg = typeConfig[event.type] || typeConfig.meeting;
-            return (
-              <div key={event.id} className="bg-white rounded-lg border border-gray-200 p-5 flex gap-4 group hover:shadow-sm transition-shadow">
-                <div className="text-center w-14 shrink-0">
-                  <p className="font-bold text-red-600 text-2xl leading-none">{format(new Date(event.date), 'd')}</p>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">{format(new Date(event.date), 'MMM')}</p>
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6">
+          <button onClick={() => setTab('calendar')} className={`px-4 py-2 rounded font-semibold text-sm ${tab === 'calendar' ? 'bg-[#1a2744] text-white' : 'bg-white border border-gray-300 text-gray-600'}`}>
+            📅 Google Calendar
+          </button>
+          <button onClick={() => setTab('list')} className={`px-4 py-2 rounded font-semibold text-sm ${tab === 'list' ? 'bg-[#1a2744] text-white' : 'bg-white border border-gray-300 text-gray-600'}`}>
+            📋 Event List
+          </button>
+        </div>
+
+        {tab === 'calendar' && (
+          <div>
+            {isPlaceholderCalendar ? (
+              <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-10 text-center">
+                <Settings className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <h3 className="font-bold text-[#1a2744] text-lg mb-2">Connect Your Google Calendar</h3>
+                <p className="text-gray-500 text-sm max-w-lg mx-auto mb-4">
+                  To embed the troop's Google Calendar here:
+                </p>
+                <ol className="text-left text-sm text-gray-600 max-w-sm mx-auto space-y-2 mb-6">
+                  <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">1</span> Open Google Calendar on desktop</li>
+                  <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">2</span> Click the gear icon → Settings</li>
+                  <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">3</span> Select your troop calendar → "Integrate calendar"</li>
+                  <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">4</span> Copy the Calendar ID (ends in @group.calendar.google.com)</li>
+                  <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">5</span> In Events.jsx, replace <code className="bg-gray-100 px-1 rounded">YOUR_CALENDAR_ID</code> with your Calendar ID</li>
+                </ol>
+                <p className="text-xs text-gray-400">Until then, use the Event List tab to add and view events.</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+                <iframe
+                  src={GOOGLE_CALENDAR_SRC}
+                  style={{ border: 0 }}
+                  width="100%"
+                  height="650"
+                  frameBorder="0"
+                  scrolling="no"
+                  title="Troop 1099 Calendar"
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'list' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-3">
+              {events.length === 0 && (
+                <div className="text-center py-16 text-gray-400">
+                  <p>No events added yet. Click "Add Event" to get started.</p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold text-[#1a2744]">{event.title}</h3>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.color}`}>{cfg.label}</span>
-                      {event.id && !event.id.startsWith('e') && (
-                        <button onClick={() => deleteMutation.mutate(event.id)} className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-opacity">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+              )}
+              {events.map(event => {
+                const cfg = typeConfig[event.type] || typeConfig.meeting;
+                return (
+                  <div key={event.id} className="bg-white rounded-lg border border-gray-200 p-5 flex gap-4 group hover:shadow-sm transition-shadow">
+                    <div className="text-center w-14 shrink-0">
+                      <p className="font-bold text-red-600 text-2xl leading-none">{format(new Date(event.date), 'd')}</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wider">{format(new Date(event.date), 'MMM')}</p>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-semibold text-[#1a2744]">{event.title}</h3>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.color}`}>{cfg.label}</span>
+                          <button onClick={() => deleteMutation.mutate(event.id)} className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-opacity">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      {event.location && (
+                        <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                          <MapPin className="w-3 h-3" /> {event.location}
+                        </div>
                       )}
+                      {event.description && <p className="text-sm text-gray-600 mt-2">{event.description}</p>}
                     </div>
                   </div>
-                  {event.location && (
-                    <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
-                      <MapPin className="w-3 h-3" /> {event.location}
-                    </div>
-                  )}
-                  {event.end_date && (
-                    <p className="text-xs text-gray-400 mt-0.5">Through {format(new Date(event.end_date), 'MMM d')}</p>
-                  )}
-                  {event.description && <p className="text-sm text-gray-600 mt-2">{event.description}</p>}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                );
+              })}
+            </div>
 
-        {/* Sidebar */}
-        <div className="space-y-5">
-          {/* Meeting info */}
-          <div className="bg-[#1a2744] text-white rounded-lg p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#FFD700] mb-3">Regular Meetings</p>
-            <p className="font-bold text-lg">Every Monday</p>
-            <p className="text-white/70 text-sm">7:00 PM – 8:30 PM</p>
-            <p className="text-white/70 text-sm mt-2">Lanier United Methodist Church</p>
-            <p className="text-white/50 text-xs mt-1">Not held on school holidays</p>
-            <a href="https://maps.google.com/?q=Lanier+United+Methodist+Church+Cumming+GA" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-[#FFD700] text-sm hover:underline">
-              📍 View on Maps
-            </a>
-          </div>
-
-          {/* Resources */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Resource Vault</p>
-            {resources.map(r => (
-              <div key={r} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0 hover:text-[#1a2744] cursor-pointer">
-                <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
-                <span className="text-sm text-gray-700">{r}</span>
+            {/* Sidebar */}
+            <div>
+              <div className="bg-[#1a2744] text-white rounded-lg p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#FFD700] mb-3">Regular Meetings</p>
+                <p className="font-bold text-lg">Every Monday</p>
+                <p className="text-white/70 text-sm">7:00 PM – 8:30 PM</p>
+                <p className="text-white/70 text-sm mt-2">Lanier United Methodist Church</p>
+                <p className="text-white/50 text-xs mt-1">Not held on school holidays</p>
+                <a href="https://maps.google.com/?q=Lanier+United+Methodist+Church+Cumming+GA" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-[#FFD700] text-sm hover:underline">📍 View on Maps</a>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {showAdd && <AddEventModal onClose={() => setShowAdd(false)} onSave={(d) => addMutation.mutate(d)} />}
