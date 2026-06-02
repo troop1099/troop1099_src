@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 const TROOP_PHOTO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/ce0b69cb3_Screenshot2026-06-01at100800PM.png';
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
+const BSA_LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/6bb3dd785_Screenshot2026-06-01at102718PM.png';
 
 export default function HeroSection() {
   return (
@@ -17,7 +18,10 @@ export default function HeroSection() {
       </div>
 
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 py-20 md:py-28">
-        <img src={LOGO} alt="Troop 1099 Logo" className="w-24 h-24 rounded-full object-contain bg-white/10 backdrop-blur p-2 mb-4 border-2 border-[#FFD700]/50" />
+        <div className="flex flex-col items-center mb-4 gap-3">
+          <img src={LOGO} alt="Troop 1099 Logo" className="w-20 h-20 rounded-full object-contain bg-white/10 backdrop-blur p-2 border-2 border-[#FFD700]/50" />
+          <img src={BSA_LOGO} alt="Boy Scouts of America Troop 1099 Cumming GA" className="h-14 object-contain drop-shadow-lg" />
+        </div>
         <h1 className="font-heading font-bold text-4xl md:text-5xl text-white leading-tight">
           BSA Troop 1099
         </h1>

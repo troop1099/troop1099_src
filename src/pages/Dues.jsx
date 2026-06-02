@@ -1,48 +1,139 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle, ExternalLink } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { base44 } from '@/api/base44Client';
 
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
+const BSA_LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/6bb3dd785_Screenshot2026-06-01at102718PM.png';
+
+const PAYMENT_OPTIONS = [
+  { label: 'Annual Dues', amount: '$139.00 USD' },
+  { label: 'Summer Camp', amount: '$375.00 USD' },
+  { label: 'New Scout Registration', amount: '$65.00 USD' },
+];
 
 const included = [
   'BSA Annual Membership Registration',
-  'Boys\' Life Magazine subscription',
+  "Boys' Life Magazine subscription",
   'Troop operations and equipment',
   'Patches and court of honor recognition',
   'Thanksgiving outing (partial)',
 ];
 
-const costs = [
-  { label: 'Annual Dues (Current Scout)', amount: '$125', note: 'Due by end of January each year' },
-  { label: 'Crossover from Cub Scouts', amount: '$65', note: 'BSA membership already paid by pack' },
-  { label: 'New Scout (no prior troop)', amount: '$65 + pro-rated BSA dues', note: '$5/month for remaining months' },
-];
-
 export default function Dues() {
+  const { toast } = useToast();
+  const [selected, setSelected] = useState(PAYMENT_OPTIONS[0].label);
+  const [scoutName, setScoutName] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handlePay = async () => {
+    if (!scoutName.trim()) {
+      toast({ title: 'Please enter the scout name', variant: 'destructive' });
+      return;
+    }
+    setSubmitting(true);
+    // Send notification email to troop treasurer
+    await base44.integrations.Core.SendEmail({
+      to: 'troop1099@bsa.org',
+      subject: `Payment Request: ${selected} — ${scoutName}`,
+      body: `A payment request has been submitted:\n\nScout Name: ${scoutName}\nPayment Type: ${selected}\nAmount: ${PAYMENT_OPTIONS.find(o => o.label === selected)?.amount}\n\nPlease follow up to collect payment.`,
+    });
+    setSubmitting(false);
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <div className="pt-14 min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-10 max-w-md w-full text-center shadow-sm">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-green-600" />
+          </div>
+          <h2 className="text-xl font-bold text-[#1a2744] mb-2">Request Submitted!</h2>
+          <p className="text-gray-600 text-sm mb-6">
+            Your payment request for <strong>{scoutName}</strong> ({selected}) has been sent to the troop treasurer. They will follow up with payment instructions.
+          </p>
+          <button onClick={() => { setSubmitted(false); setScoutName(''); }} className="text-sm text-[#1a2744] underline">Submit another payment</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-[#1a2744] text-white py-12 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <img src={LOGO} alt="Troop 1099" className="w-20 h-20 mx-auto mb-4 rounded-full bg-white p-2 object-contain" />
-          <h1 className="text-3xl font-bold">Join Troop 1099</h1>
-          <p className="text-white/70 mt-2 max-w-lg mx-auto">We're excited to welcome you to the troop! Pay dues below to complete registration.</p>
+          <img src={BSA_LOGO} alt="Boy Scouts of America Troop 1099" className="h-14 object-contain mx-auto mb-4 drop-shadow" />
+          <h1 className="text-3xl font-bold">Troop 1099 Payments</h1>
+          <p className="text-white/70 mt-2 max-w-lg mx-auto">
+            Make your Annual Dues and Summer Camp payment below. Choose the appropriate option. If you have more than one scout, you will need to submit multiple times.
+          </p>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
 
+        {/* Pay Form */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <h2 className="font-bold text-[#1a2744] text-xl mb-5">Troop All Payments</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-semibold text-gray-700 block mb-1">Payment Type</label>
+              <select
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]"
+                value={selected}
+                onChange={e => setSelected(e.target.value)}
+              >
+                {PAYMENT_OPTIONS.map(o => (
+                  <option key={o.label} value={o.label}>{o.label} — {o.amount}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-gray-700 block mb-1">Scout Name</label>
+              <input
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]"
+                placeholder="Enter scout's full name"
+                value={scoutName}
+                onChange={e => setScoutName(e.target.value)}
+              />
+            </div>
+            <div className="bg-[#1a2744]/5 rounded-lg p-4 flex items-center justify-between">
+              <span className="text-sm text-gray-600">Amount Due:</span>
+              <span className="font-bold text-[#1a2744] text-lg">{PAYMENT_OPTIONS.find(o => o.label === selected)?.amount}</span>
+            </div>
+            <button
+              onClick={handlePay}
+              disabled={submitting}
+              className="w-full bg-[#FFD700] hover:bg-yellow-400 text-[#1a2744] font-bold py-3 rounded-lg text-base transition-colors disabled:opacity-50"
+            >
+              {submitting ? 'Submitting...' : 'Pay Now'}
+            </button>
+            <p className="text-xs text-gray-400 text-center">
+              Submitting this form notifies the troop treasurer. Payment may be made by check at a Monday meeting or via Venmo/PayPal as directed by the treasurer.
+            </p>
+          </div>
+        </div>
+
         {/* Fee Schedule */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <h2 className="font-bold text-[#1a2744] text-xl mb-4">Annual Dues Schedule</h2>
+          <h2 className="font-bold text-[#1a2744] text-lg mb-4">Fee Schedule</h2>
           <div className="space-y-3">
-            {costs.map(c => (
-              <div key={c.label} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            {[
+              { label: 'Annual Dues (Current Scout)', amount: '$139', note: 'Due by end of January each year' },
+              { label: 'Summer Camp', amount: '$375', note: 'Usually early–mid June' },
+              { label: 'New Scout / Crossover', amount: '$65', note: 'BSA membership already paid by pack' },
+              { label: 'Normal Outing Fee', amount: '$30–$80', note: 'Food/campsite + activity fee' },
+            ].map(c => (
+              <div key={c.label} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
                   <p className="font-semibold text-[#1a2744] text-sm">{c.label}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{c.note}</p>
                 </div>
-                <span className="font-bold text-[#1a2744] text-lg shrink-0 ml-4">{c.amount}</span>
+                <span className="font-bold text-[#1a2744] shrink-0 ml-4">{c.amount}</span>
               </div>
             ))}
           </div>
@@ -50,7 +141,7 @@ export default function Dues() {
 
         {/* What's Included */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <h2 className="font-bold text-[#1a2744] text-lg mb-3">What's Included</h2>
+          <h2 className="font-bold text-[#1a2744] text-lg mb-3">Annual Dues Include</h2>
           <div className="space-y-2">
             {included.map(item => (
               <div key={item} className="flex items-center gap-3">
@@ -60,30 +151,6 @@ export default function Dues() {
             ))}
           </div>
           <p className="text-xs text-gray-400 mt-4">* Outing fees and summer camp are paid separately per event.</p>
-        </div>
-
-        {/* Payment options */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <h2 className="font-bold text-[#1a2744] text-lg mb-4">Pay Your Dues</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Check */}
-            <div className="border-2 border-dashed border-gray-200 rounded-xl p-5 text-center">
-              <div className="text-3xl mb-2">✉️</div>
-              <p className="font-semibold text-[#1a2744]">Pay by Check</p>
-              <p className="text-gray-500 text-sm mt-2">Make checks payable to <strong>BSA Troop 1099</strong></p>
-              <p className="text-gray-500 text-sm mt-1">Bring to the Scoutmaster at any Monday meeting.</p>
-            </div>
-
-            {/* Online / Contact */}
-            <div className="border-2 border-dashed border-gray-200 rounded-xl p-5 text-center">
-              <div className="text-3xl mb-2">📧</div>
-              <p className="font-semibold text-[#1a2744]">Questions?</p>
-              <p className="text-gray-500 text-sm mt-2">Contact the Scoutmaster or Treasurer to arrange payment or ask about financial assistance.</p>
-              <Link to="/contact" className="inline-flex items-center gap-1 mt-3 text-blue-600 text-sm hover:underline">
-                Contact Us <ExternalLink className="w-3 h-3" />
-              </Link>
-            </div>
-          </div>
         </div>
 
         {/* Scholarships */}

@@ -1,19 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, Award, User, Users, FileText } from 'lucide-react';
+import { X, ChevronRight, Award, User, Users, FileText, Upload } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 
-const RANK_IMAGES = {
-  'Scout': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Scout_BSA_rank_insignia.png/120px-Scout_BSA_rank_insignia.png',
-  'Tenderfoot': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Tenderfoot_BSA_rank_insignia.png/120px-Tenderfoot_BSA_rank_insignia.png',
-  'Second Class': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Second_Class_BSA_rank_insignia.png/120px-Second_Class_BSA_rank_insignia.png',
-  'First Class': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/First_Class_BSA_rank_insignia.png/120px-First_Class_BSA_rank_insignia.png',
-  'Star': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Star_BSA_rank_insignia.png/120px-Star_BSA_rank_insignia.png',
-  'Life': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Life_BSA_rank_insignia.png/120px-Life_BSA_rank_insignia.png',
-  'Eagle': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Eagle_Scout_BSA_rank_insignia.png/120px-Eagle_Scout_BSA_rank_insignia.png',
-};
+function useRankImage(rankName) {
+  const key = `rank_img_${rankName.replace(' ', '_')}`;
+  const [img, setImg] = useState(() => localStorage.getItem(key) || null);
+  const upload = async (file) => {
+    const res = await base44.integrations.Core.UploadFile({ file });
+    localStorage.setItem(key, res.file_url);
+    setImg(res.file_url);
+  };
+  return [img, upload];
+}
+
+function RankCircle({ rank, size = 'lg', onClick }) {
+  const [img, uploadImg] = useRankImage(rank.name);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef();
+
+  const handleUpload = async (e) => {
+    e.stopPropagation();
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    await uploadImg(file);
+    setUploading(false);
+  };
+
+  const isLg = size === 'lg';
+  const dim = isLg ? 'w-16 h-16' : 'w-10 h-10';
+
+  return (
+    <div className="relative group" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div
+        className={`${dim} rounded-full border-2 flex items-center justify-center overflow-hidden bg-white cursor-pointer transition-all group-hover:scale-110`}
+        style={{ borderColor: rank.color }}
+        onClick={onClick}
+      >
+        {img ? (
+          <img src={img} alt={rank.name} className="w-full h-full object-contain" />
+        ) : (
+          <Award className={isLg ? 'w-6 h-6' : 'w-5 h-5'} style={{ color: rank.color }} />
+        )}
+      </div>
+      <button
+        className="absolute -bottom-1 -right-1 w-5 h-5 bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+        onClick={(e) => { e.stopPropagation(); fileRef.current.click(); }}
+        title="Upload rank image"
+      >
+        <Upload className="w-3 h-3 text-white" />
+      </button>
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+    </div>
+  );
+}
+
 
 const ranks = [
   { name: 'Scout', color: '#8B7355', description: 'The beginning of the trail.', requirements: ['Learn the Scout Oath and Law', 'Understand the patrol method', 'Demonstrate the Scout sign, salute, and handshake', 'Tie a square knot', 'Describe and identify the BSA uniform'] },
@@ -138,15 +182,10 @@ export default function Advancement() {
             <div className="absolute top-12 left-0 right-0 h-px bg-gray-200" />
             <div className="grid grid-cols-7 gap-4">
               {ranks.map((rank, i) => (
-                <motion.button key={rank.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} onClick={() => setSelectedRank(rank)} className="group flex flex-col items-center text-center pt-4">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all group-hover:scale-110 bg-white border-2 overflow-hidden" style={{ borderColor: rank.color }}>
-                    <img src={RANK_IMAGES[rank.name]} alt={rank.name} className="w-full h-full object-contain p-0.5" onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
-                    <div style={{display:'none'}} className="w-full h-full items-center justify-center">
-                      <Award className="w-6 h-6" style={{ color: rank.color }} />
-                    </div>
-                  </div>
-                  <h3 className="font-semibold text-sm text-[#1a2744] group-hover:text-red-600 transition-colors">{rank.name}</h3>
-                </motion.button>
+                <motion.div key={rank.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="flex flex-col items-center text-center pt-4">
+                  <RankCircle rank={rank} size="lg" onClick={() => setSelectedRank(rank)} />
+                  <h3 className="font-semibold text-sm text-[#1a2744] mt-4 hover:text-red-600 transition-colors cursor-pointer" onClick={() => setSelectedRank(rank)}>{rank.name}</h3>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -154,16 +193,14 @@ export default function Advancement() {
           {/* Mobile */}
           <div className="md:hidden space-y-4">
             {ranks.map(rank => (
-              <button key={rank.name} onClick={() => setSelectedRank(rank)} className="w-full flex items-center gap-4 bg-white rounded-lg border border-gray-200 p-4 text-left hover:border-[#1a2744] transition-colors">
-                <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 overflow-hidden" style={{ borderColor: rank.color }}>
-                  <img src={RANK_IMAGES[rank.name]} alt={rank.name} className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; }} />
-                </div>
-                <div>
+              <div key={rank.name} className="w-full flex items-center gap-4 bg-white rounded-lg border border-gray-200 p-4 text-left hover:border-[#1a2744] transition-colors">
+                <RankCircle rank={rank} size="sm" onClick={() => setSelectedRank(rank)} />
+                <button className="flex-1 text-left" onClick={() => setSelectedRank(rank)}>
                   <p className="font-semibold text-[#1a2744]">{rank.name}</p>
                   <p className="text-xs text-gray-500">{rank.description}</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-gray-400 ml-auto shrink-0" />
-              </button>
+                </button>
+                <ChevronRight className="w-4 h-4 text-gray-400 ml-auto shrink-0 cursor-pointer" onClick={() => setSelectedRank(rank)} />
+              </div>
             ))}
           </div>
         </div>
@@ -177,9 +214,7 @@ export default function Advancement() {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full border-2 flex items-center justify-center overflow-hidden bg-white" style={{ borderColor: selectedRank.color }}>
-                      <img src={RANK_IMAGES[selectedRank.name]} alt={selectedRank.name} className="w-full h-full object-contain" onError={e => { e.target.style.display='none'; }} />
-                    </div>
+                    <RankCircle rank={selectedRank} size="sm" onClick={() => {}} />
                     <div>
                       <h2 className="font-bold text-xl text-[#1a2744]">{selectedRank.name}</h2>
                       <p className="text-sm text-gray-500">{selectedRank.description}</p>
