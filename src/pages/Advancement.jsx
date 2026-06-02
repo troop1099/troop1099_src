@@ -6,13 +6,13 @@ import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 
 const RANK_IMAGES = {
-  'Scout': 'https://filestore.scouting.org/filestore/advancement/pdf/Scout_Rank.jpg',
-  'Tenderfoot': 'https://filestore.scouting.org/filestore/advancement/pdf/Tenderfoot_Rank.jpg',
-  'Second Class': 'https://filestore.scouting.org/filestore/advancement/pdf/Second_Class_Rank.jpg',
-  'First Class': 'https://filestore.scouting.org/filestore/advancement/pdf/First_Class_Rank.jpg',
-  'Star': 'https://filestore.scouting.org/filestore/advancement/pdf/Star_Rank.jpg',
-  'Life': 'https://filestore.scouting.org/filestore/advancement/pdf/Life_Rank.jpg',
-  'Eagle': 'https://filestore.scouting.org/filestore/advancement/pdf/Eagle_Rank.jpg',
+  'Scout': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Scout_BSA_rank_insignia.png/120px-Scout_BSA_rank_insignia.png',
+  'Tenderfoot': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Tenderfoot_BSA_rank_insignia.png/120px-Tenderfoot_BSA_rank_insignia.png',
+  'Second Class': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Second_Class_BSA_rank_insignia.png/120px-Second_Class_BSA_rank_insignia.png',
+  'First Class': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/First_Class_BSA_rank_insignia.png/120px-First_Class_BSA_rank_insignia.png',
+  'Star': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Star_BSA_rank_insignia.png/120px-Star_BSA_rank_insignia.png',
+  'Life': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Life_BSA_rank_insignia.png/120px-Life_BSA_rank_insignia.png',
+  'Eagle': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Eagle_Scout_BSA_rank_insignia.png/120px-Eagle_Scout_BSA_rank_insignia.png',
 };
 
 const ranks = [

@@ -3,26 +3,26 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Star, Plus, X, User, ExternalLink, ChevronLeft } from 'lucide-react';
 
-// Real BSA merit badge images from meritbadge.org
+// Merit badge images using meritbadge.org emblem images
 const BADGE_IMAGES = {
-  'first-aid': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/First_Aid.jpg',
-  'citizenship-community': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Citizenship_in_the_Community.jpg',
-  'citizenship-nation': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Citizenship_in_the_Nation.jpg',
-  'citizenship-world': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Citizenship_in_the_World.jpg',
-  'citizenship-society': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Citizenship_in_Society.jpg',
-  'communication': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Communications.jpg',
-  'cooking': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Cooking.jpg',
-  'personal-fitness': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Personal_Fitness.jpg',
-  'personal-management': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Personal_Management.jpg',
-  'camping': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Camping.jpg',
-  'family-life': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Family_Life.jpg',
-  'emergency-preparedness': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Emergency_Preparedness.jpg',
-  'lifesaving': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Lifesaving.jpg',
-  'environmental-science': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Environmental_Science.jpg',
-  'sustainability': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Sustainability.jpg',
-  'swimming': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Swimming.jpg',
-  'hiking': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Hiking.jpg',
-  'cycling': 'https://filestore.scouting.org/filestore/merit_badge_reqandres/Cycling.jpg',
+  'first-aid': 'https://www.scouting.org/wp-content/uploads/2019/09/first_aid-1.jpg',
+  'citizenship-community': 'https://www.scouting.org/wp-content/uploads/2019/09/citizenship_in_the_community.jpg',
+  'citizenship-nation': 'https://www.scouting.org/wp-content/uploads/2019/09/citizenship_in_the_nation.jpg',
+  'citizenship-world': 'https://www.scouting.org/wp-content/uploads/2019/09/citizenship_in_the_world.jpg',
+  'citizenship-society': 'https://www.scouting.org/wp-content/uploads/2021/07/citizenship-in-society.jpg',
+  'communication': 'https://www.scouting.org/wp-content/uploads/2019/09/communication.jpg',
+  'cooking': 'https://www.scouting.org/wp-content/uploads/2019/09/cooking-1.jpg',
+  'personal-fitness': 'https://www.scouting.org/wp-content/uploads/2019/09/personal_fitness-1.jpg',
+  'personal-management': 'https://www.scouting.org/wp-content/uploads/2019/09/personal_management.jpg',
+  'camping': 'https://www.scouting.org/wp-content/uploads/2019/09/camping-1.jpg',
+  'family-life': 'https://www.scouting.org/wp-content/uploads/2019/09/family_life.jpg',
+  'emergency-preparedness': 'https://www.scouting.org/wp-content/uploads/2019/09/emergency_preparedness.jpg',
+  'lifesaving': 'https://www.scouting.org/wp-content/uploads/2019/09/lifesaving.jpg',
+  'environmental-science': 'https://www.scouting.org/wp-content/uploads/2019/09/environmental_science.jpg',
+  'sustainability': 'https://www.scouting.org/wp-content/uploads/2019/09/sustainability.jpg',
+  'swimming': 'https://www.scouting.org/wp-content/uploads/2019/09/swimming.jpg',
+  'hiking': 'https://www.scouting.org/wp-content/uploads/2019/09/hiking.jpg',
+  'cycling': 'https://www.scouting.org/wp-content/uploads/2019/09/cycling.jpg',
 };
 
 // BSA official requirements pages
@@ -47,7 +47,7 @@ const BSA_LINKS = {
   'cycling': 'https://www.scouting.org/merit-badges/cycling/',
 };
 
-const FALLBACK_IMG = 'https://filestore.scouting.org/filestore/merit_badge_reqandres/First_Aid.jpg';
+const FALLBACK_IMG = 'https://www.scouting.org/wp-content/uploads/2019/09/first_aid-1.jpg';
 
 const BADGES = [
   {
@@ -324,7 +324,7 @@ const BADGES = [
   },
 ];
 
-function CounselorModal({ badge, onClose }) {
+function CounselorForm({ badge }) {
   const [form, setForm] = useState({ name: '', email: '' });
   const queryClient = useQueryClient();
   const addMutation = useMutation({
@@ -334,10 +334,16 @@ function CounselorModal({ badge, onClose }) {
   return (
     <div className="border-t border-gray-200 mt-4 pt-4">
       <p className="text-sm font-semibold text-[#1a2744] mb-2">Add Yourself as Counselor</p>
-      <div className="flex flex-col sm:flex-row gap-2">
-        <input placeholder="Your name" className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm" value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} />
-        <input placeholder="Email (optional)" className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm" value={form.email} onChange={e => setForm(f => ({...f, email: e.target.value}))} />
-        <button onClick={() => addMutation.mutate(form)} disabled={!form.name} className="bg-[#1a2744] text-white px-4 py-2 rounded text-sm font-semibold disabled:opacity-50">Add</button>
+      <div className="flex flex-col gap-2">
+        <input placeholder="Your name" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} />
+        <input placeholder="Email (optional)" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.email} onChange={e => setForm(f => ({...f, email: e.target.value}))} />
+        <button
+          onClick={() => addMutation.mutate(form)}
+          disabled={!form.name || addMutation.isPending}
+          className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-semibold disabled:opacity-50 transition-colors"
+        >
+          {addMutation.isPending ? 'Adding...' : 'Add as Counselor'}
+        </button>
       </div>
     </div>
   );
@@ -390,7 +396,7 @@ function BadgeDetail({ badge, onBack }) {
                 <button onClick={() => deleteMutation.mutate(c.id)} className="text-gray-300 hover:text-red-500"><X className="w-4 h-4" /></button>
               </div>
             ))}
-            <CounselorModal badge={badge} />
+            <CounselorForm badge={badge} />
           </div>
         </div>
 
