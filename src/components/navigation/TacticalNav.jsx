@@ -20,6 +20,7 @@ const moreLinks = [
   { label: 'New Scout Info', path: '/new-scout' },
   { label: 'Troop Guidelines', path: '/guidelines' },
   { label: 'Life to Eagle', path: '/life-to-eagle' },
+  { label: 'Gear Checkout', path: '/gear-checkout' },
   { label: 'Contact', path: '/contact' },
 ];
 

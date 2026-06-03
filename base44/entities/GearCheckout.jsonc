@@ -1,0 +1,51 @@
+{
+  "name": "GearCheckout",
+  "type": "object",
+  "properties": {
+    "scout_name": {
+      "type": "string",
+      "description": "Name of the scout checking out gear"
+    },
+    "scout_email": {
+      "type": "string",
+      "description": "Email of the scout"
+    },
+    "gear_item": {
+      "type": "string",
+      "description": "Name of the gear item checked out"
+    },
+    "tent_number": {
+      "type": "string",
+      "description": "Tent number if gear is a troop tent"
+    },
+    "checkout_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date gear was checked out"
+    },
+    "checkin_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date gear was returned"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "checked_out",
+        "returned"
+      ],
+      "default": "checked_out",
+      "description": "Current status of the gear"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Any notes about condition or return"
+    }
+  },
+  "required": [
+    "scout_name",
+    "scout_email",
+    "gear_item",
+    "checkout_date"
+  ]
+}

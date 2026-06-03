@@ -23,6 +23,7 @@ import LifeToEagle from './pages/LifeToEagle';
 import PhotoGallery from './pages/PhotoGallery';
 import Pinestraw from './pages/Pinestraw';
 import Dues from './pages/Dues';
+import GearCheckout from './pages/GearCheckout';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -62,6 +63,7 @@ const AuthenticatedApp = () => {
         <Route path="/photos" element={<PhotoGallery />} />
         <Route path="/pinestraw" element={<Pinestraw />} />
         <Route path="/dues" element={<Dues />} />
+        <Route path="/gear-checkout" element={<GearCheckout />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
