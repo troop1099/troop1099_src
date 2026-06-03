@@ -20,10 +20,15 @@ const moreLinks = [
   { label: 'New Scout Info', path: '/new-scout' },
   { label: 'Troop Guidelines', path: '/guidelines' },
   { label: 'Life to Eagle', path: '/life-to-eagle' },
-  { label: 'Gear Checkout', path: '/gear-checkout' },
+  { label: 'For Parents', path: '/for-parents' },
+  { label: 'Summer Camp', path: '/summer-camp' },
+  { label: 'Outing Prep', path: '/outing-prep' },
+  { label: 'PLC & Leadership', path: '/plc-roles' },
+  { label: 'Troop Policies', path: '/policies' },
   { label: 'Documents & Forms', path: '/documents' },
   { label: 'Leader Training', path: '/leader-training' },
   { label: 'Member Dashboard', path: '/dashboard' },
+  { label: 'Gear Checkout', path: '/gear-checkout' },
   { label: 'Contact', path: '/contact' },
 ];
 

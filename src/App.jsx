@@ -27,6 +27,11 @@ import GearCheckout from './pages/GearCheckout';
 import Dashboard from './pages/Dashboard';
 import Documents from './pages/Documents';
 import LeaderTraining from './pages/LeaderTraining';
+import ForParents from './pages/ForParents';
+import OutingPrep from './pages/OutingPrep';
+import PLCRoles from './pages/PLCRoles';
+import TroopPolicies from './pages/TroopPolicies';
+import SummerCamp from './pages/SummerCamp';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -70,6 +75,11 @@ const AuthenticatedApp = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/documents" element={<Documents />} />
         <Route path="/leader-training" element={<LeaderTraining />} />
+        <Route path="/for-parents" element={<ForParents />} />
+        <Route path="/outing-prep" element={<OutingPrep />} />
+        <Route path="/plc-roles" element={<PLCRoles />} />
+        <Route path="/policies" element={<TroopPolicies />} />
+        <Route path="/summer-camp" element={<SummerCamp />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
