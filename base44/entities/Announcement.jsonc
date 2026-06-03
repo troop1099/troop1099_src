@@ -1,0 +1,27 @@
+{
+  "name": "Announcement",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Announcement title"
+    },
+    "body": {
+      "type": "string",
+      "description": "Announcement body text"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "public",
+        "members"
+      ],
+      "default": "members",
+      "description": "Who can see this announcement"
+    }
+  },
+  "required": [
+    "title",
+    "body"
+  ]
+}

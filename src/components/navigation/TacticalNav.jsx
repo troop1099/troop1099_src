@@ -21,6 +21,9 @@ const moreLinks = [
   { label: 'Troop Guidelines', path: '/guidelines' },
   { label: 'Life to Eagle', path: '/life-to-eagle' },
   { label: 'Gear Checkout', path: '/gear-checkout' },
+  { label: 'Documents & Forms', path: '/documents' },
+  { label: 'Leader Training', path: '/leader-training' },
+  { label: 'Member Dashboard', path: '/dashboard' },
   { label: 'Contact', path: '/contact' },
 ];
 

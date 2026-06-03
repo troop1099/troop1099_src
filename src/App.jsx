@@ -24,6 +24,9 @@ import PhotoGallery from './pages/PhotoGallery';
 import Pinestraw from './pages/Pinestraw';
 import Dues from './pages/Dues';
 import GearCheckout from './pages/GearCheckout';
+import Dashboard from './pages/Dashboard';
+import Documents from './pages/Documents';
+import LeaderTraining from './pages/LeaderTraining';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -64,6 +67,9 @@ const AuthenticatedApp = () => {
         <Route path="/pinestraw" element={<Pinestraw />} />
         <Route path="/dues" element={<Dues />} />
         <Route path="/gear-checkout" element={<GearCheckout />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/documents" element={<Documents />} />
+        <Route path="/leader-training" element={<LeaderTraining />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
