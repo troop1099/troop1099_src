@@ -115,10 +115,11 @@ export default function Documents() {
 
   // BSA pinned quick links
   const BSA_LINKS = [
-    { label: 'Blue Card (PDF)', url: 'https://filestore.scouting.org/filestore/pdf/34124.pdf', note: 'BSA Merit Badge Application' },
-    { label: 'Annual Health Form (PDF)', url: 'https://filestore.scouting.org/filestore/HealthSafety/pdf/680-001_ABC.pdf', note: 'Parts A, B & C' },
+    { label: 'Blue Card (Fillable PDF)', url: 'https://bsatroop143.com/wp-content/uploads/2024/08/mb-app-blue-card-fillable_.pdf', note: 'Print & fill — required before any merit badge' },
+    { label: 'Annual Health Form (PDF)', url: 'https://filestore.scouting.org/filestore/HealthSafety/pdf/680-001_ABC.pdf', note: 'Parts A, B & C — required for Summer Camp' },
     { label: 'All Merit Badge PDFs', url: 'https://www.scouting.org/skills/merit-badges/all/', note: 'Free from scouting.org' },
-    { label: 'ScoutBook', url: 'https://www.scoutbook.scouting.org/', note: 'Advancement tracking' },
+    { label: 'ScoutBook (Advancement)', url: 'https://advancements.scouting.org/login?redirectTo=https%3A%2F%2Fadvancements.scouting.org%2F', note: 'Track advancement online' },
+    { label: 'BSA Packing List Spreadsheet', url: 'https://docs.google.com/spreadsheets/d/1WylZyykyC7GjcIviTxCHcJN94XiRTcQb4oMx3R0ZrkI/edit?gid=0#gid=0', note: 'Troop 1099 summer camp packing list' },
   ];
 
   return (

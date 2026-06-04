@@ -4,40 +4,63 @@ import { Menu, X, ChevronDown } from 'lucide-react';
 
 const navLinks = [
   { label: 'Home', path: '/' },
-  { label: 'About', path: '/about' },
-  { label: 'Leadership', path: '/leadership' },
   { label: 'Calendar', path: '/events' },
   { label: 'Advancement', path: '/advancement' },
-  { label: 'Eagles', path: '/eagles' },
   { label: 'Merit Badges', path: '/merit-badges' },
-  { label: 'Gear', path: '/gear' },
+  { label: 'For Parents', path: '/for-parents' },
+  { label: 'Dashboard', path: '/dashboard' },
 ];
 
-const moreLinks = [
-  { label: 'Adventures', path: '/adventures' },
-  { label: 'Photo Gallery', path: '/photos' },
-  { label: 'Pine Straw Orders', path: '/pinestraw' },
-  { label: 'New Scout Info', path: '/new-scout' },
-  { label: 'Troop Guidelines', path: '/guidelines' },
-  { label: 'Life to Eagle', path: '/life-to-eagle' },
-  { label: 'For Parents', path: '/for-parents' },
-  { label: 'Summer Camp', path: '/summer-camp' },
-  { label: 'Outing Prep', path: '/outing-prep' },
-  { label: 'PLC & Leadership', path: '/plc-roles' },
-  { label: 'Troop Policies', path: '/policies' },
-  { label: 'Documents & Forms', path: '/documents' },
-  { label: 'Leader Training', path: '/leader-training' },
-  { label: 'Member Dashboard', path: '/dashboard' },
-  { label: 'Gear Checkout', path: '/gear-checkout' },
-  { label: 'Contact', path: '/contact' },
+const moreGroups = [
+  {
+    heading: 'Troop',
+    links: [
+      { label: 'About', path: '/about' },
+      { label: 'Leadership', path: '/leadership' },
+      { label: 'Eagles Nest', path: '/eagles' },
+      { label: 'Photo Gallery', path: '/photos' },
+      { label: 'Adventures', path: '/adventures' },
+      { label: 'Contact', path: '/contact' },
+    ],
+  },
+  {
+    heading: 'Scouts',
+    links: [
+      { label: 'Outing Prep', path: '/outing-prep' },
+      { label: 'Camping Checklist', path: '/camping-checklist' },
+      { label: 'PLC & Leadership', path: '/plc-roles' },
+      { label: 'Life to Eagle', path: '/life-to-eagle' },
+      { label: 'Summer Camp', path: '/summer-camp' },
+      { label: 'Gear', path: '/gear' },
+      { label: 'Gear Checkout', path: '/gear-checkout' },
+    ],
+  },
+  {
+    heading: 'Resources',
+    links: [
+      { label: 'Documents & Forms', path: '/documents' },
+      { label: 'Troop Policies', path: '/policies' },
+      { label: 'Leader Training', path: '/leader-training' },
+      { label: 'Outing Manager', path: '/outing-manager' },
+      { label: 'New Scout Info', path: '/new-scout' },
+      { label: 'Troop Guidelines', path: '/guidelines' },
+    ],
+  },
+  {
+    heading: 'Fundraising',
+    links: [
+      { label: 'Pine Straw Orders', path: '/pinestraw' },
+      { label: 'Dues & Payments', path: '/dues' },
+    ],
+  },
 ];
 
 export default function TacticalNav() {
   const [isOpen, setIsOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const location = useLocation();
-
   const isActive = (path) => location.pathname === path;
+  const allMoreLinks = moreGroups.flatMap(g => g.links);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#1a2744] shadow-md">
@@ -75,17 +98,26 @@ export default function TacticalNav() {
             {moreOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 bg-white rounded shadow-lg border border-gray-200 z-20 min-w-[180px]">
-                  {moreLinks.map(link => (
-                    <Link
-                      key={link.path}
-                      to={link.path}
-                      onClick={() => setMoreOpen(false)}
-                      className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#1a2744]"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
+                <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-xl border border-gray-200 z-20 w-[520px] p-4">
+                  <div className="grid grid-cols-4 gap-4">
+                    {moreGroups.map(group => (
+                      <div key={group.heading}>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{group.heading}</p>
+                        <div className="space-y-0.5">
+                          {group.links.map(link => (
+                            <Link
+                              key={link.path}
+                              to={link.path}
+                              onClick={() => setMoreOpen(false)}
+                              className={`block px-2 py-1.5 text-sm rounded transition-colors ${isActive(link.path) ? 'text-[#1a2744] font-semibold bg-gray-100' : 'text-gray-700 hover:bg-gray-50 hover:text-[#1a2744]'}`}
+                            >
+                              {link.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
@@ -106,7 +138,7 @@ export default function TacticalNav() {
       {/* Mobile menu */}
       {isOpen && (
         <div className="lg:hidden bg-[#1a2744] border-t border-white/10 max-h-[80vh] overflow-y-auto">
-          {[...navLinks, ...moreLinks].map(link => (
+          {[...navLinks, ...allMoreLinks].map(link => (
             <Link
               key={link.path}
               to={link.path}

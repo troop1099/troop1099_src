@@ -70,14 +70,46 @@ const ranks = [
 ];
 
 const requestTypes = [
-  { type: 'scoutmaster_conference', icon: User, color: 'bg-blue-100 text-blue-700 border-blue-200', btnColor: 'bg-[#1a2744] hover:bg-[#1a2744]/90', title: 'Scoutmaster Conference', description: 'Ready for your next rank? Request a conference with the Scoutmaster.' },
-  { type: 'board_of_review', icon: Users, color: 'bg-red-100 text-red-700 border-red-200', btnColor: 'bg-red-600 hover:bg-red-700', title: 'Board of Review', description: 'Completed your conference? Schedule your Board of Review with the committee.' },
-  { type: 'blue_card', icon: FileText, color: 'bg-yellow-100 text-yellow-700 border-yellow-200', btnColor: 'bg-yellow-600 hover:bg-yellow-700', title: 'Blue Cards', description: 'Starting a new merit badge? Request a signed blue card.' },
+  {
+    type: 'scoutmaster_conference', icon: User,
+    color: 'bg-blue-100 text-blue-700 border-blue-200', btnColor: 'bg-[#1a2744] hover:bg-[#1a2744]/90',
+    title: 'Scoutmaster Conference',
+    description: 'Ready for your next rank? Request a conference with the Scoutmaster.',
+    prereqs: [
+      'Must have ASM sign-off on ALL rank requirements in handbook, including service hours and merit badge requirements.',
+      'Register at least 1 week in advance of desired SMC date.',
+      'Be in full Class A uniform (sash, socks, belt, handbook).',
+      'Check in at the advancement table at the beginning of the meeting.',
+    ],
+  },
+  {
+    type: 'board_of_review', icon: Users,
+    color: 'bg-red-100 text-red-700 border-red-200', btnColor: 'bg-red-600 hover:bg-red-700',
+    title: 'Board of Review',
+    description: 'Completed your conference? Schedule your Board of Review with the committee.',
+    prereqs: [
+      'Must have completed a Scoutmaster Conference first.',
+      'Register at least 1 week in advance of desired Board of Review date.',
+      'Be in full Class A uniform (sash, socks, belt, handbook).',
+      'Check in at the advancement table at the beginning of the meeting.',
+    ],
+  },
+  {
+    type: 'blue_card', icon: FileText,
+    color: 'bg-yellow-100 text-yellow-700 border-yellow-200', btnColor: 'bg-yellow-600 hover:bg-yellow-700',
+    title: 'Blue Card Request',
+    description: 'Starting a new merit badge? A signed Blue Card is REQUIRED before beginning any badge.',
+    prereqs: [
+      'A Scout MUST obtain a signed Blue Card BEFORE starting any merit badge.',
+      'Eagle-required badges may only be earned at Summer Camp, In-Council events, or with approved counselors.',
+      'Download and print the fillable Blue Card PDF — bring it to the meeting to be signed.',
+    ],
+  },
 ];
 
 function RequestModal({ reqType, onClose }) {
   const { toast } = useToast();
-  const [form, setForm] = useState({ scout_name: '', scout_email: '', rank: '', merit_badge: '', notes: '' });
+  const [form, setForm] = useState({ scout_name: '', scout_email: '', rank: '', merit_badge: '', date_requested: 'next_meeting', notes: '' });
   const mutation = useMutation({
     mutationFn: (data) => base44.entities.AdvancementRequest.create({ ...data, type: reqType.type }),
     onSuccess: () => {
@@ -88,43 +120,90 @@ function RequestModal({ reqType, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
+      <div className="bg-white rounded-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-[#1a2744] text-lg">Request: {reqType.title}</h3>
+          <h3 className="font-bold text-[#1a2744] text-xl">{reqType.title}</h3>
           <button onClick={onClose}><X className="w-5 h-5" /></button>
         </div>
+
+        {/* Prerequisites */}
+        <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 mb-5">
+          <p className="font-bold text-[#1a2744] text-sm mb-2">⚠ Before You Submit</p>
+          <ul className="space-y-1">
+            {reqType.prereqs.map((p, i) => (
+              <li key={i} className="flex items-start gap-2 text-xs text-gray-700">
+                <span className="w-1.5 h-1.5 bg-[#1a2744] rounded-full mt-1.5 shrink-0" />{p}
+              </li>
+            ))}
+          </ul>
+          {reqType.type === 'blue_card' && (
+            <a href="https://bsatroop143.com/wp-content/uploads/2024/08/mb-app-blue-card-fillable_.pdf" target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-blue-700 hover:underline">
+              📄 Download Fillable Blue Card PDF →
+            </a>
+          )}
+        </div>
+
         <div className="space-y-3">
-          <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Scout Name *</label>
-            <input className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.scout_name} onChange={e => setForm(f => ({...f, scout_name: e.target.value}))} />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1">First Name *</label>
+              <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value={form.scout_name.split(' ')[0] || ''} onChange={e => setForm(f => ({...f, scout_name: e.target.value + ' ' + (f.scout_name.split(' ')[1] || '')}))} placeholder="First" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1">Last Name *</label>
+              <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value={form.scout_name.split(' ').slice(1).join(' ') || ''} onChange={e => setForm(f => ({...f, scout_name: (f.scout_name.split(' ')[0] || '') + ' ' + e.target.value}))} placeholder="Last" />
+            </div>
           </div>
           <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Scout Email</label>
-            <input type="email" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.scout_email} onChange={e => setForm(f => ({...f, scout_email: e.target.value}))} />
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Email</label>
+            <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value={form.scout_email} onChange={e => setForm(f => ({...f, scout_email: e.target.value}))} placeholder="your@email.com" />
           </div>
           {(reqType.type === 'scoutmaster_conference' || reqType.type === 'board_of_review') && (
-            <div>
-              <label className="text-xs font-semibold text-gray-600 block mb-1">Rank Being Pursued</label>
-              <select className="w-full border border-gray-300 rounded px-3 py-2 text-sm" value={form.rank} onChange={e => setForm(f => ({...f, rank: e.target.value}))}>
-                <option value="">Select rank...</option>
-                {ranks.map(r => <option key={r.name}>{r.name}</option>)}
-              </select>
-            </div>
+            <>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 block mb-1">Current Rank</label>
+                <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" onChange={e => setForm(f => ({...f, notes: 'Current: ' + e.target.value + (f.notes ? ' | ' + f.notes : '')}))}>
+                  <option value="">Please select your current rank</option>
+                  {ranks.map(r => <option key={r.name}>{r.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 block mb-1">Rank Being Pursued</label>
+                <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value={form.rank} onChange={e => setForm(f => ({...f, rank: e.target.value}))}>
+                  <option value="">Please select your rank request</option>
+                  {ranks.map(r => <option key={r.name}>{r.name}</option>)}
+                </select>
+              </div>
+            </>
           )}
           {reqType.type === 'blue_card' && (
             <div>
               <label className="text-xs font-semibold text-gray-600 block mb-1">Merit Badge Name</label>
-              <input className="w-full border border-gray-300 rounded px-3 py-2 text-sm" placeholder="e.g. Cooking" value={form.merit_badge} onChange={e => setForm(f => ({...f, merit_badge: e.target.value}))} />
+              <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Cooking" value={form.merit_badge} onChange={e => setForm(f => ({...f, merit_badge: e.target.value}))} />
             </div>
           )}
           <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Additional Notes</label>
-            <textarea className="w-full border border-gray-300 rounded px-3 py-2 text-sm" rows={3} value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))} />
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Date Requested</label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="radio" name="date" value="next_meeting" checked={form.date_requested === 'next_meeting'} onChange={() => setForm(f => ({...f, date_requested: 'next_meeting'}))} />
+                Next Troop Meeting
+              </label>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input type="radio" name="date" value="other" checked={form.date_requested !== 'next_meeting'} onChange={() => setForm(f => ({...f, date_requested: 'other'}))} />
+                Other
+              </label>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Any Additional Information</label>
+            <textarea className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" rows={3} value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))} />
           </div>
         </div>
         <div className="flex gap-2 mt-5">
-          <button onClick={onClose} className="flex-1 py-2 border border-gray-300 rounded text-sm">Cancel</button>
-          <button onClick={() => mutation.mutate(form)} disabled={!form.scout_name || mutation.isPending} className={`flex-1 py-2 text-white rounded text-sm font-semibold disabled:opacity-50 ${reqType.btnColor}`}>
+          <button onClick={onClose} className="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm">Cancel</button>
+          <button onClick={() => mutation.mutate(form)} disabled={!form.scout_name.trim() || mutation.isPending} className={`flex-1 py-2.5 text-white rounded-lg text-sm font-semibold disabled:opacity-50 ${reqType.btnColor}`}>
             {mutation.isPending ? 'Submitting...' : 'Submit Request'}
           </button>
         </div>

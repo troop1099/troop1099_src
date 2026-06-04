@@ -32,6 +32,8 @@ import OutingPrep from './pages/OutingPrep';
 import PLCRoles from './pages/PLCRoles';
 import TroopPolicies from './pages/TroopPolicies';
 import SummerCamp from './pages/SummerCamp';
+import CampingChecklist from './pages/CampingChecklist';
+import OutingManager from './pages/OutingManager';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -80,6 +82,8 @@ const AuthenticatedApp = () => {
         <Route path="/plc-roles" element={<PLCRoles />} />
         <Route path="/policies" element={<TroopPolicies />} />
         <Route path="/summer-camp" element={<SummerCamp />} />
+        <Route path="/camping-checklist" element={<CampingChecklist />} />
+        <Route path="/outing-manager" element={<OutingManager />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

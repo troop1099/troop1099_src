@@ -1,0 +1,46 @@
+{
+  "name": "OutingAttendee",
+  "type": "object",
+  "properties": {
+    "outing_id": {
+      "type": "string",
+      "description": "ID of the related Outing record"
+    },
+    "scout_name": {
+      "type": "string",
+      "description": "Scout's full name"
+    },
+    "patrol": {
+      "type": "string",
+      "description": "Scout's patrol"
+    },
+    "attending": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this scout is confirmed attending"
+    },
+    "permission_slip": {
+      "type": "boolean",
+      "default": false,
+      "description": "Permission slip received"
+    },
+    "paid": {
+      "type": "boolean",
+      "default": false,
+      "description": "Outing fee paid"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes (e.g. scout request to attend)"
+    },
+    "request_to_attend": {
+      "type": "boolean",
+      "default": false,
+      "description": "Scout submitted a request to attend outside of the meeting"
+    }
+  },
+  "required": [
+    "outing_id",
+    "scout_name"
+  ]
+}
