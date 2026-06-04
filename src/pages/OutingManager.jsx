@@ -42,10 +42,14 @@ function CreateOutingModal({ onClose }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const fileRef = useRef();
+  const CLASS_B_COLORS = ['Yellow', 'Gray', 'Blue', 'Red', 'Green'];
+
   const [form, setForm] = useState({
     title: '', month_label: '',
     departure_date: '', departure_time: '',
     return_date: '', return_time: '',
+    price_per_scout: '',
+    friday_shirt: '', saturday_shirt: '', sunday_shirt: '',
   });
   const [file, setFile] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -58,7 +62,12 @@ function CreateOutingModal({ onClose }) {
       const res = await base44.integrations.Core.UploadFile({ file });
       permission_slip_url = res.file_url;
     }
-    const outing = await base44.entities.Outing.create({ ...form, permission_slip_url, active: true });
+    const outing = await base44.entities.Outing.create({
+      ...form,
+      permission_slip_url,
+      active: true,
+      grubmasters: JSON.stringify({}),
+    });
     await base44.entities.OutingAttendee.bulkCreate(
       SCOUT_ROSTER.map(s => ({ ...s, outing_id: outing.id, attending: false, permission_slip: false, paid: false }))
     );
@@ -104,6 +113,34 @@ function CreateOutingModal({ onClose }) {
               <input type="time" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" value={form.return_time} onChange={e => setForm(f => ({...f, return_time: e.target.value}))} />
             </div>
           </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Price Per Scout ($)</label>
+            <input type="number" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" placeholder="e.g. 45" value={form.price_per_scout} onChange={e => setForm(f => ({...f, price_per_scout: e.target.value}))} />
+          </div>
+
+          {/* Class B shirt colors */}
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-2">Class B Shirt Colors</label>
+            <div className="space-y-2">
+              {['friday', 'saturday', 'sunday'].map(day => (
+                <div key={day} className="flex items-center gap-3">
+                  <span className="w-16 text-xs font-semibold text-gray-500 capitalize">{day}</span>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {CLASS_B_COLORS.map(c => (
+                      <button key={c} type="button"
+                        onClick={() => setForm(f => ({ ...f, [`${day}_shirt`]: f[`${day}_shirt`] === c ? '' : c }))}
+                        className={`px-2 py-1 text-xs rounded-full border font-semibold transition-all ${form[`${day}_shirt`] === c ? 'border-[#1a2744] bg-[#1a2744] text-white' : 'border-gray-300 text-gray-600 hover:border-gray-400'}`}>
+                        {c}
+                      </button>
+                    ))}
+                    <span className="text-xs text-gray-400 self-center">{form[`${day}_shirt`] ? '' : 'none'}</span>
+                  </div>
+                </div>
+              ))}
+              <p className="text-xs text-gray-400 mt-1">Select only the days that apply (e.g. skip Sunday for a 2-day outing).</p>
+            </div>
+          </div>
+
           <div>
             <label className="text-xs font-semibold text-gray-600 block mb-1">Permission Slip (PDF)</label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center cursor-pointer hover:border-[#1a2744] transition-colors" onClick={() => fileRef.current.click()}>
@@ -417,9 +454,27 @@ export default function OutingManager() {
                                   {selectedOuting.return_time && ` ~${formatTime(selectedOuting.return_time)}`}
                                 </span>
                               )}
+                              {selectedOuting.price_per_scout && (
+                                <span className="flex items-center gap-1 text-xs text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded font-semibold">
+                                  💵 ${selectedOuting.price_per_scout} / scout
+                                </span>
+                              )}
                             </div>
                           )}
-                        </div>
+                          {/* Class B shirt schedule */}
+                          {(selectedOuting.friday_shirt || selectedOuting.saturday_shirt || selectedOuting.sunday_shirt) && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {[['Fri', selectedOuting.friday_shirt], ['Sat', selectedOuting.saturday_shirt], ['Sun', selectedOuting.sunday_shirt]]
+                                .filter(([, color]) => color)
+                                .map(([day, color]) => (
+                                  <span key={day} className="text-xs bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full font-semibold">
+                                    👕 {day}: {color} Class B
+                                  </span>
+                                ))
+                                }
+                                </div>
+                                )}
+                                </div>
                         <div className="flex gap-2 flex-wrap">
                           {selectedOuting?.permission_slip_url && (
                             <a href={selectedOuting.permission_slip_url} target="_blank" rel="noopener noreferrer"

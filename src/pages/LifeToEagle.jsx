@@ -1,67 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ExternalLink, CheckSquare, FileText, Users, Calendar } from 'lucide-react';
+import { ExternalLink, CheckSquare, FileText, Users, Edit2, Save, X } from 'lucide-react';
 
-const steps = [
-  {
-    icon: FileText,
-    color: 'bg-blue-100 text-blue-700',
-    title: 'Eagle Service Project Proposal',
-    content: (
-      <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
-        <p>First, the Life Scout completes <strong>Part One of the Eagle Scout Service Project Workbook</strong>. This section outlines what the Scout plans to do, at a high level. He must schedule an appointment with the district to review the project and get approval to proceed.</p>
-        <p className="font-semibold text-red-600">⚠️ Until this approval is received, a Scout CANNOT work on the project.</p>
-        <div className="flex flex-col gap-2 mt-2">
-          <a href="https://filestore.scouting.org/filestore/pdf/512-927_WEB.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline">
-            📄 Download Eagle Scout Service Project Workbook <ExternalLink className="w-3 h-3" />
-          </a>
-          <a href="https://www.atlantabsa.org" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline">
-            📅 Schedule Project Approval Appointment (select "project approval") <ExternalLink className="w-3 h-3" />
-          </a>
-        </div>
-      </div>
-    )
-  },
-  {
-    icon: CheckSquare,
-    color: 'bg-green-100 text-green-700',
-    title: 'Eagle Project',
-    content: (
-      <div className="text-gray-700 text-sm leading-relaxed">
-        <p>Following proposal approval, the Scout can work on the project and complete <strong>Part Two of the Workbook</strong>. Document all work carefully — photos, hours, materials, and participant lists.</p>
-      </div>
-    )
-  },
-  {
-    icon: FileText,
-    color: 'bg-yellow-100 text-yellow-700',
-    title: 'Eagle Application',
-    content: (
-      <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
-        <p>Once all requirements are complete, the Scout prepares the <strong>Eagle Rank Application</strong>. Read the application carefully — it contains 6 Requirements and 3 signatures that must be totally complete before an application will even be considered for an Eagle Board of Review.</p>
-        <p><strong>Requirement Two</strong> requires the Scout to obtain Letters of Recommendation from parents, religious leader, employers, and others listed on the application. Letters are sent in sealed envelopes to the Eagle Board. Allow <strong>2–3 weeks</strong> for receipt of these letters prior to the scheduled Eagle Board of Review.</p>
-        <p><strong>Requirement Six</strong> requires the Scout to write a statement of ambitions and life purpose and a listing of positions held where he demonstrated leadership skills.</p>
-        <a href="https://filestore.scouting.org/filestore/pdf/512-728_WEB.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline">
-          📄 Download Eagle Rank Application <ExternalLink className="w-3 h-3" />
-        </a>
-      </div>
-    )
-  },
-  {
-    icon: Users,
-    color: 'bg-red-100 text-red-700',
-    title: 'Eagle Board of Review Preparation',
-    content: (
-      <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
-        <p>If all other Eagle Rank requirements are complete, the Scout is ready for his <strong>Eagle Board of Review</strong>.</p>
-        <p>Your completed application must be submitted to the Jefferson Service Center a <strong>minimum of TWO weeks</strong> prior to your scheduled Eagle Board appointment.</p>
-        <a href="https://www.atlantabsa.org" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline">
-          📅 Schedule Eagle Board Appointment (select "board of review") <ExternalLink className="w-3 h-3" />
-        </a>
-      </div>
-    )
-  },
-];
+const SIGNUP_KEY = 'etowah_district_signup_url';
+const DEFAULT_SIGNUP_URL = 'https://www.signupgenius.com/go/4090544ABAE2DAAFA7-60003792-etowah#/';
 
 const checklist = [
   'Earned all 21 required merit badges (13 Eagle-required)',
@@ -77,6 +19,97 @@ const checklist = [
 ];
 
 export default function LifeToEagle() {
+  const [signupUrl, setSignupUrl] = useState(() => localStorage.getItem(SIGNUP_KEY) || DEFAULT_SIGNUP_URL);
+  const [editingUrl, setEditingUrl] = useState(false);
+  const [urlDraft, setUrlDraft] = useState(signupUrl);
+
+  const saveUrl = () => {
+    localStorage.setItem(SIGNUP_KEY, urlDraft);
+    setSignupUrl(urlDraft);
+    setEditingUrl(false);
+  };
+
+  const steps = [
+    {
+      icon: FileText,
+      color: 'bg-blue-100 text-blue-700',
+      title: 'Eagle Service Project Proposal',
+      content: (
+        <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
+          <p>First, the Life Scout completes <strong>Part One of the Eagle Scout Service Project Workbook</strong>. This section outlines what the Scout plans to do, at a high level. He must schedule an appointment with the district to review the project and get approval to proceed.</p>
+          <p className="font-semibold text-red-600">⚠️ Until this approval is received, a Scout CANNOT work on the project.</p>
+          <div className="flex flex-col gap-2 mt-2">
+            <a href="https://media.base44.com/files/public/6a1da1101f26862b7b863a4a/f0bc37543_EagleProjectWorkbook2023a.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline font-semibold">
+              📄 Download Eagle Scout Service Project Workbook (2023a) <ExternalLink className="w-3 h-3" />
+            </a>
+
+            {/* Editable Etowah District Sign-Up Genius Link */}
+            <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs font-bold text-yellow-800 uppercase tracking-wide">Etowah District — Approval Appointments</p>
+                {!editingUrl
+                  ? <button onClick={() => { setUrlDraft(signupUrl); setEditingUrl(true); }} className="text-xs text-gray-500 hover:text-[#1a2744] flex items-center gap-1">
+                      <Edit2 className="w-3 h-3" /> Edit Link
+                    </button>
+                  : <div className="flex gap-1">
+                      <button onClick={saveUrl} className="text-xs text-green-700 hover:text-green-900 flex items-center gap-1"><Save className="w-3 h-3" /> Save</button>
+                      <button onClick={() => setEditingUrl(false)} className="text-xs text-gray-500 ml-2 flex items-center gap-1"><X className="w-3 h-3" /> Cancel</button>
+                    </div>
+                }
+              </div>
+              {editingUrl
+                ? <input className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs mt-1" value={urlDraft} onChange={e => setUrlDraft(e.target.value)} placeholder="Paste SignUpGenius URL here..." />
+                : <a href={signupUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-semibold">
+                    📅 Project Proposal Approval, Eagle Board & Adult Volunteering (SignUpGenius) <ExternalLink className="w-3 h-3" />
+                  </a>
+              }
+              <p className="text-xs text-yellow-700 mt-1.5 italic">This link updates annually — click "Edit Link" to paste the new year's URL.</p>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      icon: CheckSquare,
+      color: 'bg-green-100 text-green-700',
+      title: 'Eagle Project',
+      content: (
+        <div className="text-gray-700 text-sm leading-relaxed">
+          <p>Following proposal approval, the Scout can work on the project and complete <strong>Part Two of the Workbook</strong>. Document all work carefully — photos, hours, materials, and participant lists.</p>
+        </div>
+      )
+    },
+    {
+      icon: FileText,
+      color: 'bg-yellow-100 text-yellow-700',
+      title: 'Eagle Application',
+      content: (
+        <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
+          <p>Once all requirements are complete, the Scout prepares the <strong>Eagle Rank Application</strong>. Read the application carefully — it contains 6 Requirements and 3 signatures that must be totally complete before an application will even be considered for an Eagle Board of Review.</p>
+          <p><strong>Requirement Two</strong> requires the Scout to obtain Letters of Recommendation from parents, religious leader, employers, and others listed on the application. Letters are sent in sealed envelopes to the Eagle Board. Allow <strong>2–3 weeks</strong> for receipt of these letters prior to the scheduled Eagle Board of Review.</p>
+          <p><strong>Requirement Six</strong> requires the Scout to write a statement of ambitions and life purpose and a listing of positions held where he demonstrated leadership skills.</p>
+          <a href="https://filestore.scouting.org/filestore/pdf/512-728_WEB.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline">
+            📄 Download Eagle Rank Application <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      )
+    },
+    {
+      icon: Users,
+      color: 'bg-red-100 text-red-700',
+      title: 'Eagle Board of Review Preparation',
+      content: (
+        <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
+          <p>If all other Eagle Rank requirements are complete, the Scout is ready for his <strong>Eagle Board of Review</strong>.</p>
+          <p>Your completed application must be submitted to the Jefferson Service Center a <strong>minimum of TWO weeks</strong> prior to your scheduled Eagle Board appointment.</p>
+          <a href={signupUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline font-semibold">
+            📅 Schedule Eagle Board Appointment via Etowah District SignUpGenius <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      )
+    },
+  ];
+
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
       <div className="bg-[#1a2744] text-white py-10 px-6">
@@ -91,7 +124,6 @@ export default function LifeToEagle() {
           In addition to Merit Badges and leadership requirements in the Troop, the Life Scout is required to complete an Eagle Scout Service Project, which is completed in multiple steps.
         </p>
 
-        {/* Steps */}
         {steps.map((step, i) => (
           <div key={step.title} className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-start gap-4">

@@ -26,6 +26,22 @@
       "type": "string",
       "description": "Approximate return time"
     },
+    "price_per_scout": {
+      "type": "string",
+      "description": "Cost per scout in dollars"
+    },
+    "friday_shirt": {
+      "type": "string",
+      "description": "Class B shirt color for Friday"
+    },
+    "saturday_shirt": {
+      "type": "string",
+      "description": "Class B shirt color for Saturday"
+    },
+    "sunday_shirt": {
+      "type": "string",
+      "description": "Class B shirt color for Sunday"
+    },
     "permission_slip_url": {
       "type": "string",
       "description": "URL to the uploaded permission slip PDF"
