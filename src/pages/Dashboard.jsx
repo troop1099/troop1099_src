@@ -24,7 +24,7 @@ const QUICK_LINKS = [
     icon: FileText,
     color: 'bg-blue-50 border-blue-200 text-blue-700',
     iconBg: 'bg-blue-100',
-    href: 'https://filestore.scouting.org/filestore/pdf/34124.pdf',
+    href: 'https://bsatroop143.com/wp-content/uploads/2024/08/mb-app-blue-card-fillable_.pdf',
     internal: false,
   },
   {
@@ -51,7 +51,7 @@ const QUICK_LINKS = [
     icon: BookOpen,
     color: 'bg-indigo-50 border-indigo-200 text-indigo-700',
     iconBg: 'bg-indigo-100',
-    href: 'https://www.scoutbook.scouting.org/',
+    href: 'https://advancements.scouting.org/login?redirectTo=https%3A%2F%2Fadvancements.scouting.org%2F',
     internal: false,
   },
   {

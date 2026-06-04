@@ -14,18 +14,29 @@
       "type": "string",
       "format": "date"
     },
+    "departure_time": {
+      "type": "string",
+      "description": "Departure time e.g. 07:00"
+    },
     "return_date": {
       "type": "string",
       "format": "date"
+    },
+    "return_time": {
+      "type": "string",
+      "description": "Approximate return time"
     },
     "permission_slip_url": {
       "type": "string",
       "description": "URL to the uploaded permission slip PDF"
     },
+    "grubmasters": {
+      "type": "string",
+      "description": "JSON string mapping patrol name to grubmaster scout name"
+    },
     "active": {
       "type": "boolean",
-      "default": true,
-      "description": "Whether this outing is currently active/visible"
+      "default": true
     }
   },
   "required": [

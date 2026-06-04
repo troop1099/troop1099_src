@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
 
+// Primary nav — the most-used pages shown inline
 const navLinks = [
   { label: 'Home', path: '/' },
   { label: 'Calendar', path: '/events' },
@@ -11,46 +12,49 @@ const navLinks = [
   { label: 'Dashboard', path: '/dashboard' },
 ];
 
+// Grouped "More" mega-menu — inspired by Troop 143 nav
 const moreGroups = [
   {
-    heading: 'Troop',
+    heading: 'About Us',
     links: [
-      { label: 'About', path: '/about' },
+      { label: 'About the Troop', path: '/about' },
       { label: 'Leadership', path: '/leadership' },
       { label: 'Eagles Nest', path: '/eagles' },
       { label: 'Photo Gallery', path: '/photos' },
       { label: 'Adventures', path: '/adventures' },
-      { label: 'Contact', path: '/contact' },
+      { label: 'Contact Us', path: '/contact' },
     ],
   },
   {
-    heading: 'Scouts',
+    heading: 'Join & New Scouts',
     links: [
-      { label: 'Outing Prep', path: '/outing-prep' },
-      { label: 'Camping Checklist', path: '/camping-checklist' },
-      { label: 'PLC & Leadership', path: '/plc-roles' },
-      { label: 'Life to Eagle', path: '/life-to-eagle' },
-      { label: 'Summer Camp', path: '/summer-camp' },
-      { label: 'Gear', path: '/gear' },
-      { label: 'Gear Checkout', path: '/gear-checkout' },
-    ],
-  },
-  {
-    heading: 'Resources',
-    links: [
-      { label: 'Documents & Forms', path: '/documents' },
-      { label: 'Troop Policies', path: '/policies' },
-      { label: 'Leader Training', path: '/leader-training' },
-      { label: 'Outing Manager', path: '/outing-manager' },
+      { label: 'Join Troop 1099', path: '/contact' },
       { label: 'New Scout Info', path: '/new-scout' },
+      { label: 'For Parents', path: '/for-parents' },
       { label: 'Troop Guidelines', path: '/guidelines' },
+      { label: 'Dues & Payments', path: '/dues' },
+      { label: 'Pine Straw Fundraiser', path: '/pinestraw' },
     ],
   },
   {
-    heading: 'Fundraising',
+    heading: 'Scouting Resources',
     links: [
-      { label: 'Pine Straw Orders', path: '/pinestraw' },
-      { label: 'Dues & Payments', path: '/dues' },
+      { label: 'Outing Prep Guides', path: '/outing-prep' },
+      { label: 'Camping Checklist', path: '/camping-checklist' },
+      { label: 'Summer Camp', path: '/summer-camp' },
+      { label: 'Gear Shop', path: '/gear' },
+      { label: 'Gear Checkout', path: '/gear-checkout' },
+      { label: 'Life to Eagle', path: '/life-to-eagle' },
+    ],
+  },
+  {
+    heading: 'Leaders & Admin',
+    links: [
+      { label: 'PLC & Leadership Roles', path: '/plc-roles' },
+      { label: 'Leader Training', path: '/leader-training' },
+      { label: 'Troop Policies', path: '/policies' },
+      { label: 'Documents & Forms', path: '/documents' },
+      { label: 'Outing Manager', path: '/outing-manager' },
     ],
   },
 ];
@@ -68,7 +72,7 @@ export default function TacticalNav() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 text-white font-bold text-lg tracking-wide shrink-0">
           <img src="https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png" alt="Troop 1099" className="w-9 h-9 rounded-full object-contain bg-white p-0.5" />
-          <span>TROOP 1099</span>
+          <span className="hidden sm:inline">TROOP 1099</span>
         </Link>
 
         {/* Desktop nav */}
@@ -87,29 +91,29 @@ export default function TacticalNav() {
             </Link>
           ))}
 
-          {/* More dropdown */}
+          {/* More mega-menu */}
           <div className="relative">
             <button
               onClick={() => setMoreOpen(o => !o)}
-              className="flex items-center gap-0.5 px-2.5 py-1 text-sm font-medium text-white/80 hover:text-white"
+              className={`flex items-center gap-0.5 px-2.5 py-1 text-sm font-medium transition-colors ${moreOpen ? 'text-[#FFD700]' : 'text-white/80 hover:text-white'}`}
             >
-              MORE <ChevronDown className="w-3 h-3" />
+              MORE <ChevronDown className={`w-3 h-3 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
             </button>
             {moreOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-xl border border-gray-200 z-20 w-[520px] p-4">
+                <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-2xl border border-gray-100 z-20 w-[560px] p-5">
                   <div className="grid grid-cols-4 gap-4">
                     {moreGroups.map(group => (
                       <div key={group.heading}>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{group.heading}</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 pb-1 border-b border-gray-100">{group.heading}</p>
                         <div className="space-y-0.5">
                           {group.links.map(link => (
                             <Link
                               key={link.path}
                               to={link.path}
                               onClick={() => setMoreOpen(false)}
-                              className={`block px-2 py-1.5 text-sm rounded transition-colors ${isActive(link.path) ? 'text-[#1a2744] font-semibold bg-gray-100' : 'text-gray-700 hover:bg-gray-50 hover:text-[#1a2744]'}`}
+                              className={`block px-2 py-1.5 text-sm rounded-lg transition-colors ${isActive(link.path) ? 'text-[#1a2744] font-semibold bg-yellow-50' : 'text-gray-700 hover:bg-gray-50 hover:text-[#1a2744]'}`}
                             >
                               {link.label}
                             </Link>
@@ -124,7 +128,7 @@ export default function TacticalNav() {
           </div>
         </nav>
 
-        {/* CTA */}
+        {/* CTA + mobile toggle */}
         <div className="flex items-center gap-3 shrink-0">
           <Link to="/contact" className="hidden lg:flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-1.5 rounded transition-colors">
             Join Troop 1099
@@ -135,18 +139,25 @@ export default function TacticalNav() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile full-screen menu */}
       {isOpen && (
         <div className="lg:hidden bg-[#1a2744] border-t border-white/10 max-h-[80vh] overflow-y-auto">
-          {[...navLinks, ...allMoreLinks].map(link => (
-            <Link
-              key={link.path}
-              to={link.path}
-              onClick={() => setIsOpen(false)}
-              className={`block px-4 py-3 text-sm font-medium border-b border-white/10 ${isActive(link.path) ? 'text-[#FFD700]' : 'text-white/80'}`}
-            >
+          {navLinks.map(link => (
+            <Link key={link.path} to={link.path} onClick={() => setIsOpen(false)}
+              className={`block px-4 py-3 text-sm font-medium border-b border-white/10 ${isActive(link.path) ? 'text-[#FFD700]' : 'text-white/80'}`}>
               {link.label}
             </Link>
+          ))}
+          {moreGroups.map(group => (
+            <div key={group.heading}>
+              <div className="px-4 py-2 bg-white/5 text-[10px] font-bold text-white/40 uppercase tracking-widest">{group.heading}</div>
+              {group.links.map(link => (
+                <Link key={link.path} to={link.path} onClick={() => setIsOpen(false)}
+                  className={`block px-6 py-2.5 text-sm border-b border-white/5 ${isActive(link.path) ? 'text-[#FFD700]' : 'text-white/70'}`}>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           ))}
           <div className="p-4">
             <Link to="/contact" onClick={() => setIsOpen(false)} className="block text-center bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded">
