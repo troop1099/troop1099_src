@@ -151,7 +151,7 @@ function CreateOutingModal({ onClose }) {
         </div>
         <div className="flex gap-2 mt-5">
           <button onClick={onClose} className="flex-1 py-2 border border-gray-300 rounded-lg text-sm">Cancel</button>
-          <button onClick={handleSave} disabled={saving || !form.title} className="flex-1 py-2 bg-[#1a2744] text-white rounded-lg text-sm font-semibold disabled:opacity-50">
+          <button onClick={handleSave} disabled={saving || !form.title.trim() || !form.month_label.trim() || !form.departure_date || !form.departure_time || !form.return_date || !form.return_time || !form.price_per_scout || !file} className="flex-1 py-2 bg-[#1a2744] text-white rounded-lg text-sm font-semibold disabled:opacity-50">
             {saving ? 'Creating...' : 'Create Outing'}
           </button>
         </div>
@@ -324,7 +324,6 @@ export default function OutingManager() {
   const [selectedOutingId, setSelectedOutingId] = useState(null);
   const [showRequest, setShowRequest] = useState(false);
   const [noteModal, setNoteModal] = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const { data: outings = [] } = useQuery({
     queryKey: ['outings'],
@@ -351,7 +350,6 @@ export default function OutingManager() {
     onSuccess: () => {
       queryClient.invalidateQueries(['outings']);
       setSelectedOutingId(null);
-      setConfirmDelete(null);
       toast({ title: 'Outing removed.' });
     },
   });
@@ -412,7 +410,7 @@ export default function OutingManager() {
                   </button>
                   <div className="px-3 pb-2">
                     <button
-                      onClick={() => setConfirmDelete(o)}
+                      onClick={() => deleteOutingMutation.mutate(o.id)}
                       className={`text-xs flex items-center gap-1 ${selectedOutingId === o.id ? 'text-red-300 hover:text-red-100' : 'text-red-400 hover:text-red-600'} transition-colors`}
                     >
                       <Trash2 className="w-3 h-3" /> Remove outing
@@ -532,25 +530,6 @@ export default function OutingManager() {
       {showCreate && <CreateOutingModal onClose={() => { setShowCreate(false); queryClient.invalidateQueries(['outings']); }} />}
       {showRequest && selectedOutingId && (
         <RequestAttendanceModal outingId={selectedOutingId} onClose={() => { setShowRequest(false); queryClient.invalidateQueries(['attendees', selectedOutingId]); }} />
-      )}
-
-      {/* Confirm delete */}
-      {confirmDelete && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-sm w-full p-6">
-            <p className="font-bold text-[#1a2744] text-lg mb-2">Remove Outing?</p>
-            <p className="text-gray-600 text-sm mb-5">
-              This will permanently delete <strong>{confirmDelete.title}</strong> and all its attendee records. This cannot be undone.
-            </p>
-            <div className="flex gap-2">
-              <button onClick={() => setConfirmDelete(null)} className="flex-1 py-2 border border-gray-300 rounded-lg text-sm">Cancel</button>
-              <button onClick={() => deleteOutingMutation.mutate(confirmDelete.id)} disabled={deleteOutingMutation.isPending}
-                className="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold disabled:opacity-50">
-                {deleteOutingMutation.isPending ? 'Deleting...' : 'Yes, Delete'}
-              </button>
-            </div>
-          </div>
-        </div>
       )}
 
       {/* Note modal */}

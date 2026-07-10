@@ -9,13 +9,12 @@ const navLinks = [
   { label: 'Advancement', path: '/advancement' },
   { label: 'Merit Badges', path: '/merit-badges' },
   { label: 'For Parents', path: '/for-parents' },
-  { label: 'Dashboard', path: '/dashboard' },
 ];
 
 // Grouped "More" mega-menu — inspired by Troop 143 nav
 const moreGroups = [
   {
-    heading: 'About Us',
+    heading: 'About',
     links: [
       { label: 'About the Troop', path: '/about' },
       { label: 'Leadership', path: '/leadership' },
@@ -26,30 +25,23 @@ const moreGroups = [
     ],
   },
   {
-    heading: 'Join & New Scouts',
-    links: [
-      { label: 'Join Troop 1099', path: '/contact' },
-      { label: 'New Scout Info', path: '/new-scout' },
-      { label: 'For Parents', path: '/for-parents' },
-      { label: 'Troop Guidelines', path: '/guidelines' },
-      { label: 'Dues & Payments', path: '/dues' },
-      { label: 'Pine Straw Fundraiser', path: '/pinestraw' },
-    ],
-  },
-  {
     heading: 'Scouting Resources',
     links: [
+      { label: 'New Scout Info', path: '/new-scout' },
+      { label: 'Troop Guidelines', path: '/guidelines' },
       { label: 'Outing Prep Guides', path: '/outing-prep' },
       { label: 'Camping Checklist', path: '/camping-checklist' },
       { label: 'Summer Camp', path: '/summer-camp' },
+      { label: 'Life to Eagle', path: '/life-to-eagle' },
       { label: 'Gear Shop', path: '/gear' },
       { label: 'Gear Checkout', path: '/gear-checkout' },
-      { label: 'Life to Eagle', path: '/life-to-eagle' },
     ],
   },
   {
-    heading: 'Leaders & Admin',
+    heading: 'Admin & Fundraisers',
     links: [
+      { label: 'Dues & Payments', path: '/dues' },
+      { label: 'Pine Straw Fundraiser', path: '/pinestraw' },
       { label: 'PLC & Leadership Roles', path: '/plc-roles' },
       { label: 'Leader Training', path: '/leader-training' },
       { label: 'Troop Policies', path: '/policies' },
@@ -102,8 +94,8 @@ export default function TacticalNav() {
             {moreOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-2xl border border-gray-100 z-20 w-[560px] p-5">
-                  <div className="grid grid-cols-4 gap-4">
+                <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-2xl border border-gray-100 z-20 w-[480px] p-5">
+                  <div className="grid grid-cols-3 gap-4">
                     {moreGroups.map(group => (
                       <div key={group.heading}>
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 pb-1 border-b border-gray-100">{group.heading}</p>

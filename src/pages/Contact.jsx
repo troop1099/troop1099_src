@@ -1,27 +1,10 @@
-import React, { useState } from 'react';
-import { MapPin, Mail, Clock, Send, Phone, ExternalLink } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import React from 'react';
+import { MapPin, Mail, Clock, Phone, ExternalLink } from 'lucide-react';
 
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
+const TROOP_EMAIL = 'troop1099@bsa.org';
 
 export default function Contact() {
-  const { toast } = useToast();
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
-  const [sending, setSending] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!form.name || !form.email || !form.message) {
-      toast({ title: 'Please fill out all fields', variant: 'destructive' });
-      return;
-    }
-    setSending(true);
-    await new Promise(r => setTimeout(r, 1000));
-    toast({ title: 'Message sent!', description: "We'll get back to you soon." });
-    setForm({ name: '', email: '', message: '' });
-    setSending(false);
-  };
-
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
       {/* Header */}
@@ -37,47 +20,17 @@ export default function Contact() {
 
       <div className="max-w-5xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Form */}
+          {/* Email CTA */}
           <div className="lg:col-span-3">
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h2 className="font-bold text-[#1a2744] text-lg mb-5">Send Us a Message</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-semibold text-gray-600 block mb-1">Your Name</label>
-                    <input
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]"
-                      value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))}
-                      placeholder="John Smith"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-gray-600 block mb-1">Email Address</label>
-                    <input
-                      type="email"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]"
-                      value={form.email} onChange={e => setForm(f => ({...f, email: e.target.value}))}
-                      placeholder="you@example.com"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-gray-600 block mb-1">Message</label>
-                  <textarea
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744] resize-none"
-                    rows={5}
-                    value={form.message} onChange={e => setForm(f => ({...f, message: e.target.value}))}
-                    placeholder="Tell us about your interest in Troop 1099..."
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={sending}
-                  className="w-full flex items-center justify-center gap-2 bg-[#1a2744] hover:bg-[#1a2744]/90 text-white py-3 rounded-lg font-semibold text-sm disabled:opacity-50 transition-colors"
-                >
-                  {sending ? 'Sending...' : <><Send className="w-4 h-4" /> Send Message</>}
-                </button>
-              </form>
+              <h2 className="font-bold text-[#1a2744] text-lg mb-3">Send Us a Message</h2>
+              <p className="text-gray-600 text-sm mb-5">Have a question about joining, upcoming events, or anything else? Click below to compose an email — it'll open your email app ready to write.</p>
+              <a
+                href={`mailto:${TROOP_EMAIL}?subject=Inquiry from Troop 1099 Website`}
+                className="w-full flex items-center justify-center gap-2 bg-[#1a2744] hover:bg-[#1a2744]/90 text-white py-3 rounded-lg font-semibold text-sm transition-colors"
+              >
+                <Mail className="w-4 h-4" /> Email Troop 1099
+              </a>
             </div>
           </div>
 
@@ -112,12 +65,12 @@ export default function Contact() {
             <div className="bg-white rounded-xl border border-gray-200 p-5">
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">Contact Info</p>
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
+                <a href={`mailto:${TROOP_EMAIL}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <div className="w-8 h-8 bg-[#1a2744]/10 rounded-full flex items-center justify-center shrink-0">
                     <Mail className="w-4 h-4 text-[#1a2744]" />
                   </div>
-                  <p className="text-sm text-gray-700">troop1099@bsa.org</p>
-                </div>
+                  <p className="text-sm text-[#1a2744] font-medium">{TROOP_EMAIL}</p>
+                </a>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-[#1a2744]/10 rounded-full flex items-center justify-center shrink-0">
                     <Phone className="w-4 h-4 text-[#1a2744]" />
