@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Plus, X, MapPin, Trash2, Settings } from 'lucide-react';
+import { Plus, X, MapPin, Trash2, Settings, CalendarPlus, Check, Edit2 } from 'lucide-react';
 
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
 
@@ -14,12 +14,6 @@ const typeConfig = {
   fundraiser: { color: 'bg-yellow-100 text-yellow-700', label: 'Fundraiser' },
   special: { color: 'bg-red-100 text-red-700', label: 'Special' },
 };
-
-// TROOP: Paste your Google Calendar embed src URL below.
-// 1. Open Google Calendar → gear icon → Settings
-// 2. Click your calendar → "Integrate calendar"
-// 3. Copy the "Embed code" src URL and paste it below.
-const GOOGLE_CALENDAR_SRC = 'https://calendar.google.com/calendar/embed?src=YOUR_CALENDAR_ID%40group.calendar.google.com&ctz=America%2FNew_York&showNav=1&showTitle=0&showPrint=0&height=600';
 
 function AddEventModal({ onClose, onSave }) {
   const [form, setForm] = useState({ title: '', date: '', end_date: '', location: '', type: 'meeting', description: '' });
@@ -69,11 +63,9 @@ function AddEventModal({ onClose, onSave }) {
   );
 }
 
-const isPlaceholderCalendar = GOOGLE_CALENDAR_SRC.includes('YOUR_CALENDAR_ID');
-
 export default function Events() {
   const [showAdd, setShowAdd] = useState(false);
-  const [tab, setTab] = useState(isPlaceholderCalendar ? 'list' : 'calendar');
+  const [tab, setTab] = useState('calendar');
   const queryClient = useQueryClient();
 
   const { data: events = [] } = useQuery({
@@ -90,6 +82,31 @@ export default function Events() {
     mutationFn: (id) => base44.entities.Event.delete(id),
     onSuccess: () => queryClient.invalidateQueries(['events'])
   });
+
+  // Google Calendar ID — stored in Setting entity so it's shared across all users
+  const { data: calendarSetting } = useQuery({
+    queryKey: ['setting', 'google_calendar_id'],
+    queryFn: async () => {
+      const results = await base44.entities.Setting.filter({ key: 'google_calendar_id' });
+      return results[0] || null;
+    },
+  });
+
+  const calendarId = calendarSetting?.value || '';
+  const [editingCal, setEditingCal] = useState(false);
+  const [calDraft, setCalDraft] = useState('');
+
+  const saveCalendarId = async () => {
+    const trimmed = calDraft.trim();
+    if (!trimmed) return;
+    if (calendarSetting) {
+      await base44.entities.Setting.update(calendarSetting.id, { value: trimmed });
+    } else {
+      await base44.entities.Setting.create({ key: 'google_calendar_id', value: trimmed });
+    }
+    queryClient.invalidateQueries(['setting', 'google_calendar_id']);
+    setEditingCal(false);
+  };
 
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
@@ -122,33 +139,78 @@ export default function Events() {
 
         {tab === 'calendar' && (
           <div>
-            {isPlaceholderCalendar ? (
+            {calendarId && !editingCal ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex gap-2">
+                    <a
+                      href={`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(calendarId)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 bg-[#1a2744] hover:bg-[#1a2744]/90 text-white px-4 py-2 rounded font-semibold text-sm"
+                    >
+                      <CalendarPlus className="w-4 h-4" /> Add to My Google Calendar
+                    </a>
+                    <a
+                      href={`https://calendar.google.com/calendar/ical/${calendarId}/public/basic.ics`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 bg-white border border-gray-300 hover:border-[#1a2744] text-gray-700 px-4 py-2 rounded font-semibold text-sm"
+                    >
+                      📲 iCal Feed
+                    </a>
+                  </div>
+                  <button onClick={() => { setCalDraft(calendarId); setEditingCal(true); }} className="text-xs text-gray-500 hover:text-[#1a2744] flex items-center gap-1">
+                    <Edit2 className="w-3 h-3" /> Edit Calendar ID
+                  </button>
+                </div>
+                <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+                  <iframe
+                    src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(calendarId)}&ctz=America%2FNew_York&showNav=1&showTitle=0&showPrint=0&height=600`}
+                    style={{ border: 0 }}
+                    width="100%"
+                    height="650"
+                    frameBorder="0"
+                    scrolling="no"
+                    title="Troop 1099 Calendar"
+                  />
+                </div>
+              </div>
+            ) : editingCal ? (
+              <div className="bg-white rounded-xl border-2 border-gray-200 p-6 max-w-lg mx-auto">
+                <h3 className="font-bold text-[#1a2744] text-lg mb-2">Google Calendar ID</h3>
+                <p className="text-gray-500 text-sm mb-3">Paste your troop's Google Calendar ID (ends in <code className="bg-gray-100 px-1 rounded text-xs">@group.calendar.google.com</code> or <code className="bg-gray-100 px-1 rounded text-xs">@gmail.com</code>).</p>
+                <input
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mb-3"
+                  value={calDraft}
+                  onChange={e => setCalDraft(e.target.value)}
+                  placeholder="troop1099@group.calendar.google.com"
+                />
+                <div className="flex gap-2">
+                  <button onClick={() => setEditingCal(false)} className="flex-1 py-2 border border-gray-300 rounded-lg text-sm">Cancel</button>
+                  <button onClick={saveCalendarId} disabled={!calDraft.trim()} className="flex-1 py-2 bg-[#1a2744] text-white rounded-lg text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-1">
+                    <Check className="w-4 h-4" /> Save
+                  </button>
+                </div>
+              </div>
+            ) : (
               <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-10 text-center">
                 <Settings className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <h3 className="font-bold text-[#1a2744] text-lg mb-2">Connect Your Google Calendar</h3>
                 <p className="text-gray-500 text-sm max-w-lg mx-auto mb-4">
-                  To embed the troop's Google Calendar here:
+                  Embed the troop's Google Calendar here so scouts and parents can see upcoming events and add them to their personal calendars.
                 </p>
                 <ol className="text-left text-sm text-gray-600 max-w-sm mx-auto space-y-2 mb-6">
                   <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">1</span> Open Google Calendar on desktop</li>
                   <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">2</span> Click the gear icon → Settings</li>
                   <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">3</span> Select your troop calendar → "Integrate calendar"</li>
-                  <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">4</span> Copy the Calendar ID (ends in @group.calendar.google.com)</li>
-                  <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">5</span> In Events.jsx, replace <code className="bg-gray-100 px-1 rounded">YOUR_CALENDAR_ID</code> with your Calendar ID</li>
+                  <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">4</span> Copy the Calendar ID</li>
+                  <li className="flex gap-2"><span className="bg-[#1a2744] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shrink-0">5</span> Make sure the calendar is set to "Public"</li>
                 </ol>
-                <p className="text-xs text-gray-400">Until then, use the Event List tab to add and view events.</p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-                <iframe
-                  src={GOOGLE_CALENDAR_SRC}
-                  style={{ border: 0 }}
-                  width="100%"
-                  height="650"
-                  frameBorder="0"
-                  scrolling="no"
-                  title="Troop 1099 Calendar"
-                />
+                <button onClick={() => { setCalDraft(''); setEditingCal(true); }} className="bg-[#1a2744] text-white px-5 py-2.5 rounded font-semibold text-sm">
+                  Enter Calendar ID
+                </button>
+                <p className="text-xs text-gray-400 mt-4">Until then, use the Event List tab to add and view events.</p>
               </div>
             )}
           </div>
