@@ -12,7 +12,7 @@ Activity Fee – There are activity fees associated with some camping trips such
 
 Outing Food – The overall outing fee will include food expenses for the troop. For outings where meals are cooked by patrol, individual patrol members will be assigned to purchase the food based on the patrol meal planning document. Food expenses will be reimbursed by the troop, by submitting the receipts and outing meal planning document to the troop treasurer.
 
-Parent Participation – Fathers that attend a camping must be a registered BSA leader and must complete Youth Protection Training prior to attending the camping trip. This provision is relaxed for participation in the November Family outing. Females are not allowed to attend camping trips. This provision does not include the November Family outing where all family members are invited to attend the dinner but are not allowed to stay overnight.
+Parent Participation – Fathers that attend a camping must be a registered BSA leader and must complete the Safeguarding Youth Training Certificate Course prior to attending the camping trip. This provision is relaxed for participation in the November Family outing. Females are not allowed to attend camping trips. This provision does not include the November Family outing where all family members are invited to attend the dinner but are not allowed to stay overnight.
 
 Leader Camping Fees – Leader will not be required to pay the registration fee but, must still sign up for the camping trip at the troop meeting prior to the camping trip. Food is purchased for the number of leaders that have signed up for the camping trip. The leader will be responsible for any activity fees.`
   },
@@ -22,17 +22,17 @@ Leader Camping Fees – Leader will not be required to pay the registration fee 
 
 Summer Camp Bus: The troop will rent a bus to transport scouts to and from summer camp. Fees related to the bus rental are incorporated into the Summer Camp fee whether the scout rides the bus or not.
 
-Required Training: Parents attending summer camp must be a registered BSA leader and must complete the required training courses (Youth Protection, Weather Hazard, Safe Swim Defense, Safety Afloat, Fast Start: Boy Scouting).
+Required Training: Parents attending summer camp must be a registered BSA leader and must complete the required training courses (Safeguarding Youth Training, Weather Hazard, Safe Swim Defense, Safety Afloat, Fast Start: Boy Scouting).
 
 Leader Fees: Adult leaders are required to pay any associated summer camp fees prior to attending summer camp.`
   },
   {
     title: 'Annual Dues / Re-chartering Process',
-    content: `Annual Dues: Current Scouts are required to pay the troop's annual dues in the month of January. Failure to pay dues by the end of January may prevent scouts from attending trips and activities. Dues are currently $125 per scout (last updated Dec 2020).
+    content: `Annual Dues: Current Scouts are required to pay the troop's annual dues in the month of January. Failure to pay dues by the end of January may prevent scouts from attending trips and activities. Dues are currently $135 per scout (last updated Dec 2020).
 
 Boys Life Registration: The current policy of the troop is to purchase one (1) subscription of Boys Life per household. The subscription will be renewed in the name of the oldest scout in the multi-scout household.
 
-Leader Fees: Adult leaders are not required to pay the annual registration fee. The troop will pay this for the adult leaders (All adults must complete Youth Protection Training every 2 years to be eligible for inclusion in the re-charter).
+Leader Fees: Adult leaders are not required to pay the annual registration fee. The troop will pay this for the adult leaders (All adults must complete the Safeguarding Youth Training Certificate Course every 2 years to be eligible for inclusion in the re-charter).
 
 Crossover Scouts Fees/Dues: Annual dues for scouts crossing over from Cub Scouts will be $65 as their BSA membership and Boys Life have already been paid.
 
@@ -48,7 +48,7 @@ Troop Meeting: Troop meetings are held on Monday night starting at 7:00 pm and e
 
 Patrol Leaders Council (PLC) Meetings: PLC meetings are held on the Monday following an outing starting at 7:00 pm and ending no later than 8:30 pm. The PLC is primarily a meeting between the Scout Leadership Team and the Scoutmaster.
 
-Troop Committee: Parents of all active and former scouts are invited to participate in the troop committee. All committee members are required to take Youth Protection Training and Troop Committee Training which are available online. The Troop Committee will meet a minimum of twice per year.`
+Troop Committee: Parents of all active and former scouts are invited to participate in the troop committee. All committee members are required to take the Safeguarding Youth Training Certificate Course and Troop Committee Training which are available online. The Troop Committee will meet a minimum of twice per year.`
   },
   {
     title: 'Merit Badges',
@@ -56,7 +56,7 @@ Troop Committee: Parents of all active and former scouts are invited to particip
 
 It is expected that the scout review the merit badge requirements before going to the Scoutmaster for a blue card.
 
-The troop policy for Eagle Required merit badges is blue cards will only be issued for: troop merit badge counselors, District merit badge counselors, summer camp programs, and Council or District sponsored and run events (like the Etowah District Advance-a-Rama). The troop will not accept Eagle required merit badges obtained from Atlanta Council merit badge clinics.
+The troop policy for Eagle Required merit badges is blue cards will only be issued for: troop merit badge counselors, District merit badge counselors, summer camp programs, and Council or District sponsored and run events (like the Etowah District Advance-a-Rama). The troop will not accept Eagle required merit badges obtained from out-of-council merit badge clinics.
 
 Personal Management and Family Life merit badges may ONLY be earned with in-troop merit badge counselors.
 
@@ -64,9 +64,9 @@ Pre-requisites should be completed prior to attending any MB classes if possible
   },
   {
     title: 'Training',
-    content: `Adult Leaders are required Youth Protection Training once every two years to be considered an active leader. The council will not allow a leader to be included in the re-charter process if they have not met the Youth Protection training requirement.
+    content: `Adult Leaders are required to complete the Safeguarding Youth Training Certificate Course once every two years to be considered an active leader. The council will not allow a leader to be included in the re-charter process if they have not met the Youth Protection training requirement.
 
-Parents attending summer camp must be a registered BSA leader and must complete the required training courses (Youth Protection, Weather Hazard, Safe Swim Defense, Safety Afloat, Fast Start: Boy Scouting).
+Parents attending summer camp must be a registered BSA leader and must complete the required training courses (Safeguarding Youth Training, Weather Hazard, Safe Swim Defense, Safety Afloat, Fast Start: Boy Scouting).
 
 Leaders are encouraged to take leader specific training such as ITOLS and Scoutmaster and Assistant Scoutmaster training.
 

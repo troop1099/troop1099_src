@@ -1,9 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, Award, User, Users, FileText, Upload } from 'lucide-react';
+import { X, ChevronRight, Award, User, Users, FileText, Upload, Calendar, Download } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
+import SchedulingModal from '@/components/advancement/SchedulingModal';
+import MyReservations from '@/components/advancement/MyReservations';
+import AdminSchedule from '@/components/advancement/AdminSchedule';
 
 function useRankImage(rankName) {
   const key = `rank_img_${rankName.replace(' ', '_')}`;
@@ -215,6 +218,7 @@ function RequestModal({ reqType, onClose }) {
 export default function Advancement() {
   const [selectedRank, setSelectedRank] = useState(null);
   const [requestModal, setRequestModal] = useState(null);
+  const [showScheduling, setShowScheduling] = useState(false);
 
   return (
     <div className="pt-14">
@@ -238,15 +242,40 @@ export default function Advancement() {
                 </div>
                 <h3 className="font-bold text-[#1a2744] text-lg mb-2">{rt.title}</h3>
                 <p className="text-gray-600 text-sm mb-5">{rt.description}</p>
-                <button
-                  onClick={() => setRequestModal(rt)}
-                  className={`w-full py-2 text-white rounded font-semibold text-sm ${rt.btnColor} transition-colors`}
-                >
-                  Request {rt.title}
-                </button>
+                {rt.type === 'blue_card' ? (
+                  <button
+                    onClick={() => setRequestModal(rt)}
+                    className={`w-full py-2 text-white rounded font-semibold text-sm ${rt.btnColor} transition-colors`}
+                  >
+                    Request {rt.title}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowScheduling(true)}
+                    className={`w-full py-2 text-white rounded font-semibold text-sm ${rt.btnColor} transition-colors flex items-center justify-center gap-1.5`}
+                  >
+                    <Calendar className="w-4 h-4" /> Schedule {rt.title}
+                  </button>
+                )}
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Worksheet + My Reservations + Admin */}
+      <section className="bg-gray-50 pb-10 px-6">
+        <div className="max-w-5xl mx-auto space-y-6">
+          <a
+            href="https://filestore.scouting.org/filestore/pdf/512-728_WB_fillable.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#1a2744] hover:underline"
+          >
+            <Download className="w-4 h-4" /> Download the Scoutmaster Conference and Board of Review Worksheet
+          </a>
+          <MyReservations />
+          <AdminSchedule />
         </div>
       </section>
 
@@ -319,6 +348,7 @@ export default function Advancement() {
       </AnimatePresence>
 
       {requestModal && <RequestModal reqType={requestModal} onClose={() => setRequestModal(null)} />}
+      {showScheduling && <SchedulingModal onClose={() => setShowScheduling(false)} />}
     </div>
   );
 }

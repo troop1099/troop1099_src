@@ -19,7 +19,7 @@ const VOLUNTEER_ROLES = [
   },
   {
     title: 'Assistant Scoutmaster (ASM)',
-    desc: 'Work directly with Scouts on campouts, hikes, and meetings. Requires YPT + leader training. Rewarding and hands-on.',
+    desc: 'Work directly with Scouts on campouts, hikes, and meetings. Requires Safeguarding Youth Training + leader training. Rewarding and hands-on.',
     commit: '4–8 hrs/month',
     color: 'bg-green-50 border-green-200',
     tag: 'bg-green-100 text-green-800',
@@ -41,11 +41,11 @@ const COMMUNICATION = [
 
 const FAQ = [
   { q: 'What should my Scout wear to meetings?', a: 'Class A (full uniform) to all regular Monday meetings and Courts of Honor. Class B (troop t-shirt) for campouts and active events. See the Troop Guidelines page for the full uniform guide.' },
-  { q: 'How do I pay troop dues?', a: 'Annual dues are $139 and due in January. Summer camp is paid separately. Use the Dues page on this website to notify the treasurer, then pay by check or Venmo as instructed.' },
-  { q: 'What training do I need to attend campouts?', a: 'All adults on campouts must have current Youth Protection Training (YPT). It\'s free and takes about 90 minutes at my.scouting.org.' },
+  { q: 'How do I pay troop dues?', a: 'Annual dues are $135 and due in January. Summer camp is paid separately. Use the Dues page on this website to notify the treasurer, then pay by check or Venmo as instructed.' },
+  { q: 'What training do I need to attend campouts?', a: 'All adults on campouts must have a current Safeguarding Youth Training Certificate Course. It\'s free and takes about 90 minutes at my.scouting.org.' },
   { q: 'How does the rank advancement process work?', a: 'Scouts complete requirements with a merit badge counselor or leader, request a Scoutmaster Conference, then a Board of Review. See the Advancement page for details and request forms.' },
   { q: 'My Scout has special needs — is that okay?', a: 'Absolutely. Troop 1099 welcomes all Scouts. Contact the Scoutmaster to discuss accommodations before your first meeting so we can make the experience great from day one.' },
-  { q: 'How do I become a Merit Badge Counselor?', a: 'Fill out the counselor sign-up form below and the Scoutmaster will follow up. You\'ll need YPT and to register with the council — we\'ll walk you through it.' },
+  { q: 'How do I become a Merit Badge Counselor?', a: 'Fill out the counselor sign-up form below and the Scoutmaster will follow up. You\'ll need the Safeguarding Youth Training Certificate Course and to register with the council — we\'ll walk you through it.' },
 ];
 
 export default function ForParents() {
@@ -84,7 +84,7 @@ export default function ForParents() {
               { label: 'Documents & Forms', desc: 'Permission slips, health forms', href: '/documents', internal: true },
               { label: 'Advancement Center', desc: 'Rank requirements & BOR requests', href: '/advancement', internal: true },
               { label: 'Summer Camp Info', desc: 'Dates, costs & registration', href: '/summer-camp', internal: true },
-              { label: 'YPT Training', desc: 'Required for all adults on campouts', href: 'https://my.scouting.org', internal: false },
+              { label: 'Safeguarding Youth Training', desc: 'Required for all adults on campouts', href: 'https://my.scouting.org', internal: false },
             ].map(link => (
               link.internal
                 ? <Link key={link.label} to={link.href} className="bg-white border border-gray-200 rounded-xl p-4 hover:border-[#1a2744] hover:shadow-sm transition-all flex items-start gap-3">
@@ -135,7 +135,7 @@ export default function ForParents() {
             <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
               <span className="w-7 h-7 bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-sm shrink-0">1</span>
               <div>
-                <p className="font-bold text-[#1a2744]">Youth Protection Training (YPT)</p>
+                <p className="font-bold text-[#1a2744]">Safeguarding Youth Training Certificate Course</p>
                 <p className="text-sm text-gray-600 mt-0.5">Free, ~90 minutes. Required every 2 years. No exceptions.</p>
                 <a href="https://my.scouting.org" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-2 text-sm font-semibold text-red-700 hover:underline">Complete at my.scouting.org <ExternalLink className="w-3 h-3" /></a>
               </div>

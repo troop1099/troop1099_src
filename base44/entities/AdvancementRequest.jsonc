@@ -8,13 +8,16 @@
         "scoutmaster_conference",
         "board_of_review",
         "blue_card"
-      ]
+      ],
+      "description": "Type of advancement request"
     },
     "scout_name": {
-      "type": "string"
+      "type": "string",
+      "description": "Scout's full name"
     },
     "scout_email": {
-      "type": "string"
+      "type": "string",
+      "description": "Scout's email"
     },
     "rank": {
       "type": "string",
@@ -25,7 +28,13 @@
       "description": "For blue card: merit badge name"
     },
     "notes": {
-      "type": "string"
+      "type": "string",
+      "description": "Notes"
+    },
+    "meeting_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Requested troop meeting date for SMC/BOR"
     },
     "status": {
       "type": "string",
@@ -33,9 +42,12 @@
         "pending",
         "approved",
         "scheduled",
-        "completed"
+        "completed",
+        "canceled",
+        "rejected"
       ],
-      "default": "pending"
+      "default": "pending",
+      "description": "Request status"
     }
   },
   "required": [
