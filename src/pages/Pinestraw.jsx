@@ -31,50 +31,11 @@ function OrderForm() {
   );
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm text-center">
       <h2 className="font-bold text-[#1a2744] text-xl mb-5 flex items-center gap-2">
-        <Leaf className="w-5 h-5 text-green-600" /> Place Your Order
+        <Leaf className="w-5 h-5 text-green-600" /> Order Pinestraw Here
       </h2>
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Full Name *</label>
-            <input className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" value={form.customer_name} onChange={e => setForm(f => ({...f, customer_name: e.target.value}))} placeholder="John Smith" />
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Phone Number</label>
-            <input className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" value={form.phone} onChange={e => setForm(f => ({...f, phone: e.target.value}))} placeholder="(770) 555-0100" />
-          </div>
-        </div>
-        <div>
-          <label className="text-xs font-semibold text-gray-600 block mb-1">Email Address</label>
-          <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" value={form.email} onChange={e => setForm(f => ({...f, email: e.target.value}))} placeholder="you@example.com" />
-        </div>
-        <div>
-          <label className="text-xs font-semibold text-gray-600 block mb-1">Delivery Address *</label>
-          <input className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" value={form.address} onChange={e => setForm(f => ({...f, address: e.target.value}))} placeholder="123 Main St, Cumming, GA 30041" />
-        </div>
-        <div>
-          <label className="text-xs font-semibold text-gray-600 block mb-1">Number of Bales *</label>
-          <div className="flex items-center gap-3">
-            <button type="button" onClick={() => setForm(f => ({...f, bales: Math.max(1, f.bales - 1)}))} className="w-10 h-10 rounded-lg border border-gray-300 font-bold text-lg hover:bg-gray-50">−</button>
-            <span className="text-2xl font-bold text-[#1a2744] w-10 text-center">{form.bales}</span>
-            <button type="button" onClick={() => setForm(f => ({...f, bales: f.bales + 1}))} className="w-10 h-10 rounded-lg border border-gray-300 font-bold text-lg hover:bg-gray-50">+</button>
-            <span className="text-sm text-gray-500 ml-2">bale{form.bales !== 1 ? 's' : ''}</span>
-          </div>
-        </div>
-        <div>
-          <label className="text-xs font-semibold text-gray-600 block mb-1">Special Instructions / Delivery Notes</label>
-          <textarea className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" rows={3} value={form.special_instructions} onChange={e => setForm(f => ({...f, special_instructions: e.target.value}))} placeholder="Gate code, where to place the pine straw, access notes..." />
-        </div>
-        <button
-          onClick={() => mutation.mutate(form)}
-          disabled={!form.customer_name || !form.address || !form.bales || mutation.isPending}
-          className="w-full py-3 bg-[#1a2744] hover:bg-[#1a2744]/90 text-white rounded-lg font-bold text-sm disabled:opacity-50 transition-colors"
-        >
-          {mutation.isPending ? 'Submitting...' : '🌿 Submit Pine Straw Order'}
-        </button>
-      </div>
+      <p className="text-gray-600 text-sm leading-relaxed">Thank you for supporting Troop 1099 this year. Please visit us next year.</p>
     </div>
   );
 }
