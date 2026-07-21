@@ -28,13 +28,14 @@ function CheckoutForm({ onClose }) {
     gear_item: GEAR_OPTIONS[0],
     tent_number: '',
     notes: '',
-    return_code: '',
+    return_code: Math.random().toString(36).slice(2, 7).toUpperCase(),
   });
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
   const isAdmin = user?.role === 'admin';
+  const suggestedCode = Math.random().toString(36).slice(2, 7).toUpperCase();
 
   const isTent = form.gear_item === 'Troop Tent';
 
@@ -91,8 +92,9 @@ function CheckoutForm({ onClose }) {
           )}
           {isAdmin && (
             <div>
-              <label className="text-xs font-semibold text-gray-600 block mb-1">Return Code (admin only)</label>
-              <input className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" value={form.return_code} onChange={e => setForm(f => ({...f, return_code: e.target.value}))} placeholder="Code required to return this gear" />
+              <label className="text-xs font-semibold text-gray-600 block mb-1">Return Code (admin only — give this to the scout)</label>
+              <input className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744] font-mono tracking-widest" value={form.return_code} onChange={e => setForm(f => ({...f, return_code: e.target.value.toUpperCase()}))} placeholder="Auto-generated code" />
+              <p className="text-xs text-gray-400 mt-1">The scout must provide this code when returning the item. You can change it or leave the generated one.</p>
             </div>
           )}
           <div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, Calendar, DollarSign, MapPin, CheckCircle, Star, Sun, Mail, Phone, Package, AlertTriangle } from 'lucide-react';
+import { ExternalLink, Calendar, DollarSign, MapPin, CheckCircle, Star, Sun, Mail, Phone, Package, AlertTriangle, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const WHAT_TO_EXPECT = [
@@ -313,7 +313,13 @@ export default function SummerCamp() {
           <>
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h2 className="font-bold text-[#1a2744] text-xl mb-2">Summer Camp Packing List</h2>
-              <p className="text-sm text-gray-500 mb-5">See also the full <Link to="/outing-prep" className="text-[#1a2744] underline">Regular Campout packing list</Link>. These are summer camp specifics:</p>
+              <div className="flex flex-wrap items-center gap-4 mb-5">
+                <p className="text-sm text-gray-500">See also the full <Link to="/camping-checklist" className="text-[#1a2744] underline">Regular Campout packing list</Link>. These are summer camp specifics:</p>
+                <a href="https://docs.google.com/spreadsheets/d/1WylZyykyC7GjcIviTxCHcJN94XiRTcQb4oMx3R0ZrkI/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-[#1a2744] border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50 shrink-0">
+                  <Download className="w-3.5 h-3.5" /> Download Full Packing List (Google Sheet)
+                </a>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {PACKING_HIGHLIGHTS.map((item, i) => (
                   <div key={i} className={`flex items-start gap-2 p-2.5 rounded-lg ${item.required ? 'bg-gray-50' : 'bg-gray-50 opacity-70'}`}>

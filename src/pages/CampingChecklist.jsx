@@ -1,86 +1,94 @@
 import React, { useState } from 'react';
-import { CheckCircle, X, Download } from 'lucide-react';
+import { CheckCircle, X, Download, ExternalLink } from 'lucide-react';
 
 const SCOUT_SECTIONS = [
   {
     title: 'Clothing',
     color: 'bg-blue-50 border-blue-200',
     items: [
-      { item: 'Class A uniform (shirt, pants/shorts, belt, socks) — wear during travel', required: true },
-      { item: 'Class B troop t-shirt (2–3 for activity days)', required: true },
-      { item: '2 short sleeve synthetic shirts', required: true },
-      { item: '1–2 long sleeve synthetic shirts', required: true },
+      { item: 'Class A uniform (shirt, pants, belt, socks) — wear during travel', required: true },
+      { item: 'Class B troop t-shirts (2–3 for activity days)', required: true },
+      { item: 'Short sleeve synthetic shirts (2)', required: true },
+      { item: 'Long sleeve synthetic shirts (1–2)', required: true },
       { item: 'Long pants or synthetic sweats', required: true },
       { item: 'Sweatshirt or jacket', required: true },
-      { item: 'Cold weather: heavy jacket + extra long pants', required: false },
-      { item: 'Hiking boots or sturdy closed-toe shoes', required: true },
+      { item: 'Comfortable hiking boots or sturdy closed-toe shoes', required: true },
+      { item: 'Spare shoes (in case your primary pair gets wet)', required: true },
+      { item: 'Crocs (shower use only)', required: false },
       { item: 'Socks (at least 2 pair per day — dry socks are priceless!)', required: true },
-      { item: 'Rain gear — waterproof jacket or heavy poncho + rain pants. ALWAYS bring, even if 0% rain.', required: true },
+      { item: 'Swim suit', required: true },
+      { item: 'Sleepwear', required: true },
       { item: 'Underwear (1 per day)', required: true },
-      { item: 'Optional: sleeping clothes (t-shirt, dry socks, shorts)', required: false },
+      { item: 'Rain gear — waterproof jacket or heavy poncho + rain pants. ALWAYS bring, even if 0% rain.', required: true },
+      { item: 'Hat', required: true },
+      { item: 'Hanger (for Class A uniform)', required: true },
+      { item: 'Cold weather: heavy jacket + extra long pants', required: false },
       { item: 'Cold weather: wool or pull-on cap + lightweight gloves', required: false },
-      { item: 'Zip-off pants (highly recommended — warm/cold/rain versatile)', required: false },
     ],
   },
   {
-    title: 'Personal Items',
+    title: 'Personal Gear',
     color: 'bg-green-50 border-green-200',
     items: [
-      { item: 'Boy Scout Handbook (in Ziplock bag or book cover)', required: true },
-      { item: 'Headlamp + extra batteries (scouts always forget this!)', required: true },
-      { item: 'Small first aid kit: bandaids, gauze, moleskin, antiseptic, adhesive tape', required: true },
+      { item: 'Boy Scout Handbook (write name on side of book)', required: true },
+      { item: 'Headlamp + extra batteries', required: true },
+      { item: 'Water bottle / Camelback — write name and Troop # on bottle', required: true },
+      { item: 'Daypack — carry water, sunscreen, and class supplies (mark with name and Troop #)', required: true },
       { item: 'All medications in original containers — turn in to leader before departure', required: true },
-      { item: 'Toiletries: toothbrush, toothpaste, soap, toilet paper, hand sanitizer, chapstick', required: true },
-      { item: 'Washcloth / microfiber towel', required: true },
-      { item: "Pocketknife (Totin' Chip required)", required: false },
-      { item: 'Compass', required: true },
-      { item: 'Sun protection: sunscreen SPF35+, sunglasses, hat', required: true },
-      { item: 'Insect repellant (no aerosol cans)', required: false },
-      { item: 'Plastic trash bags (1–2 to keep gear dry)', required: false },
-      { item: 'Optional: camera, watch, whistle', required: false },
+      { item: 'Toiletries: soap, toothpaste, deodorant, toothbrush', required: true },
+      { item: 'Towel (bring 2 if taking an Aquatics class)', required: true },
+      { item: 'Lip balm', required: true },
+      { item: 'Sunscreen SPF35+', required: true },
+      { item: 'Bug spray (no aerosol cans)', required: true },
+      { item: 'Personal first aid kit', required: true },
+      { item: 'Cord (to make a clothesline for swim suits and uniform)', required: true },
+      { item: 'Dirty clothes bag', required: true },
+      { item: 'Pen / pencil and notebook for classes', required: true },
+      { item: 'Watch (helps keep on schedule)', required: false },
+      { item: 'Sunglasses', required: false },
+      { item: "Pocketknife (Totin' Chip required; NO sheath knives)", required: false },
+      { item: "Totin' Chip card", required: false },
     ],
   },
   {
     title: 'Sleeping Gear',
     color: 'bg-purple-50 border-purple-200',
     items: [
-      { item: 'Sleeping bag (30°F rated or better)', required: true },
-      { item: 'Sleeping pad (essential for body heat retention)', required: true },
-      { item: 'Pillow', required: false },
+      { item: 'Sleeping bag (can get cool at night)', required: true },
+      { item: 'Sleeping pad', required: true },
+      { item: 'Pillow', required: true },
       { item: 'Optional: sleeping bag liner', required: false },
       { item: 'Optional: camp chair', required: false },
     ],
   },
   {
-    title: 'Shelter & Pack',
+    title: 'Storage & Pack',
     color: 'bg-orange-50 border-orange-200',
     items: [
-      { item: 'Backpack or duffle bag (army surplus duffle works for campouts)', required: true },
-      { item: 'Tent (or borrow a troop tent via Gear Checkout)', required: true },
-      { item: 'Ground cloth / tarp', required: false },
+      { item: 'Foot locker (rolling plastic preferred — put name on duct tape, paint, or big marker)', required: true },
+      { item: 'Backpack or duffle bag', required: true },
     ],
   },
   {
-    title: 'Mess Kit',
+    title: 'Merit Badge Supplies',
     color: 'bg-yellow-50 border-yellow-200',
     items: [
-      { item: 'Drinking cup with handle', required: true },
-      { item: 'Plate or bowl', required: true },
-      { item: 'Water bottle (wide-mouth Nalgene recommended)', required: true },
-      { item: 'Eating utensils (spork or spoon + fork)', required: true },
+      { item: 'Merit badge books (can print free from meritbadge.org)', required: false },
+      { item: 'Money for merit badge suppliers (Woodcarving and Indian Lore kits ~$10–$25 at Trading Post)', required: false },
+      { item: 'Swimming MB: long sleeve shirt + long pants (not jeans)', required: false },
+      { item: 'Fishing gear (rod and tackle — if taking Fishing MB)', required: false },
     ],
   },
   {
     title: 'DO NOT Bring',
     color: 'bg-red-50 border-red-200',
     items: [
-      { item: 'Electronics: cell phones, tablets, gaming devices (unless Scoutmaster approved)', required: true },
-      { item: 'Personal snacks (food in tents attracts bears)', required: true },
-      { item: 'Hunting knives or blades over 3 inches', required: true },
-      { item: 'Fireworks, alcohol, or firearms', required: true },
-      { item: 'Aerosol spray cans', required: true },
-      { item: 'Lots of changes of clothing, multiple coats', required: true },
-      { item: "Giant fluffy (cotton) sleeping bags — they don't retain heat when wet", required: true },
+      { item: 'Electronic devices: cell phones, radios, video games, etc.', required: true },
+      { item: 'Junk food / personal snacks (food in tents attracts wildlife)', required: true },
+      { item: 'Illegal substances or alcohol', required: true },
+      { item: 'Valuables — good chance they will be lost or broken', required: true },
+      { item: 'Fireworks or firearms', required: true },
+      { item: 'Hunting/sheath knives', required: true },
     ],
   },
 ];
@@ -331,6 +339,14 @@ function QtrMasterChecklist() {
   );
 }
 
+const DOWNLOADS = [
+  { label: 'Summer Camp Packing List', note: 'Troop 1099 — Google Sheet (printable)', url: 'https://docs.google.com/spreadsheets/d/1WylZyykyC7GjcIviTxCHcJN94XiRTcQb4oMx3R0ZrkI/edit?gid=0#gid=0' },
+  { label: 'Master Scout Camping Checklist', note: 'All-weather campout + backpacking — DOCX', url: 'https://media.base44.com/files/public/6a1da1101f26862b7b863a4a/9bd51c571_Master_Scout_Camping_Checklist.docx' },
+  { label: 'Annual Health Form (Parts A, B & C)', note: 'Required for Summer Camp', url: 'https://filestore.scouting.org/filestore/HealthSafety/pdf/680-001_ABC.pdf' },
+  { label: 'Blue Card (Fillable PDF)', note: 'Required before starting any merit badge', url: 'https://bsatroop143.com/wp-content/uploads/2024/08/mb-app-blue-card-fillable_.pdf' },
+  { label: 'All Merit Badge PDFs', note: 'Free from scouting.org', url: 'https://www.scouting.org/skills/merit-badges/all/' },
+];
+
 export default function CampingChecklist() {
   const [tab, setTab] = useState('scout');
 
@@ -338,13 +354,37 @@ export default function CampingChecklist() {
     <div className="pt-14 min-h-screen bg-gray-50">
       <div className="bg-[#1a2744] text-white py-10 px-6">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-bold">Camping Checklists</h1>
-          <p className="text-white/70 mt-2">Scout packing list and official Quartermaster gear checklist for Troop 1099.</p>
+          <h1 className="text-3xl font-bold">Camping Checklists & Resources</h1>
+          <p className="text-white/70 mt-2">Scout packing list, Quartermaster gear checklist, downloads, and troop community.</p>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-6">
-        <div className="flex gap-2 mb-6">
+      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+
+        {/* Downloads */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <h2 className="font-bold text-[#1a2744] mb-4 flex items-center gap-2">
+            <Download className="w-4 h-4 text-[#FFD700]" /> Downloads & Forms
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {DOWNLOADS.map(link => (
+              <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 bg-gray-50 hover:bg-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all group">
+                <div className="w-9 h-9 bg-[#1a2744] rounded-lg flex items-center justify-center shrink-0">
+                  <Download className="w-4 h-4 text-[#FFD700]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-[#1a2744] text-sm group-hover:text-blue-700">{link.label}</p>
+                  <p className="text-xs text-gray-400">{link.note}</p>
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-gray-400 ml-auto shrink-0" />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2">
           <button
             onClick={() => setTab('scout')}
             className={`px-4 py-2 rounded font-semibold text-sm ${tab === 'scout' ? 'bg-[#1a2744] text-white' : 'bg-white border border-gray-300 text-gray-600'}`}
@@ -360,6 +400,23 @@ export default function CampingChecklist() {
         </div>
 
         {tab === 'scout' ? <ScoutChecklist /> : <QtrMasterChecklist />}
+
+        {/* Facebook Community */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <h2 className="font-bold text-[#1a2744] mb-2 flex items-center gap-2">
+            <span className="text-blue-600">f</span> Join Our Facebook Community
+          </h2>
+          <p className="text-gray-500 text-sm mb-4">Stay connected with Troop 1099 families, get updates, and see photos from outings.</p>
+          <a
+            href="https://www.facebook.com/groups/137754326238273/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-[#1877F2] hover:bg-[#1565d8] text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition-colors"
+          >
+            <ExternalLink className="w-4 h-4" /> Join the Troop 1099 Facebook Group
+          </a>
+        </div>
+
       </div>
     </div>
   );
