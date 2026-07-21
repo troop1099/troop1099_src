@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Calendar, Clock, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, AlertCircle, X } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const typeLabel = (type) => {
@@ -134,6 +134,9 @@ export default function MyReservations() {
       {cancelTarget && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-sm w-full p-6">
+            <div className="flex justify-end mb-2">
+              <button onClick={() => setCancelTarget(null)}><X className="w-4 h-4 text-gray-400" /></button>
+            </div>
             <div className="flex items-start gap-3 mb-4">
               <AlertCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
               <div>

@@ -111,8 +111,8 @@ export default function Dues() {
           <div className="space-y-3">
             {[
               { label: 'Annual Dues (Current Scout)', amount: '$135', note: 'Due by end of January each year' },
-              { label: 'Summer Camp', amount: '$375', note: 'Usually early–mid June' },
-              { label: 'New Scout / Crossover', amount: '$65', note: 'BSA membership already paid by pack' },
+              { label: 'Summer Camp', amount: 'Please check with Scoutmaster', note: 'Usually early–mid June' },
+              { label: 'New Scout / Crossover', amount: 'Please check with Scoutmaster', note: 'BSA membership already paid by pack' },
               { label: 'Normal Outing Fee', amount: '$30–$80', note: 'Food/campsite + activity fee' },
             ].map(c => (
               <div key={c.label} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">

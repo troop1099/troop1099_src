@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Crown, Star, Users, PenLine, Camera, BookOpen, Globe, ChevronDown, ChevronUp, Shield } from 'lucide-react';
+import { Crown, Star, Users, PenLine, Package, BookOpen, Globe, ChevronDown, ChevronUp, Shield } from 'lucide-react';
 
 const ROLES = [
   {
@@ -26,8 +26,8 @@ const ROLES = [
     icon: Star,
     color: 'bg-orange-50 border-orange-300',
     iconBg: 'bg-orange-500',
-    elected: false,
-    description: 'The ASPL assists the SPL and steps in when the SPL is absent. Often responsible for training and developing other youth leaders.',
+    elected: true,
+    description: 'The Assistant Senior Patrol Leader is an elected youth leadership position that supports the Senior Patrol Leader and steps in when the Senior Patrol Leader is absent.',
     duties: [
       'Assist the SPL in all duties',
       'Lead the troop in the SPL\'s absence',
@@ -35,7 +35,7 @@ const ROLES = [
       'Oversee the Quartermaster and Scribe',
       'Plan and run JLTC (Junior Leader Training)',
     ],
-    how: 'Appointed by the SPL with Scoutmaster approval. Usually the runner-up in the SPL election or a strong First Class+ Scout.',
+    how: 'Elected by troop vote. Usually the runner-up in the SPL election or a strong First Class+ Scout.',
   },
   {
     title: 'Patrol Leader (PL)',
@@ -87,20 +87,21 @@ const ROLES = [
     how: 'Appointed by the SPL with Scoutmaster approval.',
   },
   {
-    title: 'Troop Historian',
-    abbr: 'Historian',
-    icon: Camera,
-    color: 'bg-purple-50 border-purple-300',
-    iconBg: 'bg-purple-600',
+    title: 'Troop Quartermaster',
+    abbr: 'Quartermaster',
+    icon: Package,
+    color: 'bg-teal-50 border-teal-300',
+    iconBg: 'bg-teal-600',
     elected: false,
-    description: 'The Historian preserves the troop\'s history — photos, trip recaps, and milestones. Manages the photo gallery and helps write trip recaps for the website.',
+    description: 'The Quartermaster manages the troop\u2019s equipment and supplies. The Quartermaster helps issue, collect, organize, inspect, and maintain troop gear and reports damaged or missing equipment to the appropriate adult leader.',
     duties: [
-      'Take photos at meetings, outings, and courts of honor',
-      'Maintain the troop photo archive',
-      'Write or collect Scout-written trip recaps for the website',
-      'Compile the troop\'s annual highlights',
+      'Issue and collect troop gear for outings',
+      'Organize and maintain the troop equipment room',
+      'Inspect gear before and after each outing',
+      'Report damaged or missing equipment to adult leaders',
+      'Keep an inventory of all troop equipment',
     ],
-    how: 'Appointed by the SPL with Scoutmaster approval. Should be enthusiastic about photography and storytelling.',
+    how: 'Appointed by the SPL with Scoutmaster approval.',
   },
   {
     title: 'Troop Instructor',
@@ -173,7 +174,7 @@ export default function PLCRoles() {
             <div className="flex gap-4 flex-wrap justify-center">
               <div className="bg-green-600 text-white font-bold px-4 py-1.5 rounded-lg">PL (each patrol)</div>
               <div className="bg-blue-600 text-white font-bold px-4 py-1.5 rounded-lg">Scribe</div>
-              <div className="bg-purple-600 text-white font-bold px-4 py-1.5 rounded-lg">Historian</div>
+              <div className="bg-teal-600 text-white font-bold px-4 py-1.5 rounded-lg">Quartermaster</div>
               <div className="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded-lg">Instructor</div>
               <div className="bg-red-600 text-white font-bold px-4 py-1.5 rounded-lg">Webmaster</div>
             </div>

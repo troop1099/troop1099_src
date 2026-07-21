@@ -14,18 +14,20 @@ const WHAT_TO_EXPECT = [
 ];
 
 const PACKING_HIGHLIGHTS = [
-  { item: 'Class A uniform (wear on travel days)', required: true },
-  { item: 'Class B t-shirts (4–5 for activity days)', required: true },
-  { item: 'Sleeping bag + pillow', required: true },
-  { item: 'Footlocker (rolling plastic preferred)', required: true },
-  { item: 'Closed-toe shoes + water shoes/crocs', required: true },
+  { item: 'Class A uniform — wear on travel days', required: true },
+  { item: '4–5 Class B T-shirts for activity days', required: true },
+  { item: 'Sleeping bag and pillow', required: true },
+  { item: 'Footlocker — rolling plastic preferred', required: true },
+  { item: 'Closed-toe shoes', required: true },
+  { item: 'Water shoes or Crocs', required: true },
   { item: 'Rain gear', required: true },
-  { item: 'Sunscreen + bug spray', required: true },
-  { item: 'Water bottle (32oz+)', required: true },
-  { item: 'Spending money for Trading Post ($30–$50 typical)', required: false },
-  { item: 'Completed Health Form Parts A, B & C (NO FORM = NO CAMP)', required: true },
-  { item: 'Prescription medications in original containers', required: true },
-  { item: 'Label EVERYTHING with your name', required: true },
+  { item: 'Sunscreen', required: true },
+  { item: 'Bug spray', required: true },
+  { item: 'Water bottle — 32 oz or larger', required: true },
+  { item: 'Spending money for the Trading Post — approximately $30–$50', required: false },
+  { item: 'Completed Health Form Parts A, B, and C — NO FORM = NO CAMP', required: true },
+  { item: 'Prescription medications in their original containers', required: true },
+  { item: 'Label all personal belongings with the Scout\u2019s name', required: true },
 ];
 
 const REGISTRATION_STEPS = [
@@ -222,12 +224,11 @@ export default function SummerCamp() {
             {/* Payment plan */}
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h2 className="font-bold text-[#1a2744] text-lg mb-3">Payment Options</h2>
-              <p className="text-gray-600 text-sm mb-4">You may pay in full or in 3 installments:</p>
-              <div className="grid grid-cols-3 gap-3">
+              <p className="text-gray-600 text-sm mb-4">You may pay in full or in 2 installments:</p>
+              <div className="grid grid-cols-2 gap-3">
                 {[
                   { label: '1st Payment', due: 'Due February 1' },
                   { label: '2nd Payment', due: 'Due March 1' },
-                  { label: '3rd Payment', due: 'Due May 1' },
                 ].map(p => (
                   <div key={p.label} className="bg-gray-50 rounded-lg p-3 text-center">
                     <p className="font-bold text-[#1a2744] text-sm">{p.label}</p>
@@ -250,16 +251,15 @@ export default function SummerCamp() {
               <div className="space-y-4">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="font-bold text-[#1a2744]">Meet-Up Location</p>
-                  <p className="text-gray-700 text-sm mt-1">Publix Cruse Marketplace parking lot</p>
-                  <p className="text-gray-600 text-sm">1735 Buford Hwy, Cumming, GA 30041</p>
-                  <a href="https://maps.google.com/?q=1735+Buford+Hwy+Cumming+GA+30041" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-2">
+                  <p className="text-gray-700 text-sm mt-1">Lanier United Methodist Church</p>
+                  <a href="https://maps.google.com/?q=Lanier+United+Methodist+Church+Cumming+GA" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-2">
                     Get Directions <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-gray-50 rounded-lg p-4">
                     <p className="font-bold text-[#1a2744] text-sm">Arrival Time</p>
-                    <p className="text-gray-600 text-sm mt-1">9:30 AM — The check-in process takes time. Please be prompt.</p>
+                    <p className="text-gray-600 text-sm mt-1">9:00 AM — The check-in process takes time. Please be prompt.</p>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4">
                     <p className="font-bold text-[#1a2744] text-sm">Uniform</p>
@@ -270,7 +270,7 @@ export default function SummerCamp() {
                   <p className="font-bold text-[#1a2744] text-sm mb-2">Bring on Departure Day</p>
                   <ul className="space-y-1">
                     {[
-                      'Sack lunch and water bottle (we stop to eat along the way)',
+                      'Bring money to purchase food when the troop stops to eat on the way',
                       'All medications in original packaging — hand delivered to a leader',
                       'Any missing medical forms (will be collected BEFORE boarding)',
                     ].map((item, i) => (

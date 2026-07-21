@@ -40,6 +40,10 @@
     "notes": {
       "type": "string",
       "description": "Any notes about condition or return"
+    },
+    "return_code": {
+      "type": "string",
+      "description": "Code required to verify gear return (admin-set)"
     }
   },
   "required": [
