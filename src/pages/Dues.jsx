@@ -79,43 +79,30 @@ export default function Dues() {
         {/* Pay Form */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <h2 className="font-bold text-[#1a2744] text-xl mb-5">Troop All Payments</h2>
-          <div className="space-y-4">
+          <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" className="space-y-4">
+            <input type="hidden" name="cmd" value="_s-xclick" />
+            <input type="hidden" name="hosted_button_id" value="FACQG72KN8E3W" />
+            <input type="hidden" name="on0" value="Troop All Payments" />
             <div>
               <label className="text-sm font-semibold text-gray-700 block mb-1">Payment Type</label>
-              <select
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]"
-                value={selected}
-                onChange={e => setSelected(e.target.value)}
-              >
-                {PAYMENT_OPTIONS.map(o => (
-                  <option key={o.label} value={o.label}>{o.label} — {o.amount}</option>
-                ))}
+              <select name="os0" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]">
+                <option value="Annual Dues">Annual Dues $139.00 USD</option>
+                <option value="Summer Camp Full payment">Summer Camp Full payment $450.00 USD</option>
+                <option value="Summer Camp 1st payment">Summer Camp 1st payment $200.00 USD</option>
+                <option value="Summer Camp 2nd payment">Summer Camp 2nd payment $250.00 USD</option>
+                <option value="Annual Dues and Full Summer Camp">Annual Dues and Full Summer Camp $589.00 USD</option>
               </select>
             </div>
+            <input type="hidden" name="on1" value="Scout Name" />
             <div>
               <label className="text-sm font-semibold text-gray-700 block mb-1">Scout Name</label>
-              <input
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]"
-                placeholder="Enter scout's full name"
-                value={scoutName}
-                onChange={e => setScoutName(e.target.value)}
-              />
+              <input type="text" name="os1" maxLength="200" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" placeholder="Enter scout's full name" />
             </div>
-            <div className="bg-[#1a2744]/5 rounded-lg p-4 flex items-center justify-between">
-              <span className="text-sm text-gray-600">Amount Due:</span>
-              <span className="font-bold text-[#1a2744] text-lg">{PAYMENT_OPTIONS.find(o => o.label === selected)?.amount}</span>
+            <input type="hidden" name="currency_code" value="USD" />
+            <div className="pt-2 flex justify-center">
+              <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_paynow_LG.gif" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Buy Now" style={{ border: 0 }} />
             </div>
-            <button
-              onClick={handlePay}
-              disabled={submitting}
-              className="w-full bg-[#FFD700] hover:bg-yellow-400 text-[#1a2744] font-bold py-3 rounded-lg text-base transition-colors disabled:opacity-50"
-            >
-              {submitting ? 'Submitting...' : 'Pay Now'}
-            </button>
-            <p className="text-xs text-gray-400 text-center">
-              Submitting this form notifies the troop treasurer. Payment may be made by check at a Monday meeting or via Venmo/PayPal as directed by the treasurer.
-            </p>
-          </div>
+          </form>
         </div>
 
         {/* Fee Schedule */}
