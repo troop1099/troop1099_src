@@ -11,7 +11,7 @@ export default function HeroSection() {
       <div className="absolute inset-0">
         <img
           src={TROOP_PHOTO}
-          alt="BSA Troop 1099"
+          alt="Troop 1099 Scouts Camping in Cumming GA"
           className="w-full h-full object-cover object-top"
         />
         <div className="absolute inset-0 bg-[#1a2744]/70" />
@@ -23,7 +23,7 @@ export default function HeroSection() {
           <img src={BSA_LOGO} alt="Boy Scouts of America Troop 1099 Cumming GA" className="h-14 object-contain drop-shadow-lg" />
         </div>
         <h1 className="font-heading font-bold text-4xl md:text-5xl text-white leading-tight">
-          BSA Troop 1099
+          BSA Troop 1099 | Cumming, GA
         </h1>
         <p className="text-white/90 text-lg mt-3">
           Adventure, Leadership, Service | Cumming, GA

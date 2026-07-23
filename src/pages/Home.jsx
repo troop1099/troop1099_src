@@ -3,6 +3,7 @@ import HeroSection from '../components/home/HeroSection';
 import MissionSection from '../components/home/MissionSection';
 import UpcomingEvents from '../components/home/UpcomingEvents';
 import CTASection from '../components/home/CTASection';
+import FacebookSection from '../components/home/FacebookSection';
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <HeroSection />
       <MissionSection />
       <UpcomingEvents />
+      <FacebookSection />
       <CTASection />
     </>
   );

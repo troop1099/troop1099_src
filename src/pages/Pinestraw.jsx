@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Leaf, Package, MapPin, Phone, Mail, ClipboardList, CheckCircle, Clock, Truck } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
 
@@ -41,30 +42,69 @@ function OrderForm() {
 }
 
 function AdminView() {
+  const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [show, setShow] = useState(false);
-
-  const { data: orders = [] } = useQuery({
-    queryKey: ['pinestraw'],
-    queryFn: () => base44.entities.PinestrawOrder.list('-created_date', 200),
-    enabled: show,
-  });
+  const [authorized, setAuthorized] = useState(false);
+  const [adminCode, setAdminCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [orders, setOrders] = useState([]);
 
   const updateMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.PinestrawOrder.update(id, { status }),
-    onSuccess: () => queryClient.invalidateQueries(['pinestraw'])
+    onSuccess: () => { queryClient.invalidateQueries(['pinestraw']); setOrders(prev => prev.map(o => o.id === updateMutation.variables?.id ? { ...o, status: updateMutation.variables?.status } : o)); }
   });
+
+  const handleVerify = async () => {
+    if (!adminCode.trim()) {
+      toast({ title: 'Please enter the Admin Code', variant: 'destructive' });
+      return;
+    }
+    setVerifying(true);
+    try {
+      const res = await base44.functions.invoke('verify-pinestraw-admin', { admin_code: adminCode.trim() });
+      if (res.data?.authorized) {
+        setOrders(res.data.orders || []);
+        setAuthorized(true);
+        toast({ title: 'Access granted', description: 'Order data loaded.' });
+      } else {
+        toast({ title: 'Incorrect admin code', variant: 'destructive' });
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.message || 'Verification failed.';
+      toast({ title: 'Incorrect admin code', description: msg, variant: 'destructive' });
+    }
+    setVerifying(false);
+  };
+
+  if (!authorized) return (
+    <div className="mt-4 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <ClipboardList className="w-5 h-5 text-[#1a2744]" />
+        <h2 className="font-bold text-[#1a2744] text-lg">View Orders (Admin)</h2>
+      </div>
+      <p className="text-sm text-gray-500 mb-4">Enter the admin code to view pine straw orders.</p>
+      <div className="flex gap-2">
+        <input
+          type="password"
+          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1a2744]"
+          value={adminCode}
+          onChange={e => setAdminCode(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleVerify()}
+          placeholder="Admin Code"
+        />
+        <button
+          onClick={handleVerify}
+          disabled={verifying}
+          className="px-5 py-2 bg-[#1a2744] text-white rounded-lg text-sm font-semibold disabled:opacity-50"
+        >
+          {verifying ? 'Verifying...' : 'Unlock'}
+        </button>
+      </div>
+    </div>
+  );
 
   const totalBales = orders.reduce((sum, o) => sum + (o.bales || 0), 0);
   const pending = orders.filter(o => o.status === 'pending').length;
-
-  if (!show) return (
-    <div className="mt-4 text-center">
-      <button onClick={() => setShow(true)} className="text-sm text-[#1a2744] underline font-semibold">
-        🔒 View Orders (Admin)
-      </button>
-    </div>
-  );
 
   return (
     <div className="mt-8 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">

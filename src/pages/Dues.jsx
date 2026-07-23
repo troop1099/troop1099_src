@@ -10,7 +10,7 @@ const BSA_LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4
 const PAYMENT_OPTIONS = [
   { label: 'Annual Dues', amount: '$135.00 USD' },
   { label: 'Summer Camp', amount: '$375.00 USD' },
-  { label: 'New Scout Registration', amount: '$65.00 USD' },
+  { label: 'New Scout Registration', amount: 'Please check with Scoutmaster' },
 ];
 
 const included = [
@@ -112,7 +112,8 @@ export default function Dues() {
             {[
               { label: 'Annual Dues (Current Scout)', amount: '$135', note: 'Due by end of January each year' },
               { label: 'Summer Camp', amount: 'Please check with Scoutmaster', note: 'Usually early–mid June' },
-              { label: 'New Scout / Crossover', amount: 'Please check with Scoutmaster', note: 'BSA membership already paid by pack' },
+              { label: 'Crossover Scouts Fees/Dues', amount: 'Please check with Scoutmaster', note: 'The Scoutmaster will provide current dues and membership cost information' },
+              { label: 'New Scout Fees', amount: 'Please check with Scoutmaster', note: 'The Scoutmaster will provide current troop dues and applicable BSA membership cost information' },
               { label: 'Normal Outing Fee', amount: '$30–$80', note: 'Food/campsite + activity fee' },
             ].map(c => (
               <div key={c.label} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">

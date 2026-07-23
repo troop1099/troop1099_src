@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { ClipboardList, ChevronDown, ChevronRight } from 'lucide-react';
+import { ClipboardList, ChevronDown, ChevronRight, Lock } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const MAX_SLOTS = 2;
 
@@ -22,22 +23,35 @@ const statusOptions = [
 ];
 
 export default function AdminSchedule() {
+  const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [user, setUser] = useState(null);
-  const [show, setShow] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
+  const [adminCode, setAdminCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [requests, setRequests] = useState([]);
   const [expandedDate, setExpandedDate] = useState(null);
 
-  useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
-  }, []);
-
-  const isAdmin = user?.role === 'admin';
-
-  const { data: requests = [] } = useQuery({
-    queryKey: ['admin-schedule'],
-    queryFn: () => base44.entities.AdvancementRequest.list('-created_date', 200),
-    enabled: show && isAdmin,
-  });
+  const handleVerify = async () => {
+    if (!adminCode.trim()) {
+      toast({ title: 'Please enter the Admin Code', variant: 'destructive' });
+      return;
+    }
+    setVerifying(true);
+    try {
+      const res = await base44.functions.invoke('verify-reservation-admin', { admin_code: adminCode.trim() });
+      if (res.data?.authorized) {
+        setRequests(res.data.requests || []);
+        setAuthorized(true);
+        toast({ title: 'Access granted', description: 'Reservation data loaded.' });
+      } else {
+        toast({ title: 'Incorrect admin code', variant: 'destructive' });
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.message || 'Verification failed.';
+      toast({ title: 'Incorrect admin code', description: msg, variant: 'destructive' });
+    }
+    setVerifying(false);
+  };
 
   const updateMutation = useMutation({
     mutationFn: ({ id, status }) =>
@@ -46,22 +60,39 @@ export default function AdminSchedule() {
       queryClient.invalidateQueries(['admin-schedule']);
       queryClient.invalidateQueries(['advancement-requests']);
       queryClient.invalidateQueries(['my-reservations']);
+      // Refresh local state
+      setRequests(prev => prev.map(r => r.id === updateMutation.variables?.id ? { ...r, status: updateMutation.variables?.status } : r));
     },
   });
 
-  if (!isAdmin) return null;
-
-  if (!show)
+  if (!authorized) {
     return (
-      <div className="text-center">
-        <button
-          onClick={() => setShow(true)}
-          className="text-sm text-[#1a2744] underline font-semibold"
-        >
-          🔒 Admin: View Schedule Management
-        </button>
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Lock className="w-5 h-5 text-[#1a2744]" />
+          <h2 className="font-bold text-[#1a2744] text-lg">View Reservations (Admin)</h2>
+        </div>
+        <p className="text-sm text-gray-500 mb-4">Enter the admin code to view all Scoutmaster Conference and Board of Review reservations.</p>
+        <div className="flex gap-2">
+          <input
+            type="password"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1a2744]"
+            value={adminCode}
+            onChange={e => setAdminCode(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleVerify()}
+            placeholder="Admin Code"
+          />
+          <button
+            onClick={handleVerify}
+            disabled={verifying}
+            className="px-5 py-2 bg-[#1a2744] text-white rounded-lg text-sm font-semibold disabled:opacity-50"
+          >
+            {verifying ? 'Verifying...' : 'Unlock'}
+          </button>
+        </div>
       </div>
     );
+  }
 
   const scheduledRequests = requests.filter(
     (r) =>
@@ -116,7 +147,7 @@ export default function AdminSchedule() {
                       <ChevronRight className="w-4 h-4 text-[#1a2744]" />
                     )}
                     <p className="font-bold text-[#1a2744] text-sm">
-                      {format(new Date(dateStr), 'EEEE, MMMM d, yyyy')}
+                      {format(new Date(dateStr + 'T12:00:00'), 'EEEE, MMMM d, yyyy')}
                     </p>
                   </div>
                   <div className="flex gap-2">

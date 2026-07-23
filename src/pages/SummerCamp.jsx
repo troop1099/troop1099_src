@@ -134,16 +134,16 @@ export default function SummerCamp() {
                 <Star className="w-5 h-5 text-[#FFD700]" /> Adults Needed
               </h2>
               <p className="text-white/80 text-sm leading-relaxed mb-3">
-                Dads and adult leaders are needed to attend camp to help Scouts (especially new Scouts) with schedules, locations, and activities. The only way our troop functions is through volunteers like you. Please sign up as soon as possible.
+                Adults and adult leaders are needed to attend camp to help Scouts (especially new Scouts) with schedules, locations, and activities. The only way our troop functions is through volunteers like you. Please sign up as soon as possible.
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-white/10 rounded-lg p-3">
                   <p className="font-bold text-[#FFD700]">Full Week</p>
-                  <p className="text-white/80 text-sm">~$160 per adult</p>
+                  <p className="text-white/80 text-sm">The troop will provide cost information.</p>
                 </div>
                 <div className="bg-white/10 rounded-lg p-3">
                   <p className="font-bold text-[#FFD700]">Half Week</p>
-                  <p className="text-white/80 text-sm">~$80 per adult</p>
+                  <p className="text-white/80 text-sm">The troop will provide cost information.</p>
                 </div>
               </div>
             </div>

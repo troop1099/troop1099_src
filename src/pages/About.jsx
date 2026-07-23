@@ -21,7 +21,7 @@ const aboutSections = [
   },
   {
     title: 'We Have an Active Outdoor Program',
-    content: `In addition to meeting outside each week. We go on outings every month, weather permitting.\n\nSome of our typical outings include hiking, backpacking, orienteering, whitewater rafting, canoeing, fishing, rock climbing, snow tubing, mountain biking, geocaching, and more.\n\nMost outing destinations are in the North Georgia mountains, Tennessee or North Carolina. Most destinations are within a 2 hour drive. Usually 2 nights, Fri 6pm to Sun 12pm. We camp rain or shine, hot or cold. Boys plan, buy and cook meals by patrol. Registered adults may participate.\n\nAdults and scouts travel to and from each outing as a group.`,
+    content: `In addition to meeting outside each week. We go on outings every month, weather permitting.\n\nSome of our typical outings include hiking, backpacking, orienteering, whitewater rafting, canoeing, fishing, rock climbing, snow tubing, mountain biking, geocaching, and more.\n\nMost outing destinations are in the North Georgia mountains, Tennessee or North Carolina. Most destinations are within a 2 hour drive. Usually 2 nights, Fri 6pm to Sun 12pm. We camp rain or shine, hot or cold. Boys plan, buy and cook meals by patrol. Any registered adult leader may participate.\n\nAdults and scouts travel to and from each outing as a group.`,
   },
   {
     title: 'We Give Thanks',

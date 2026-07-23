@@ -43,7 +43,6 @@ const NAV = [
       { label: 'For Parents', path: '/for-parents' },
       { label: 'Dues & Payments', path: '/dues' },
       { label: 'Pine Straw Fundraiser', path: '/pinestraw' },
-      { label: 'Checklists & Downloads', path: '/camping-checklist' },
     ],
   },
   {

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, Award, User, Users, FileText, Upload, Calendar, Download } from 'lucide-react';
+import { X, ChevronRight, Award, User, Users, FileText, Upload, Calendar } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
@@ -263,17 +263,9 @@ export default function Advancement() {
         </div>
       </section>
 
-      {/* Worksheet + My Reservations + Admin */}
+      {/* My Reservations + Admin */}
       <section className="bg-gray-50 pb-10 px-6">
         <div className="max-w-5xl mx-auto space-y-6">
-          <a
-            href="https://filestore.scouting.org/filestore/pdf/512-728_WB_fillable.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#1a2744] hover:underline"
-          >
-            <Download className="w-4 h-4" /> Download the Scoutmaster Conference and Board of Review Worksheet
-          </a>
           <MyReservations />
           <AdminSchedule />
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { PackageCheck, PackageOpen, RotateCcw, CheckCircle, X } from 'lucide-react';
@@ -28,14 +28,8 @@ function CheckoutForm({ onClose }) {
     gear_item: GEAR_OPTIONS[0],
     tent_number: '',
     notes: '',
-    return_code: Math.random().toString(36).slice(2, 7).toUpperCase(),
   });
   const [saving, setSaving] = useState(false);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
-  const isAdmin = user?.role === 'admin';
-  const suggestedCode = Math.random().toString(36).slice(2, 7).toUpperCase();
 
   const isTent = form.gear_item === 'Troop Tent';
 
@@ -90,13 +84,6 @@ function CheckoutForm({ onClose }) {
               <input className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" value={form.tent_number} onChange={e => setForm(f => ({...f, tent_number: e.target.value}))} placeholder="e.g. 3" />
             </div>
           )}
-          {isAdmin && (
-            <div>
-              <label className="text-xs font-semibold text-gray-600 block mb-1">Return Code (admin only — give this to the scout)</label>
-              <input className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744] font-mono tracking-widest" value={form.return_code} onChange={e => setForm(f => ({...f, return_code: e.target.value.toUpperCase()}))} placeholder="Auto-generated code" />
-              <p className="text-xs text-gray-400 mt-1">The scout must provide this code when returning the item. You can change it or leave the generated one.</p>
-            </div>
-          )}
           <div>
             <label className="text-xs font-semibold text-gray-600 block mb-1">Notes (optional)</label>
             <textarea className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" rows={2} value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))} placeholder="Any condition notes..." />
@@ -121,20 +108,29 @@ function CheckInModal({ record, onClose }) {
   const [saving, setSaving] = useState(false);
 
   const handleCheckIn = async () => {
-    if (record.return_code && returnCode.trim() !== record.return_code.trim()) {
-      toast({ title: 'Incorrect return code', description: 'Please enter the correct return code to verify the gear return.', variant: 'destructive' });
+    if (!returnCode.trim()) {
+      toast({ title: 'Quartermaster Return Code required', description: 'Enter the code to verify the gear return.', variant: 'destructive' });
       return;
     }
     setSaving(true);
-    await base44.entities.GearCheckout.update(record.id, {
-      status: 'returned',
-      checkin_date: format(new Date(), 'yyyy-MM-dd'),
-      notes: notes || record.notes,
-    });
-    queryClient.invalidateQueries(['gear_checkouts']);
+    try {
+      const res = await base44.functions.invoke('verify-gear-return', {
+        admin_code: returnCode.trim(),
+        record_id: record.id,
+        notes: notes || record.notes || '',
+      });
+      if (res.data?.authorized) {
+        queryClient.invalidateQueries(['gear_checkouts']);
+        toast({ title: 'Gear returned!', description: `${record.gear_item} has been checked back in.` });
+        onClose();
+      } else {
+        toast({ title: 'Incorrect return code', description: 'The Quartermaster Return Code is incorrect.', variant: 'destructive' });
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.error || err?.message || 'Verification failed. The backend function may not be deployed yet.';
+      toast({ title: 'Incorrect return code', description: msg, variant: 'destructive' });
+    }
     setSaving(false);
-    toast({ title: 'Gear returned!', description: `${record.gear_item} has been checked back in.` });
-    onClose();
   };
 
   const gearLabel = record.tent_number ? `${record.gear_item} #${record.tent_number}` : record.gear_item;
@@ -149,20 +145,19 @@ function CheckInModal({ record, onClose }) {
           <button onClick={onClose}><X className="w-5 h-5 text-gray-400" /></button>
         </div>
         <p className="text-sm text-gray-600 mb-4">Confirm return of <strong>{gearLabel}</strong> checked out by <strong>{record.scout_name}</strong>.</p>
-        {record.return_code && (
-          <div className="mb-3">
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Return Code *</label>
-            <input className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" value={returnCode} onChange={e => setReturnCode(e.target.value)} placeholder="Enter the return code provided by your leader" />
-          </div>
-        )}
+        <div className="mb-3">
+          <label className="text-xs font-semibold text-gray-600 block mb-1">Quartermaster Return Code *</label>
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" value={returnCode} onChange={e => setReturnCode(e.target.value)} placeholder="Enter the Quartermaster Return Code" />
+          <p className="text-xs text-gray-400 mt-1">Only a Quartermaster with the correct code can confirm gear returns.</p>
+        </div>
         <div>
           <label className="text-xs font-semibold text-gray-600 block mb-1">Return Notes (optional)</label>
           <textarea className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder="Any condition notes on return..." />
         </div>
         <div className="flex gap-2 mt-4">
           <button onClick={onClose} className="flex-1 py-2 border border-gray-300 rounded-lg text-sm">Cancel</button>
-          <button onClick={handleCheckIn} disabled={saving || (record.return_code && !returnCode.trim())} className="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold disabled:opacity-50">
-            {saving ? 'Saving...' : 'Confirm Return'}
+          <button onClick={handleCheckIn} disabled={saving || !returnCode.trim()} className="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold disabled:opacity-50">
+            {saving ? 'Verifying...' : 'Confirm Return'}
           </button>
         </div>
       </div>

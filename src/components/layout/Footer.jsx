@@ -15,6 +15,7 @@ export default function Footer() {
             Empowering young men to lead, serve, and explore the outdoors. A proud member of the Northeast Georgia Council.
           </p>
           <p className="text-white/40 text-xs mt-4">Cumming, GA</p>
+          <p className="text-white/40 text-xs mt-2">Meeting Location: Lanier United Methodist Church, Cumming, GA</p>
         </div>
 
         {/* Quick Links */}
@@ -42,7 +43,7 @@ export default function Footer() {
             {[
               { label: 'My.Scouting', href: 'https://my.scouting.org' },
               { label: 'Scoutbook', href: 'https://scoutbook.scouting.org' },
-              { label: 'Northeast Georgia Council', href: 'https://www.nega.org' },
+              { label: 'Northeast Georgia Council', href: 'https://www.nega-bsa.org/' },
             ].map(link => (
               <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" className="text-sm text-white/60 hover:text-white transition-colors">
                 {link.label}

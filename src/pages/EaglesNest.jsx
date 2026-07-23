@@ -5,7 +5,7 @@ import { format, parseISO } from 'date-fns';
 import { Plus, X, Upload } from 'lucide-react';
 
 const HISTORICAL_EAGLES = [
-  { name: 'Ricky Folea', date: '2006-04-01' },
+  { name: 'Richard Folea', date: '2006-04-11' },
   { name: 'Tyler Grant', date: '2007-01-25' },
   { name: 'Justin Stephens', date: '2008-03-12' },
   { name: 'Andrew Wright', date: '2008-06-26' },
@@ -99,6 +99,10 @@ const HISTORICAL_EAGLES = [
   { name: 'Vedant Naik', date: '2024-03-26' },
   { name: 'Praful Musty', date: '2024-08-27' },
   { name: 'Dhruv Anupindi', date: '2024-09-24' },
+  { name: 'Arjun Puvvada', date: '2026-01-27' },
+  { name: 'Prajeeth Eskala', date: '2026-02-24' },
+  { name: 'John Barr Kashin / Jack', date: '2026-04-28' },
+  { name: 'Mark Alejandro Romero', date: '2026-05-26' },
 ];
 
 function groupByYear(eagles) {
@@ -222,7 +226,7 @@ export default function EaglesNest() {
                       <div className={`w-5/12 bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center gap-3 ${isLeft ? 'mr-auto' : 'ml-auto'}`}>
                         <div className="w-12 h-12 rounded-full bg-[#1a2744]/10 flex items-center justify-center shrink-0 overflow-hidden border-2 border-[#1a2744]/20">
                           {eagle.photo_url ? (
-                            <img src={eagle.photo_url} className="w-full h-full object-cover" />
+                            <img src={eagle.photo_url} alt={`${eagle.name} — Eagle Scout`} className="w-full h-full object-cover" />
                           ) : (
                             <span className="text-[#1a2744] font-bold text-lg">{eagle.name[0]}</span>
                           )}

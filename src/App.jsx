@@ -24,7 +24,7 @@ import PhotoGallery from './pages/PhotoGallery';
 import Pinestraw from './pages/Pinestraw';
 import Dues from './pages/Dues';
 import GearCheckout from './pages/GearCheckout';
-import Documents from './pages/Documents';
+
 import LeaderTraining from './pages/LeaderTraining';
 import ForParents from './pages/ForParents';
 import OutingPrep from './pages/OutingPrep';
@@ -73,7 +73,6 @@ const AuthenticatedApp = () => {
         <Route path="/pinestraw" element={<Pinestraw />} />
         <Route path="/dues" element={<Dues />} />
         <Route path="/gear-checkout" element={<GearCheckout />} />
-        <Route path="/documents" element={<Documents />} />
         <Route path="/leader-training" element={<LeaderTraining />} />
         <Route path="/for-parents" element={<ForParents />} />
         <Route path="/outing-prep" element={<OutingPrep />} />

@@ -88,8 +88,8 @@ export default function LifeToEagle() {
           <p>Once all requirements are complete, the Scout prepares the <strong>Eagle Rank Application</strong>. Read the application carefully — it contains 6 Requirements and 3 signatures that must be totally complete before an application will even be considered for an Eagle Board of Review.</p>
           <p><strong>Requirement Two</strong> requires the Scout to obtain Letters of Recommendation from parents, religious leader, employers, and others listed on the application. Letters are sent in sealed envelopes to the Eagle Board. Allow <strong>2–3 weeks</strong> for receipt of these letters prior to the scheduled Eagle Board of Review.</p>
           <p><strong>Requirement Six</strong> requires the Scout to write a statement of ambitions and life purpose and a listing of positions held where he demonstrated leadership skills.</p>
-          <a href="https://filestore.scouting.org/filestore/pdf/512-728_WEB.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline">
-            📄 Download Eagle Rank Application <ExternalLink className="w-3 h-3" />
+          <a href="https://filestore.scouting.org/filestore/pdf/512-728_WB_fillable.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline font-semibold">
+            📄 Download the Eagle Scout Application Form <ExternalLink className="w-3 h-3" />
           </a>
         </div>
       )

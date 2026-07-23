@@ -36,7 +36,7 @@ const VOLUNTEER_ROLES = [
 const COMMUNICATION = [
   { label: 'Troop Email List', desc: 'All announcements and trip info are sent to the troop Google Group. Ask your leader for the address.', icon: Mail },
   { label: 'Troop Website', desc: 'You\'re here! Calendar, documents, forms, and advancement resources are all on this site.', icon: ExternalLink },
-  { label: 'BAND / GroupMe', desc: 'The troop uses a messaging app for quick updates. Ask the Scoutmaster for the invite link.', icon: Phone },
+  { label: 'WhatsApp Group', desc: 'The troop uses a WhatsApp group for quick updates. Ask the Scoutmaster for the invitation link.', icon: Phone },
 ];
 
 const FAQ = [
@@ -81,7 +81,7 @@ export default function ForParents() {
             {[
               { label: 'Pay Dues', desc: 'Annual dues & summer camp fees', href: '/dues', internal: true },
               { label: 'Troop Calendar', desc: 'Upcoming events & meetings', href: '/events', internal: true },
-              { label: 'Documents & Forms', desc: 'Permission slips, health forms', href: '/documents', internal: true },
+              { label: 'Camping Checklists', desc: 'Packing lists, health forms, downloads', href: '/camping-checklist', internal: true },
               { label: 'Advancement Center', desc: 'Rank requirements & BOR requests', href: '/advancement', internal: true },
               { label: 'Summer Camp Info', desc: 'Dates, costs & registration', href: '/summer-camp', internal: true },
               { label: 'Safeguarding Youth Training', desc: 'Required for all adults on campouts', href: 'https://my.scouting.org', internal: false },

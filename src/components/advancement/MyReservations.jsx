@@ -102,7 +102,7 @@ export default function MyReservations() {
                     {req.meeting_date && (
                       <p className="text-xs text-gray-500 flex items-center gap-1">
                         <Calendar className="w-3 h-3" />{' '}
-                        {format(new Date(req.meeting_date), 'EEEE, MMMM d, yyyy')}
+                        {format(new Date(req.meeting_date + 'T12:00:00'), 'EEEE, MMMM d, yyyy')}
                       </p>
                     )}
                     {req.rank && <p className="text-xs text-gray-500">Rank: {req.rank}</p>}
@@ -146,7 +146,7 @@ export default function MyReservations() {
                 <p className="text-gray-500 text-sm mt-1">
                   {typeLabel(cancelTarget.type)} on{' '}
                   {cancelTarget.meeting_date
-                    ? format(new Date(cancelTarget.meeting_date), 'MMMM d, yyyy')
+                    ? format(new Date(cancelTarget.meeting_date + 'T12:00:00'), 'MMMM d, yyyy')
                     : '—'}
                 </p>
                 <p className="text-gray-400 text-xs mt-1">

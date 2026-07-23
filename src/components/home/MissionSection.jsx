@@ -26,6 +26,11 @@ const pillars = [
 export default function MissionSection() {
   return (
     <section className="bg-gray-50 py-12 px-4">
+      <div className="max-w-5xl mx-auto text-center mb-10">
+        <p className="text-gray-700 text-sm md:text-base leading-relaxed max-w-3xl mx-auto">
+          Troop 1099 is proudly chartered by Lanier United Methodist Church. We meet every Monday night from 7:00 PM to 8:30 PM. We welcome youth and families from Cumming, Forsyth County, and all surrounding school districts and neighboring communities.
+        </p>
+      </div>
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
         {pillars.map((p) => (
           <div
