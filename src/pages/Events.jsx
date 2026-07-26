@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
 import { Plus, X, MapPin, Trash2, Settings, CalendarPlus, Check, Edit2 } from 'lucide-react';
+import { useAdmin } from '@/lib/AdminContext';
 
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
 
@@ -67,6 +68,7 @@ export default function Events() {
   const [showAdd, setShowAdd] = useState(false);
   const [tab, setTab] = useState('calendar');
   const queryClient = useQueryClient();
+  const { adminUnlocked } = useAdmin();
 
   const { data: events = [] } = useQuery({
     queryKey: ['events'],
@@ -120,9 +122,11 @@ export default function Events() {
               <p className="text-white/70 mt-1">Upcoming events and activities for Troop 1099.</p>
             </div>
           </div>
-          <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold text-sm">
-            <Plus className="w-4 h-4" /> Add Event
-          </button>
+          {adminUnlocked && (
+            <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold text-sm">
+              <Plus className="w-4 h-4" /> Add Event
+            </button>
+          )}
         </div>
       </div>
 
@@ -160,9 +164,11 @@ export default function Events() {
                       📲 iCal Feed
                     </a>
                   </div>
-                  <button onClick={() => { setCalDraft(calendarId); setEditingCal(true); }} className="text-xs text-gray-500 hover:text-[#1a2744] flex items-center gap-1">
-                    <Edit2 className="w-3 h-3" /> Edit Calendar ID
-                  </button>
+                  {adminUnlocked && (
+                    <button onClick={() => { setCalDraft(calendarId); setEditingCal(true); }} className="text-xs text-gray-500 hover:text-[#1a2744] flex items-center gap-1">
+                      <Edit2 className="w-3 h-3" /> Edit Calendar ID
+                    </button>
+                  )}
                 </div>
                 <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm">
                   <iframe
@@ -237,9 +243,11 @@ export default function Events() {
                         <h3 className="font-semibold text-[#1a2744]">{event.title}</h3>
                         <div className="flex items-center gap-2 shrink-0">
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.color}`}>{cfg.label}</span>
-                          <button onClick={() => deleteMutation.mutate(event.id)} className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-opacity">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {adminUnlocked && (
+                            <button onClick={() => deleteMutation.mutate(event.id)} className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-opacity">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </div>
                       {event.location && (

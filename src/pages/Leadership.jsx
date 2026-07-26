@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Shield, Users, Plus, X, Pencil, Trash2 } from 'lucide-react';
+import { useAdmin } from '@/lib/AdminContext';
 
 const ADULT_ROLES = ['Scoutmaster', 'Assistant Scoutmaster', 'Committee Chair', 'Treasurer', 'Advancement Coordinator', 'Other'];
 const YOUTH_ROLES = ['Senior Patrol Leader', 'Assistant Senior Patrol Leader', 'Patrol Leader', 'Troop Guide', 'Quartermaster', 'Instructor', 'Bugler', 'Historian', 'Scribe', 'Den Chief', 'Webmaster', 'Chaplains Aide', 'Outdoor Ethics Guide'];
@@ -63,6 +64,7 @@ function LeaderModal({ leader, onClose, onSave }) {
 export default function Leadership() {
   const [modal, setModal] = useState(null); // null | 'add' | leader object
   const queryClient = useQueryClient();
+  const { adminUnlocked } = useAdmin();
 
   const { data: leaders = [] } = useQuery({
     queryKey: ['leaders'],
@@ -98,12 +100,14 @@ export default function Leadership() {
             <p className="text-white/70 mt-3 max-w-lg">
               Troop 1099 is a boy-led troop, guided by experienced adult mentors and a dedicated Patrol Leaders Council.
             </p>
-            <button
-              onClick={() => setModal('add')}
-              className="mt-6 inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white px-5 py-2.5 rounded-lg font-semibold text-sm shadow-lg shadow-accent/30 transition-all hover:scale-[1.02]"
-            >
-              <Plus className="w-4 h-4" /> Add Leader
-            </button>
+            {adminUnlocked && (
+              <button
+                onClick={() => setModal('add')}
+                className="mt-6 inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white px-5 py-2.5 rounded-lg font-semibold text-sm shadow-lg shadow-accent/30 transition-all hover:scale-[1.02]"
+              >
+                <Plus className="w-4 h-4" /> Add Leader
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -138,10 +142,12 @@ export default function Leadership() {
                     <p className="text-sm text-red-600 font-medium">{leader.role}</p>
                     {leader.email && <p className="text-xs text-gray-400 mt-0.5">{leader.email}</p>}
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => setModal(leader)} className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"><Pencil className="w-4 h-4 text-gray-500" /></button>
-                    <button onClick={() => deleteMutation.mutate(leader.id)} className="p-1.5 hover:bg-red-100 rounded-lg transition-colors"><Trash2 className="w-4 h-4 text-red-500" /></button>
-                  </div>
+                  {adminUnlocked && (
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => setModal(leader)} className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"><Pencil className="w-4 h-4 text-gray-500" /></button>
+                      <button onClick={() => deleteMutation.mutate(leader.id)} className="p-1.5 hover:bg-red-100 rounded-lg transition-colors"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -175,10 +181,12 @@ export default function Leadership() {
                     <p className="text-sm text-[#b8860b] font-medium">{leader.role}</p>
                     {leader.patrol && <p className="text-xs text-gray-500 mt-0.5">{leader.patrol} Patrol</p>}
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => setModal(leader)} className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"><Pencil className="w-4 h-4 text-gray-500" /></button>
-                    <button onClick={() => deleteMutation.mutate(leader.id)} className="p-1.5 hover:bg-red-100 rounded-lg transition-colors"><Trash2 className="w-4 h-4 text-red-500" /></button>
-                  </div>
+                  {adminUnlocked && (
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => setModal(leader)} className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"><Pencil className="w-4 h-4 text-gray-500" /></button>
+                      <button onClick={() => deleteMutation.mutate(leader.id)} className="p-1.5 hover:bg-red-100 rounded-lg transition-colors"><Trash2 className="w-4 h-4 text-red-500" /></button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

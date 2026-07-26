@@ -7,6 +7,7 @@ import BadgeCard from '@/components/meritbadges/BadgeCard';
 import AdminBar from '@/components/meritbadges/AdminBar';
 import { refreshBadge } from '@/lib/meritBadgeUtils';
 import { useToast } from '@/components/ui/use-toast';
+import { useAdmin } from '@/lib/AdminContext';
 
 // Badge images are stored in localStorage keyed by badge id (client-side upload preview)
 // In a real deployment these would be uploaded to storage
@@ -499,6 +500,8 @@ export default function MeritBadges() {
   const [selected, setSelected] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
   const [adminUnlocked, setAdminUnlocked] = useState(false);
+  const { adminUnlocked: globalAdmin } = useAdmin();
+  const canEdit = adminUnlocked || globalAdmin;
   const [refreshingAll, setRefreshingAll] = useState(false);
   const [hiddenBadges, setHiddenBadges] = useState(() => {
     try { return JSON.parse(localStorage.getItem('hidden_badges') || '[]'); } catch { return []; }
@@ -589,7 +592,7 @@ export default function MeritBadges() {
   };
 
   const selectedBadge = selected ? allBadges.find(b => b.id === selected.id) || selected : null;
-  if (selectedBadge) return <BadgeDetail badge={selectedBadge} onBack={() => setSelected(null)} adminUnlocked={adminUnlocked} onDelete={handleDeleteBadge} />;
+  if (selectedBadge) return <BadgeDetail badge={selectedBadge} onBack={() => setSelected(null)} adminUnlocked={canEdit} onDelete={handleDeleteBadge} />;
 
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
@@ -601,7 +604,7 @@ export default function MeritBadges() {
           </div>
           <div className="flex items-center gap-3">
             <AdminBar unlocked={adminUnlocked} onUnlock={setAdminUnlocked} />
-            {adminUnlocked && (
+            {canEdit && (
               <button
                 onClick={() => setShowAdd(true)}
                 className="flex items-center gap-1 text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded font-semibold"
@@ -663,7 +666,7 @@ export default function MeritBadges() {
                 badge={badge}
                 count={count}
                 onClick={() => setSelected(badge)}
-                adminUnlocked={adminUnlocked}
+                adminUnlocked={canEdit}
                 onDelete={handleDeleteBadge}
               />
             );

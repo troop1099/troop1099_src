@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink, CheckSquare, FileText, Users, Edit2, Save, X } from 'lucide-react';
+import { useAdmin } from '@/lib/AdminContext';
 
 const SIGNUP_KEY = 'etowah_district_signup_url';
 const DEFAULT_SIGNUP_URL = 'https://www.signupgenius.com/go/4090544ABAE2DAAFA7-60003792-etowah#/';
@@ -22,6 +23,7 @@ export default function LifeToEagle() {
   const [signupUrl, setSignupUrl] = useState(() => localStorage.getItem(SIGNUP_KEY) || DEFAULT_SIGNUP_URL);
   const [editingUrl, setEditingUrl] = useState(false);
   const [urlDraft, setUrlDraft] = useState(signupUrl);
+  const { adminUnlocked } = useAdmin();
 
   const saveUrl = () => {
     localStorage.setItem(SIGNUP_KEY, urlDraft);
@@ -47,7 +49,7 @@ export default function LifeToEagle() {
             <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-xs font-bold text-yellow-800 uppercase tracking-wide">Etowah District — Approval Appointments</p>
-                {!editingUrl
+                {!editingUrl && adminUnlocked
                   ? <button onClick={() => { setUrlDraft(signupUrl); setEditingUrl(true); }} className="text-xs text-gray-500 hover:text-[#1a2744] flex items-center gap-1">
                       <Edit2 className="w-3 h-3" /> Edit Link
                     </button>

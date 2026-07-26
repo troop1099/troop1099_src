@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
 import { Plus, X } from 'lucide-react';
+import { useAdmin } from '@/lib/AdminContext';
 
 function groupByYear(eagles) {
   const grouped = {};
@@ -69,6 +70,7 @@ function AddEagleModal({ onClose, onSave }) {
 export default function EaglesNest() {
   const [showAdd, setShowAdd] = useState(false);
   const queryClient = useQueryClient();
+  const { adminUnlocked } = useAdmin();
 
   const { data: allEagles = [] } = useQuery({
     queryKey: ['eagles'],
@@ -90,12 +92,14 @@ export default function EaglesNest() {
         <h1 className="text-3xl font-bold">Eagle Scouts of Troop 1099</h1>
         <p className="text-white/70 mt-2 max-w-xl mx-auto">The highest rank in Scouting. These young men have demonstrated exceptional leadership and service.</p>
         <p className="text-[#FFD700] font-bold text-xl mt-3">{allEagles.length} Eagle Scouts</p>
-        <button
-          onClick={() => setShowAdd(true)}
-          className="mt-4 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded font-semibold text-sm"
-        >
-          <Plus className="w-4 h-4" /> Add Eagle Scout
-        </button>
+        {adminUnlocked && (
+          <button
+            onClick={() => setShowAdd(true)}
+            className="mt-4 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded font-semibold text-sm"
+          >
+            <Plus className="w-4 h-4" /> Add Eagle Scout
+          </button>
+        )}
       </div>
 
       {/* Timeline */}

@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { ClipboardList, ChevronDown, ChevronRight, Lock, FileText } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import EmailNotificationSettings from '@/components/advancement/EmailNotificationSettings';
+import { useAdmin } from '@/lib/AdminContext';
 
 const MAX_SLOTS = 2;
 
@@ -26,7 +27,8 @@ const statusOptions = [
 export default function AdminSchedule() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [authorized, setAuthorized] = useState(false);
+  const { adminUnlocked } = useAdmin();
+  const [authorized, setAuthorized] = useState(adminUnlocked);
   const [adminCode, setAdminCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [expandedDate, setExpandedDate] = useState(null);

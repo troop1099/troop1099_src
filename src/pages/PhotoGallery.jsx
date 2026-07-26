@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Plus, X, Trash2, Upload } from 'lucide-react';
+import { useAdmin } from '@/lib/AdminContext';
 
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
 
@@ -75,6 +76,7 @@ export default function PhotoGallery() {
   const [showUpload, setShowUpload] = useState(false);
   const [lightbox, setLightbox] = useState(null);
   const queryClient = useQueryClient();
+  const { adminUnlocked } = useAdmin();
 
   const { data: photos = [] } = useQuery({
     queryKey: ['photos'],
@@ -98,12 +100,14 @@ export default function PhotoGallery() {
               <p className="text-white/70 mt-1">Memories from the trail. Upload your troop photos!</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowUpload(true)}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded font-semibold text-sm"
-          >
-            <Plus className="w-4 h-4" /> Upload Photo
-          </button>
+          {adminUnlocked && (
+            <button
+              onClick={() => setShowUpload(true)}
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded font-semibold text-sm"
+            >
+              <Plus className="w-4 h-4" /> Upload Photo
+            </button>
+          )}
         </div>
       </div>
 
@@ -114,9 +118,11 @@ export default function PhotoGallery() {
             <Upload className="w-16 h-16 mx-auto mb-4 opacity-30" />
             <p className="text-xl font-semibold">No photos yet!</p>
             <p className="text-sm mt-2">Be the first to share a troop memory.</p>
-            <button onClick={() => setShowUpload(true)} className="mt-6 bg-[#1a2744] text-white px-6 py-2.5 rounded font-semibold text-sm">
-              Upload the First Photo
-            </button>
+            {adminUnlocked && (
+              <button onClick={() => setShowUpload(true)} className="mt-6 bg-[#1a2744] text-white px-6 py-2.5 rounded font-semibold text-sm">
+                Upload the First Photo
+              </button>
+            )}
           </div>
         ) : (
           <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
@@ -127,12 +133,14 @@ export default function PhotoGallery() {
                   {photo.caption && <p className="text-sm text-gray-700 leading-snug">{photo.caption}</p>}
                   {photo.uploaded_by && <p className="text-xs text-gray-400 mt-1">— {photo.uploaded_by}</p>}
                 </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(photo.id); }}
-                  className="absolute top-2 right-2 bg-white/80 hover:bg-red-100 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow"
-                >
-                  <Trash2 className="w-4 h-4 text-red-500" />
-                </button>
+                {adminUnlocked && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(photo.id); }}
+                    className="absolute top-2 right-2 bg-white/80 hover:bg-red-100 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </button>
+                )}
               </div>
             ))}
           </div>

@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Plus, Download, CheckSquare, Square, X, MessageSquare, FileText, Users, Trash2, ChefHat, Clock } from 'lucide-react';
+import { useAdmin } from '@/lib/AdminContext';
 import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 
@@ -324,6 +325,7 @@ export default function OutingManager() {
   const [selectedOutingId, setSelectedOutingId] = useState(null);
   const [showRequest, setShowRequest] = useState(false);
   const [noteModal, setNoteModal] = useState(null);
+  const { adminUnlocked } = useAdmin();
 
   const { data: outings = [] } = useQuery({
     queryKey: ['outings'],
@@ -379,9 +381,11 @@ export default function OutingManager() {
             <h1 className="text-3xl font-bold">Outing Sign-Up Manager</h1>
             <p className="text-white/70 mt-1">Manage permission slips, attendance, payments, and Grubmasters per outing.</p>
           </div>
-          <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 bg-[#FFD700] text-[#1a2744] font-bold px-5 py-2.5 rounded-lg hover:bg-yellow-400 transition-colors text-sm">
-            <Plus className="w-4 h-4" /> New Outing
-          </button>
+          {adminUnlocked && (
+            <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 bg-[#FFD700] text-[#1a2744] font-bold px-5 py-2.5 rounded-lg hover:bg-yellow-400 transition-colors text-sm">
+              <Plus className="w-4 h-4" /> New Outing
+            </button>
+          )}
         </div>
       </div>
 
@@ -390,7 +394,9 @@ export default function OutingManager() {
           <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
             <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="font-semibold text-gray-400">No outings yet. Create the first one.</p>
-            <button onClick={() => setShowCreate(true)} className="mt-4 bg-[#1a2744] text-white px-5 py-2 rounded-lg text-sm font-semibold">Create Outing</button>
+            {adminUnlocked && (
+              <button onClick={() => setShowCreate(true)} className="mt-4 bg-[#1a2744] text-white px-5 py-2 rounded-lg text-sm font-semibold">Create Outing</button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -409,12 +415,14 @@ export default function OutingManager() {
                     )}
                   </button>
                   <div className="px-3 pb-2">
-                    <button
-                      onClick={() => deleteOutingMutation.mutate(o.id)}
-                      className={`text-xs flex items-center gap-1 ${selectedOutingId === o.id ? 'text-red-300 hover:text-red-100' : 'text-red-400 hover:text-red-600'} transition-colors`}
-                    >
-                      <Trash2 className="w-3 h-3" /> Remove outing
-                    </button>
+                    {adminUnlocked && (
+                      <button
+                        onClick={() => deleteOutingMutation.mutate(o.id)}
+                        className={`text-xs flex items-center gap-1 ${selectedOutingId === o.id ? 'text-red-300 hover:text-red-100' : 'text-red-400 hover:text-red-600'} transition-colors`}
+                      >
+                        <Trash2 className="w-3 h-3" /> Remove outing
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

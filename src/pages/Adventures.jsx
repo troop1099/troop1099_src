@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { MapPin, Plus, X, Trash2 } from 'lucide-react';
+import { useAdmin } from '@/lib/AdminContext';
 import { format } from 'date-fns';
 
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
@@ -99,6 +100,7 @@ function AddAdventureModal({ onClose }) {
 export default function Adventures() {
   const [showAdd, setShowAdd] = useState(false);
   const queryClient = useQueryClient();
+  const { adminUnlocked } = useAdmin();
 
   const { data: adventures = [] } = useQuery({
     queryKey: ['adventures'],
@@ -122,9 +124,11 @@ export default function Adventures() {
               <p className="text-white/70 mt-1">Where Troop 1099 has been.</p>
             </div>
           </div>
-          <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold text-sm">
-            <Plus className="w-4 h-4" /> Add Adventure
-          </button>
+          {adminUnlocked && (
+            <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold text-sm">
+              <Plus className="w-4 h-4" /> Add Adventure
+            </button>
+          )}
         </div>
       </div>
 
@@ -134,9 +138,11 @@ export default function Adventures() {
             <MapPin className="w-16 h-16 mx-auto mb-4 opacity-30" />
             <p className="text-xl font-semibold">No adventures logged yet</p>
             <p className="text-sm mt-2">Add your first troop outing to get started!</p>
-            <button onClick={() => setShowAdd(true)} className="mt-6 bg-[#1a2744] text-white px-6 py-2.5 rounded font-semibold text-sm">
-              Log First Adventure
-            </button>
+            {adminUnlocked && (
+              <button onClick={() => setShowAdd(true)} className="mt-6 bg-[#1a2744] text-white px-6 py-2.5 rounded font-semibold text-sm">
+                Log First Adventure
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-6">
@@ -161,9 +167,11 @@ export default function Adventures() {
                           </div>
                         )}
                       </div>
-                      <button onClick={() => deleteMutation.mutate(adventure.id)} className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-50 rounded">
-                        <Trash2 className="w-4 h-4 text-red-400" />
-                      </button>
+                      {adminUnlocked && (
+                        <button onClick={() => deleteMutation.mutate(adventure.id)} className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-50 rounded">
+                          <Trash2 className="w-4 h-4 text-red-400" />
+                        </button>
+                      )}
                     </div>
                     {adventure.description && <p className="text-gray-600 text-sm mt-3 leading-relaxed">{adventure.description}</p>}
                     <div className="flex flex-wrap gap-4 mt-4 border-t border-gray-100 pt-4">

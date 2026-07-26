@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Shield, Loader2, Lock } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useAdmin } from '@/lib/AdminContext';
 
 export default function AdminBar({ unlocked, onUnlock }) {
   const { toast } = useToast();
+  const { adminUnlocked: globalAdmin } = useAdmin();
   const [showInput, setShowInput] = useState(false);
   const [code, setCode] = useState('');
   const [verifying, setVerifying] = useState(false);
@@ -28,7 +30,7 @@ export default function AdminBar({ unlocked, onUnlock }) {
     setVerifying(false);
   };
 
-  if (unlocked) {
+  if (unlocked || globalAdmin) {
     return (
       <div className="flex items-center gap-1.5 text-sm bg-green-500/20 text-green-300 px-3 py-1.5 rounded font-semibold border border-green-500/30">
         <Shield className="w-4 h-4" /> Admin Mode

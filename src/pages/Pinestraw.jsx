@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Leaf, Package, MapPin, Phone, Mail, ClipboardList, CheckCircle, Clock, Truck } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useAdmin } from '@/lib/AdminContext';
 
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
 
@@ -44,7 +45,8 @@ function OrderForm() {
 function AdminView() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [authorized, setAuthorized] = useState(false);
+  const { adminUnlocked } = useAdmin();
+  const [authorized, setAuthorized] = useState(adminUnlocked);
   const [adminCode, setAdminCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [orders, setOrders] = useState([]);
@@ -53,6 +55,12 @@ function AdminView() {
     mutationFn: ({ id, status }) => base44.entities.PinestrawOrder.update(id, { status }),
     onSuccess: () => { queryClient.invalidateQueries(['pinestraw']); setOrders(prev => prev.map(o => o.id === updateMutation.variables?.id ? { ...o, status: updateMutation.variables?.status } : o)); }
   });
+
+  useEffect(() => {
+    if (authorized && orders.length === 0) {
+      base44.entities.PinestrawOrder.list('-created_date', 200).then(setOrders);
+    }
+  }, [authorized]);
 
   const handleVerify = async () => {
     if (!adminCode.trim()) {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Plus, X, ExternalLink, Trash2 } from 'lucide-react';
+import { useAdmin } from '@/lib/AdminContext';
 
 const CATEGORIES = ['clothing', 'camping', 'cooking', 'navigation', 'tools', 'other'];
 
@@ -64,6 +65,7 @@ export default function Gear() {
   const [showAdd, setShowAdd] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
   const queryClient = useQueryClient();
+  const { adminUnlocked } = useAdmin();
 
   const { data: gear = [] } = useQuery({
     queryKey: ['gear'],
@@ -87,9 +89,11 @@ export default function Gear() {
       <div className="bg-[#1a2744] text-white py-10 px-6 text-center">
         <h1 className="text-3xl font-bold">Scout Gear</h1>
         <p className="text-white/70 mt-2">Community-recommended gear for scouts and families.</p>
-        <button onClick={() => setShowAdd(true)} className="mt-4 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded font-semibold text-sm">
-          <Plus className="w-4 h-4" /> Add Gear
-        </button>
+        {adminUnlocked && (
+          <button onClick={() => setShowAdd(true)} className="mt-4 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded font-semibold text-sm">
+            <Plus className="w-4 h-4" /> Add Gear
+          </button>
+        )}
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
@@ -112,12 +116,14 @@ export default function Gear() {
             <div key={item.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
               <div className="aspect-square overflow-hidden bg-gray-100 relative">
                 <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                <button
-                  onClick={() => deleteMutation.mutate(item.id)}
-                  className="absolute top-2 right-2 bg-white/80 hover:bg-red-100 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Trash2 className="w-4 h-4 text-red-500" />
-                </button>
+                {adminUnlocked && (
+                  <button
+                    onClick={() => deleteMutation.mutate(item.id)}
+                    className="absolute top-2 right-2 bg-white/80 hover:bg-red-100 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </button>
+                )}
               </div>
               <div className="p-3">
                 <p className="font-semibold text-[#1a2744] text-sm">{item.title}</p>
