@@ -86,13 +86,13 @@ export default function NewScoutInfo() {
               <p className="text-blue-600 text-xs mt-2 font-semibold hover:underline">View Location →</p>
             </a>
             <a
-              href="https://www.scouting.org/programs/scouts-bsa/scouts-bsa-local-council-locator/?council=119&location=lawrenceville%2C+GA"
+              href="https://maps.google.com/?q=203+Swanson+Dr+Lawrenceville+GA+30043"
               target="_blank"
               rel="noopener noreferrer"
               className="block bg-blue-50 border border-blue-200 rounded-lg p-4 hover:border-[#1a2744] transition-colors"
             >
               <p className="font-bold text-[#1a2744]">📍 Lawrenceville Scout Shop</p>
-              <p className="text-gray-600 text-sm mt-1">Lawrenceville, GA</p>
+              <p className="text-gray-600 text-sm mt-1">203 Swanson Dr, Lawrenceville, GA 30043</p>
               <p className="text-blue-600 text-xs mt-2 font-semibold hover:underline">View Location →</p>
             </a>
           </div>

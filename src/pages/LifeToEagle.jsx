@@ -108,7 +108,7 @@ export default function LifeToEagle() {
               <a href="https://www.scouting.org/programs/scouts-bsa/scouts-bsa-local-council-locator/?council=119&location=jefferson%2C+GA" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-semibold">
                 📍 Jefferson Scout Shop <ExternalLink className="w-3 h-3" />
               </a>
-              <a href="https://www.scouting.org/programs/scouts-bsa/scouts-bsa-local-council-locator/?council=119&location=lawrenceville%2C+GA" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-semibold">
+              <a href="https://maps.google.com/?q=203+Swanson+Dr+Lawrenceville+GA+30043" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-semibold">
                 📍 Lawrenceville Scout Shop <ExternalLink className="w-3 h-3" />
               </a>
             </div>
