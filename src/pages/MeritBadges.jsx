@@ -111,6 +111,7 @@ const BADGES = [
     id: 'citizenship-society',
     name: 'Citizenship in Society',
     image: null,
+    eagle_required: false,
     description: 'This badge focuses on diversity, equity, and inclusion — helping Scouts understand and respect different perspectives and identities in American society.',
     requirements: [
       'Research and define the following terms: Diversity, Equity, Inclusion, Discrimination, Bias, Stereotype, Racism.',
@@ -547,7 +548,7 @@ export default function MeritBadges() {
         requirements: dbOverride?.requirements
           ? (() => { try { return JSON.parse(dbOverride.requirements); } catch { return b.requirements; } })()
           : b.requirements,
-        eagle_required: dbOverride?.eagle_required ?? true,
+        eagle_required: dbOverride?.eagle_required ?? b.eagle_required ?? true,
         dbId: dbOverride?.id,
       };
     }),
