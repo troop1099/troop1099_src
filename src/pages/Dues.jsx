@@ -9,7 +9,7 @@ const BSA_LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4
 
 const PAYMENT_OPTIONS = [
   { label: 'Annual Dues', amount: '$135.00 USD' },
-  { label: 'Summer Camp', amount: '$375.00 USD' },
+  { label: 'Summer Camp', amount: '$450.00 USD' },
   { label: 'New Scout Registration', amount: 'Please check with Scoutmaster' },
 ];
 
@@ -111,7 +111,7 @@ export default function Dues() {
           <div className="space-y-3">
             {[
               { label: 'Annual Dues (Current Scout)', amount: '$135', note: 'Due by end of January each year' },
-              { label: 'Summer Camp', amount: 'Please check with Scoutmaster', note: 'Usually early–mid June' },
+              { label: 'Summer Camp', amount: '$450', note: 'Usually early–mid June' },
               { label: 'Crossover Scouts Fees/Dues', amount: 'Please check with Scoutmaster', note: 'The Scoutmaster will provide current dues and membership cost information' },
               { label: 'New Scout Fees', amount: 'Please check with Scoutmaster', note: 'The Scoutmaster will provide current troop dues and applicable BSA membership cost information' },
               { label: 'Normal Outing Fee', amount: '$30–$80', note: 'Food/campsite + activity fee' },

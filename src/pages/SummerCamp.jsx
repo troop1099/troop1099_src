@@ -98,8 +98,8 @@ export default function SummerCamp() {
               <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm text-center">
                 <DollarSign className="w-8 h-8 text-green-600 mx-auto mb-2" />
                 <p className="font-bold text-[#1a2744] text-lg">Cost</p>
-                <p className="text-gray-700 font-semibold mt-1">~$375 per Scout</p>
-                <p className="text-gray-500 text-sm mt-1">Adults: ~$160 full week / ~$80 half week</p>
+                <p className="text-gray-700 font-semibold mt-1">$450 per Scout</p>
+                <p className="text-gray-500 text-sm mt-1">First payment: $200 · Second payment: $250</p>
                 <Link to="/dues" className="text-xs text-blue-600 hover:underline mt-1 block">Pay via Dues page</Link>
               </div>
             </div>
@@ -227,11 +227,12 @@ export default function SummerCamp() {
               <p className="text-gray-600 text-sm mb-4">You may pay in full or in 2 installments:</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-              { label: '1st Payment', due: 'Due February 1' },
-              { label: '2nd Payment', due: 'Due March 1' }].
+              { label: '1st Payment', amount: '$200', due: 'Due February 1' },
+              { label: '2nd Payment', amount: '$250', due: 'Due March 1' }].
               map((p) =>
               <div key={p.label} className="bg-gray-50 rounded-lg p-3 text-center">
                     <p className="font-bold text-[#1a2744] text-sm">{p.label}</p>
+                    <p className="font-bold text-green-600 text-lg">{p.amount}</p>
                     <p className="text-gray-500 text-xs mt-1">{p.due}</p>
                   </div>
               )}
