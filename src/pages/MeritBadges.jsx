@@ -400,7 +400,7 @@ function BadgeDetail({ badge, onBack, adminUnlocked, onDelete }) {
         <button onClick={onBack} className="flex items-center gap-1 text-white/70 hover:text-white text-sm">
           <ChevronLeft className="w-4 h-4" /> Back
         </button>
-        <h1 className="font-bold text-lg">{badge.name}</h1>
+        <h1 className="font-bold text-lg">{badge.name}s</h1>
         {badge.eagle_required && (
           <span className="bg-[#FFD700] text-[#1a2744] text-xs font-bold px-2 py-0.5 rounded">⭐ EAGLE REQUIRED</span>
         )}
