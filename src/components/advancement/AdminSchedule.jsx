@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
 import { ClipboardList, ChevronDown, ChevronRight, Lock } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import EmailNotificationSettings from '@/components/advancement/EmailNotificationSettings';
 
 const MAX_SLOTS = 2;
 
@@ -28,7 +29,6 @@ export default function AdminSchedule() {
   const [authorized, setAuthorized] = useState(false);
   const [adminCode, setAdminCode] = useState('');
   const [verifying, setVerifying] = useState(false);
-  const [requests, setRequests] = useState([]);
   const [expandedDate, setExpandedDate] = useState(null);
 
   const handleVerify = async () => {
@@ -40,7 +40,6 @@ export default function AdminSchedule() {
     try {
       const res = await base44.functions.invoke('verify-reservation-admin', { admin_code: adminCode.trim() });
       if (res.data?.authorized) {
-        setRequests(res.data.requests || []);
         setAuthorized(true);
         toast({ title: 'Access granted', description: 'Reservation data loaded.' });
       } else {
@@ -53,15 +52,28 @@ export default function AdminSchedule() {
     setVerifying(false);
   };
 
+  const { data: requests = [] } = useQuery({
+    queryKey: ['admin-schedule-requests'],
+    queryFn: () => base44.entities.AdvancementRequest.list('-created_date', 200),
+    enabled: authorized,
+    refetchInterval: authorized ? 15000 : false,
+  });
+
+  useEffect(() => {
+    if (!authorized) return;
+    const unsubscribe = base44.entities.AdvancementRequest.subscribe(() => {
+      queryClient.invalidateQueries(['admin-schedule-requests']);
+    });
+    return unsubscribe;
+  }, [authorized, queryClient]);
+
   const updateMutation = useMutation({
     mutationFn: ({ id, status }) =>
       base44.entities.AdvancementRequest.update(id, { status }),
     onSuccess: () => {
-      queryClient.invalidateQueries(['admin-schedule']);
+      queryClient.invalidateQueries(['admin-schedule-requests']);
       queryClient.invalidateQueries(['advancement-requests']);
       queryClient.invalidateQueries(['my-reservations']);
-      // Refresh local state
-      setRequests(prev => prev.map(r => r.id === updateMutation.variables?.id ? { ...r, status: updateMutation.variables?.status } : r));
     },
   });
 
@@ -107,6 +119,7 @@ export default function AdminSchedule() {
   const sortedDates = Object.keys(byDate).sort();
 
   return (
+    <div className="space-y-6">
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="bg-[#1a2744] text-white p-5 flex items-center gap-2">
         <ClipboardList className="w-5 h-5" />
@@ -239,6 +252,8 @@ export default function AdminSchedule() {
           })
         )}
       </div>
+    </div>
+    <EmailNotificationSettings />
     </div>
   );
 }

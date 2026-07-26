@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { format, addDays, isMonday, startOfDay } from 'date-fns';
 import { Calendar, X } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { sendReservationNotification } from '@/lib/reservationNotifications';
 
 const MAX_SLOTS = 2;
 const RANKS = ['Scout', 'Tenderfoot', 'Second Class', 'First Class', 'Star', 'Life', 'Eagle'];
@@ -59,7 +60,16 @@ export default function SchedulingModal({ onClose }) {
     onSuccess: () => {
       queryClient.invalidateQueries(['advancement-requests']);
       queryClient.invalidateQueries(['my-reservations']);
-      queryClient.invalidateQueries(['admin-schedule']);
+      queryClient.invalidateQueries(['admin-schedule-requests']);
+      if (selectedSlot) {
+        const dateStr = format(selectedSlot.date, 'yyyy-MM-dd');
+        const openSlots = Math.max(0, MAX_SLOTS - getSlotCount(dateStr, selectedSlot.type) - 1);
+        sendReservationNotification('new', {
+          ...form,
+          type: selectedSlot.type,
+          meeting_date: dateStr,
+        }, openSlots).catch(() => {});
+      }
       toast({ title: 'Slot reserved!', description: 'Your request has been submitted.' });
       onClose();
     },

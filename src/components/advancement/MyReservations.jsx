@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
 import { Calendar, Clock, AlertCircle, X } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { sendReservationNotification } from '@/lib/reservationNotifications';
 
 const typeLabel = (type) => {
   if (type === 'scoutmaster_conference') return 'Scoutmaster Conference';
@@ -48,14 +49,9 @@ export default function MyReservations() {
     onSuccess: () => {
       queryClient.invalidateQueries(['my-reservations']);
       queryClient.invalidateQueries(['advancement-requests']);
-      queryClient.invalidateQueries(['admin-schedule']);
-      // Notify admin
+      queryClient.invalidateQueries(['admin-schedule-requests']);
       if (cancelTarget) {
-        base44.integrations.Core.SendEmail({
-          to: 'troop1099@bsa.org',
-          subject: 'SMC/BOR Reservation Canceled',
-          body: `A scout has canceled their reservation.\n\nScout: ${cancelTarget.scout_name}\nEmail: ${cancelTarget.scout_email || 'N/A'}\nType: ${typeLabel(cancelTarget.type)}\nMeeting Date: ${cancelTarget.meeting_date || 'N/A'}\n\nThe slot is now available for other scouts.`,
-        }).catch(() => {});
+        sendReservationNotification('cancel', cancelTarget, 2).catch(() => {});
       }
       toast({
         title: 'Reservation canceled',

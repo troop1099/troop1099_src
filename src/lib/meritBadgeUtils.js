@@ -2,7 +2,7 @@ import { base44 } from '@/api/base44Client';
 
 export async function fetchMeritBadgeData(bsaUrl) {
   const result = await base44.integrations.Core.InvokeLLM({
-    prompt: `Go to this BSA Scouting merit badge page: ${bsaUrl}\n\nExtract the following:\n1. The exact merit badge name\n2. A 1-2 sentence description of the badge\n3. The full list of official requirements (one per line)\n4. The URL of the official merit badge image if visible on the page`,
+    prompt: `Go to this BSA Scouting merit badge page: ${bsaUrl}\n\nExtract the following:\n1. The exact merit badge name\n2. A 1-2 sentence description of the badge\n3. The full list of official requirements (one per line)\n4. The URL of the official merit badge image if visible on the page\n5. Is this badge listed as "Eagle required" on the page? Set eagle_required to true ONLY if the page explicitly says it is Eagle required. If it does not say Eagle required, set it to false.`,
     add_context_from_internet: true,
     model: 'gemini_3_flash',
     response_json_schema: {
@@ -11,7 +11,8 @@ export async function fetchMeritBadgeData(bsaUrl) {
         name: { type: 'string' },
         description: { type: 'string' },
         requirements: { type: 'array', items: { type: 'string' } },
-        image_url: { type: 'string' }
+        image_url: { type: 'string' },
+        eagle_required: { type: 'boolean' }
       }
     }
   });
@@ -57,6 +58,10 @@ export async function refreshBadge(badge, queryClient) {
 
   if (result.requirements && result.requirements.length > 0) {
     updateData.requirements = JSON.stringify(result.requirements);
+  }
+
+  if (typeof result.eagle_required === 'boolean') {
+    updateData.eagle_required = result.eagle_required;
   }
 
   if (Object.keys(updateData).length === 0) {

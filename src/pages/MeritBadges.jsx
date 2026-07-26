@@ -400,7 +400,9 @@ function BadgeDetail({ badge, onBack, adminUnlocked }) {
           <ChevronLeft className="w-4 h-4" /> Back
         </button>
         <h1 className="font-bold text-lg">{badge.name}</h1>
-        <span className="bg-[#FFD700] text-[#1a2744] text-xs font-bold px-2 py-0.5 rounded">⭐ EAGLE REQUIRED</span>
+        {badge.eagle_required && (
+          <span className="bg-[#FFD700] text-[#1a2744] text-xs font-bold px-2 py-0.5 rounded">⭐ EAGLE REQUIRED</span>
+        )}
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -513,6 +515,7 @@ export default function MeritBadges() {
         requirements: dbOverride?.requirements
           ? (() => { try { return JSON.parse(dbOverride.requirements); } catch { return b.requirements; } })()
           : b.requirements,
+        eagle_required: dbOverride?.eagle_required ?? true,
         dbId: dbOverride?.id,
       };
     }),
@@ -525,6 +528,7 @@ export default function MeritBadges() {
         requirements: b.requirements ? (() => { try { return JSON.parse(b.requirements); } catch { return []; } })() : [],
         bsa_url: b.bsa_url,
         image_url: b.image_url,
+        eagle_required: !!b.eagle_required,
         dbId: b.id,
       })),
   ];

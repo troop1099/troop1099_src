@@ -12,6 +12,7 @@ export default function AddBadgeModal({ onClose, onSaved, existingUrls }) {
     image_url: '',
     description: '',
     requirements: '',
+    eagle_required: false,
   });
   const [saving, setSaving] = useState(false);
   const [fetching, setFetching] = useState(false);
@@ -24,7 +25,7 @@ export default function AddBadgeModal({ onClose, onSaved, existingUrls }) {
     setFetching(true);
     try {
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Go to this BSA Scouting merit badge page: ${form.bsa_url}\n\nExtract the following:\n1. The exact merit badge name\n2. A 1-2 sentence description of the badge\n3. The full list of official requirements (one per line)\n4. The URL of the badge image if visible on the page`,
+        prompt: `Go to this BSA Scouting merit badge page: ${form.bsa_url}\n\nExtract the following:\n1. The exact merit badge name\n2. A 1-2 sentence description of the badge\n3. The full list of official requirements (one per line)\n4. The URL of the badge image if visible on the page\n5. Is this badge listed as "Eagle required" on the page? Set eagle_required to true ONLY if the page explicitly says it is Eagle required.`,
         add_context_from_internet: true,
         model: 'gemini_3_flash',
         response_json_schema: {
@@ -33,7 +34,8 @@ export default function AddBadgeModal({ onClose, onSaved, existingUrls }) {
             name: { type: 'string' },
             description: { type: 'string' },
             requirements: { type: 'array', items: { type: 'string' } },
-            image_url: { type: 'string' }
+            image_url: { type: 'string' },
+            eagle_required: { type: 'boolean' }
           }
         }
       });
@@ -41,6 +43,7 @@ export default function AddBadgeModal({ onClose, onSaved, existingUrls }) {
       if (result.description) setForm(f => ({ ...f, description: result.description }));
       if (result.requirements) setForm(f => ({ ...f, requirements: result.requirements.join('\n') }));
       if (result.image_url) setForm(f => ({ ...f, image_url: result.image_url }));
+      if (typeof result.eagle_required === 'boolean') setForm(f => ({ ...f, eagle_required: result.eagle_required }));
       toast({ title: 'Data fetched from BSA page', description: 'Review and edit before saving.' });
     } catch (err) {
       toast({ title: 'Could not fetch automatically', description: 'Please enter the details manually.', variant: 'destructive' });
@@ -84,6 +87,7 @@ export default function AddBadgeModal({ onClose, onSaved, existingUrls }) {
         image_url: imageUrl,
         description: form.description.trim(),
         requirements: JSON.stringify(reqArray),
+        eagle_required: form.eagle_required,
       });
       onSaved?.();
       toast({ title: 'Merit badge added!', description: `${form.name} has been added to the library.` });
@@ -161,6 +165,17 @@ export default function AddBadgeModal({ onClose, onSaved, existingUrls }) {
             />
             <p className="text-xs text-gray-400 mt-1">Enter each requirement on a new line.</p>
           </div>
+        </div>
+        <div className="flex items-center gap-2 mt-4">
+          <input
+            type="checkbox"
+            id="eagle-required"
+            checked={form.eagle_required}
+            onChange={e => setForm(f => ({ ...f, eagle_required: e.target.checked }))}
+            className="w-4 h-4"
+          />
+          <label htmlFor="eagle-required" className="text-sm font-semibold text-gray-700">Eagle Required Badge</label>
+          <span className="text-xs text-gray-400">— only check if the BSA page says Eagle required</span>
         </div>
         <div className="flex gap-2 mt-5">
           <button onClick={onClose} className="flex-1 py-2 border border-gray-300 rounded text-sm">Cancel</button>

@@ -21,6 +21,11 @@
     "requirements": {
       "type": "string",
       "description": "JSON array of requirement strings"
+    },
+    "eagle_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the BSA page lists this as Eagle required"
     }
   },
   "required": [
