@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, Lock, Shield, Loader2 } from 'lucide-react';
+import { useAdmin } from '@/lib/AdminContext';
+import { useToast } from '@/components/ui/use-toast';
 
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
 
@@ -60,10 +62,27 @@ export default function TacticalNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileExpanded, setMobileExpanded] = useState(null);
+  const [showAdminInput, setShowAdminInput] = useState(false);
+  const [adminCode, setAdminCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const { adminUnlocked, unlock, lock } = useAdmin();
+  const { toast } = useToast();
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
   const isGroupActive = (links) => links?.some((l) => isActive(l.path));
+
+  const handleUnlock = async () => {
+    setVerifying(true);
+    try {
+      const ok = await unlock(adminCode);
+      if (ok) { setShowAdminInput(false); setAdminCode(''); toast({ title: 'Admin mode enabled' }); }
+      else toast({ title: 'Incorrect admin code', variant: 'destructive' });
+    } catch {
+      toast({ title: 'Incorrect admin code', variant: 'destructive' });
+    }
+    setVerifying(false);
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#1a2744] shadow-md">
@@ -128,8 +147,45 @@ export default function TacticalNav() {
           )}
         </nav>
 
-        {/* CTA + mobile toggle */}
+        {/* CTA + Admin + mobile toggle */}
         <div className="flex items-center gap-3 shrink-0">
+          {adminUnlocked ? (
+            <span className="hidden lg:flex items-center gap-1.5 text-sm bg-green-500/20 text-green-300 px-3 py-1.5 rounded font-semibold border border-green-500/30">
+              <Shield className="w-4 h-4" /> Admin
+            </span>
+          ) : showAdminInput ? (
+            <div className="hidden lg:flex items-center gap-2">
+              <input
+                type="password"
+                className="border border-white/20 bg-white/10 text-white rounded px-3 py-1.5 text-sm placeholder-white/40 focus:outline-none focus:border-white/40 w-28"
+                value={adminCode}
+                onChange={e => setAdminCode(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleUnlock()}
+                placeholder="Admin code"
+                autoFocus
+              />
+              <button
+                onClick={handleUnlock}
+                disabled={verifying || !adminCode.trim()}
+                className="bg-[#FFD700] text-[#1a2744] px-3 py-1.5 rounded text-sm font-semibold disabled:opacity-50"
+              >
+                {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Unlock'}
+              </button>
+              <button onClick={() => { setShowAdminInput(false); setAdminCode(''); }} className="text-white/50 hover:text-white text-sm">Cancel</button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowAdminInput(true)}
+              className="hidden lg:flex items-center gap-1 text-sm text-white/70 hover:text-white border border-white/20 px-3 py-1.5 rounded"
+            >
+              <Lock className="w-4 h-4" /> Admin
+            </button>
+          )}
+          {adminUnlocked && (
+            <button onClick={lock} className="hidden lg:flex text-sm text-white/50 hover:text-white border border-white/20 px-3 py-1.5 rounded">
+              Lock
+            </button>
+          )}
           <Link to="/contact" className="hidden lg:flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-1.5 rounded transition-colors">
             Join Troop 1099
           </Link>
@@ -184,7 +240,35 @@ export default function TacticalNav() {
               </div>
             )
           )}
-          <div className="p-4">
+          <div className="p-4 space-y-2">
+            {adminUnlocked ? (
+              <div className="flex items-center justify-between gap-2">
+                <span className="flex items-center gap-1.5 text-sm bg-green-500/20 text-green-300 px-3 py-2 rounded font-semibold border border-green-500/30">
+                  <Shield className="w-4 h-4" /> Admin Mode
+                </span>
+                <button onClick={lock} className="text-sm text-white/70 hover:text-white border border-white/20 px-3 py-2 rounded">Lock</button>
+              </div>
+            ) : showAdminInput ? (
+              <div className="space-y-2">
+                <input
+                  type="password"
+                  className="w-full border border-white/20 bg-white/10 text-white rounded px-3 py-2 text-sm placeholder-white/40 focus:outline-none"
+                  value={adminCode}
+                  onChange={e => setAdminCode(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleUnlock()}
+                  placeholder="Admin code"
+                  autoFocus
+                />
+                <button onClick={handleUnlock} disabled={verifying || !adminCode.trim()} className="w-full bg-[#FFD700] text-[#1a2744] px-3 py-2 rounded text-sm font-semibold disabled:opacity-50">
+                  {verifying ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Unlock'}
+                </button>
+                <button onClick={() => setShowAdminInput(false)} className="w-full text-white/50 hover:text-white text-sm">Cancel</button>
+              </div>
+            ) : (
+              <button onClick={() => setShowAdminInput(true)} className="w-full flex items-center justify-center gap-1 text-sm text-white/70 hover:text-white border border-white/20 px-4 py-2 rounded">
+                <Lock className="w-4 h-4" /> Admin
+              </button>
+            )}
             <Link to="/contact" onClick={() => setMobileOpen(false)} className="block text-center bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded">
               Join Troop 1099
             </Link>

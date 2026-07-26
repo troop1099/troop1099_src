@@ -4,6 +4,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { AdminProvider } from '@/lib/AdminContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 import SiteLayout from './components/layout/SiteLayout';
@@ -24,6 +25,7 @@ import PhotoGallery from './pages/PhotoGallery';
 import Pinestraw from './pages/Pinestraw';
 import Dues from './pages/Dues';
 import GearCheckout from './pages/GearCheckout';
+import Announcements from './pages/Announcements';
 
 import LeaderTraining from './pages/LeaderTraining';
 import ForParents from './pages/ForParents';
@@ -73,6 +75,7 @@ const AuthenticatedApp = () => {
         <Route path="/pinestraw" element={<Pinestraw />} />
         <Route path="/dues" element={<Dues />} />
         <Route path="/gear-checkout" element={<GearCheckout />} />
+        <Route path="/announcements" element={<Announcements />} />
         <Route path="/leader-training" element={<LeaderTraining />} />
         <Route path="/for-parents" element={<ForParents />} />
         <Route path="/outing-prep" element={<OutingPrep />} />
@@ -91,10 +94,12 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
+        <AdminProvider>
+          <Router>
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+        </AdminProvider>
       </QueryClientProvider>
     </AuthProvider>
   )
