@@ -426,7 +426,7 @@ function BadgeDetail({ badge, onBack, adminUnlocked }) {
               <ExternalLink className="w-3 h-3" /> Official BSA Page
             </a>
           )}
-          {adminUnlocked && badge.bsa_url && (
+          {badge.bsa_url && (
             <button
               onClick={handleRefresh}
               disabled={refreshing}
@@ -572,16 +572,14 @@ export default function MeritBadges() {
                 <Plus className="w-4 h-4" /> Add Merit Badge
               </button>
             )}
-            {adminUnlocked && (
-              <button
-                onClick={handleRefreshAll}
-                disabled={refreshingAll}
-                className="flex items-center gap-1 text-sm bg-[#FFD700] hover:bg-yellow-400 text-[#1a2744] px-3 py-1.5 rounded font-semibold disabled:opacity-50"
-              >
-                {refreshingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                {refreshingAll ? 'Refreshing...' : 'Refresh All'}
-              </button>
-            )}
+            <button
+              onClick={handleRefreshAll}
+              disabled={refreshingAll}
+              className="flex items-center gap-1 text-sm bg-[#FFD700] hover:bg-yellow-400 text-[#1a2744] px-3 py-1.5 rounded font-semibold disabled:opacity-50"
+            >
+              {refreshingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              {refreshingAll ? 'Refreshing...' : 'Refresh All'}
+            </button>
             <a href="https://www.scouting.org/skills/merit-badges/all/" target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-1 text-sm text-white/70 hover:text-white border border-white/20 px-3 py-1.5 rounded">
               <ExternalLink className="w-4 h-4" /> Full BSA Badge List
             </a>
