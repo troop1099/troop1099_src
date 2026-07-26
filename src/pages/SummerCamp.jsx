@@ -91,7 +91,7 @@ export default function SummerCamp() {
                 <p className="font-bold text-[#1a2744] text-lg">Where</p>
                 <p className="text-gray-700 font-semibold mt-1">Camp Rainey Mountain</p>
                 <p className="text-gray-500 text-sm mt-1">1494 Rainey Mountain Rd, Clayton, GA 30525</p>
-                <a href="https://www.northfulton.org/camping" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1 justify-center mt-1">
+                <a href="https://www.nega-bsa.org/CRM" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1 justify-center mt-1">
                   Council camping page <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
