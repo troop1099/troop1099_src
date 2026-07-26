@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { PackageCheck, PackageOpen, RotateCcw, CheckCircle, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
+import { useAdmin } from '@/lib/AdminContext';
 
 const GEAR_OPTIONS = [
   'Troop Tent',
@@ -30,6 +31,7 @@ function CheckoutForm({ onClose }) {
     notes: '',
   });
   const [saving, setSaving] = useState(false);
+  const [quartermasterCode, setQuartermasterCode] = useState('');
 
   const isTent = form.gear_item === 'Troop Tent';
 
@@ -42,7 +44,23 @@ function CheckoutForm({ onClose }) {
       toast({ title: 'Please enter the tent number.', variant: 'destructive' });
       return;
     }
+    if (!quartermasterCode.trim()) {
+      toast({ title: 'Quartermaster Code required', description: 'Enter the code to authorize this checkout.', variant: 'destructive' });
+      return;
+    }
     setSaving(true);
+    try {
+      const res = await base44.functions.invoke('verify-gear-return', { admin_code: quartermasterCode.trim() });
+      if (!res.data?.authorized) {
+        toast({ title: 'Incorrect Quartermaster code', variant: 'destructive' });
+        setSaving(false);
+        return;
+      }
+    } catch (err) {
+      toast({ title: 'Incorrect Quartermaster code', variant: 'destructive' });
+      setSaving(false);
+      return;
+    }
     await base44.entities.GearCheckout.create({
       ...form,
       checkout_date: format(new Date(), 'yyyy-MM-dd'),
@@ -87,6 +105,11 @@ function CheckoutForm({ onClose }) {
           <div>
             <label className="text-xs font-semibold text-gray-600 block mb-1">Notes (optional)</label>
             <textarea className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" rows={2} value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))} placeholder="Any condition notes..." />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Quartermaster Code *</label>
+            <input type="password" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" value={quartermasterCode} onChange={e => setQuartermasterCode(e.target.value)} placeholder="Enter the Quartermaster code" />
+            <p className="text-xs text-gray-400 mt-1">Only a Quartermaster with the correct code can check out gear.</p>
           </div>
         </div>
         <div className="flex gap-2 mt-5">
@@ -169,6 +192,7 @@ export default function GearCheckout() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkInRecord, setCheckInRecord] = useState(null);
   const [filter, setFilter] = useState('checked_out');
+  const { adminUnlocked } = useAdmin();
 
   const { data: records = [] } = useQuery({
     queryKey: ['gear_checkouts'],
@@ -188,12 +212,14 @@ export default function GearCheckout() {
             <h1 className="text-3xl font-bold">Troop Gear Checkout</h1>
             <p className="text-white/70 mt-1">Track who has troop gear and when it's returned.</p>
           </div>
-          <button
-            onClick={() => setShowCheckout(true)}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors"
-          >
-            <PackageOpen className="w-4 h-4" /> Check Out Gear
-          </button>
+          {adminUnlocked && (
+            <button
+              onClick={() => setShowCheckout(true)}
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors"
+            >
+              <PackageOpen className="w-4 h-4" /> Check Out Gear
+            </button>
+          )}
         </div>
       </div>
 

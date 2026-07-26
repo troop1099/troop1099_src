@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Crown, Star, Users, PenLine, Package, BookOpen, Globe, ChevronDown, ChevronUp, Shield, Lock, Save, Edit2 } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { Crown, Star, Users, PenLine, Package, BookOpen, Globe, ChevronDown, ChevronUp, Shield, Save } from 'lucide-react';
+import { useAdmin } from '@/lib/AdminContext';
 
 const ROLES = [
   {
@@ -152,8 +152,7 @@ const DEBRIEF = {
   process: 'Each patrol member shares one of each. The Patrol Leader listens without judgment and brings key feedback to the next PLC meeting.',
 };
 
-function LeadershipEditor({ roleKey, currentName, editUnlocked, code, onSaved }) {
-  const { toast } = useToast();
+function LeadershipEditor({ roleKey, currentName, editUnlocked, onSave, onClear }) {
   const [name, setName] = useState(currentName || '');
   const [saving, setSaving] = useState(false);
 
@@ -161,41 +160,14 @@ function LeadershipEditor({ roleKey, currentName, editUnlocked, code, onSaved })
 
   const handleSave = async () => {
     setSaving(true);
-    try {
-      const res = await base44.functions.invoke('verify-leadership-edit', {
-        action: 'save',
-        position_key: roleKey,
-        name: name.trim(),
-        admin_code: code,
-      });
-      if (res.data?.authorized) {
-        toast({ title: 'Position holder updated' });
-        onSaved();
-      } else {
-        toast({ title: 'Failed to save', variant: 'destructive' });
-      }
-    } catch (err) {
-      toast({ title: 'Failed to save', description: err?.message, variant: 'destructive' });
-    }
+    await onSave(name.trim());
     setSaving(false);
   };
 
   const handleClear = async () => {
     setName('');
     setSaving(true);
-    try {
-      const res = await base44.functions.invoke('verify-leadership-edit', {
-        action: 'delete',
-        position_key: roleKey,
-        admin_code: code,
-      });
-      if (res.data?.authorized) {
-        toast({ title: 'Position holder cleared' });
-        onSaved();
-      }
-    } catch (err) {
-      toast({ title: 'Failed to clear', variant: 'destructive' });
-    }
+    await onClear();
     setSaving(false);
   };
 
@@ -239,14 +211,9 @@ function LeadershipEditor({ roleKey, currentName, editUnlocked, code, onSaved })
 }
 
 export default function PLCRoles() {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(null);
-  const [editUnlocked, setEditUnlocked] = useState(false);
-  const [showCodeForm, setShowCodeForm] = useState(false);
-  const [adminCode, setAdminCode] = useState('');
-  const [activeCode, setActiveCode] = useState('');
-  const [verifying, setVerifying] = useState(false);
+  const { adminUnlocked } = useAdmin();
 
   const { data: settings = [] } = useQuery({
     queryKey: ['leadership-names'],
@@ -262,29 +229,24 @@ export default function PLCRoles() {
 
   const refreshNames = () => queryClient.invalidateQueries(['leadership-names']);
 
-  const handleVerifyCode = async () => {
-    if (!adminCode.trim()) {
-      toast({ title: 'Please enter the Leadership Edit Code', variant: 'destructive' });
-      return;
+  const handleSaveName = async (roleAbbr, name) => {
+    const fullKey = `leadership_${roleAbbr}`;
+    const existing = settings.find(s => s.key === fullKey);
+    if (existing) {
+      await base44.entities.Setting.update(existing.id, { value: name });
+    } else {
+      await base44.entities.Setting.create({ key: fullKey, value: name });
     }
-    setVerifying(true);
-    try {
-      const res = await base44.functions.invoke('verify-leadership-edit', {
-        admin_code: adminCode.trim(),
-      });
-      if (res.data?.authorized) {
-        setActiveCode(adminCode.trim());
-        setEditUnlocked(true);
-        setShowCodeForm(false);
-        toast({ title: 'Editing unlocked', description: 'You can now edit position holder names.' });
-      } else {
-        toast({ title: 'Incorrect code', variant: 'destructive' });
-      }
-    } catch (err) {
-      const msg = err?.response?.data?.error || err?.message || 'Verification failed.';
-      toast({ title: 'Incorrect code', description: msg, variant: 'destructive' });
+    refreshNames();
+  };
+
+  const handleClearName = async (roleAbbr) => {
+    const fullKey = `leadership_${roleAbbr}`;
+    const existing = settings.find(s => s.key === fullKey);
+    if (existing) {
+      await base44.entities.Setting.delete(existing.id);
     }
-    setVerifying(false);
+    refreshNames();
   };
 
   return (
@@ -298,59 +260,7 @@ export default function PLCRoles() {
 
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
 
-        {/* Edit Leadership Names button / code form */}
-        {!editUnlocked ? (
-          <div>
-            {!showCodeForm ? (
-              <button
-                onClick={() => setShowCodeForm(true)}
-                className="flex items-center gap-2 bg-[#1a2744] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#1a2744]/90"
-              >
-                <Edit2 className="w-4 h-4" /> Edit Leadership Names
-              </button>
-            ) : (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <Lock className="w-5 h-5 text-[#1a2744]" />
-                  <p className="font-bold text-[#1a2744]">Enter Leadership Edit Code</p>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="password"
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1a2744]"
-                    value={adminCode}
-                    onChange={e => setAdminCode(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleVerifyCode()}
-                    placeholder="Leadership Edit Code"
-                  />
-                  <button
-                    onClick={handleVerifyCode}
-                    disabled={verifying}
-                    className="px-5 py-2 bg-[#1a2744] text-white rounded-lg text-sm font-semibold disabled:opacity-50"
-                  >
-                    {verifying ? 'Verifying...' : 'Unlock'}
-                  </button>
-                  <button
-                    onClick={() => { setShowCodeForm(false); setAdminCode(''); }}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
-            <p className="text-sm text-green-800 font-semibold">✓ Editing unlocked — you can update position holder names below.</p>
-            <button
-              onClick={() => { setEditUnlocked(false); setActiveCode(''); }}
-              className="text-xs text-green-700 underline"
-            >
-              Lock
-            </button>
-          </div>
-        )}
+        {/* PLC Hierarchy diagram */}
 
         {/* PLC Hierarchy diagram */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
@@ -388,7 +298,7 @@ export default function PLCRoles() {
                   {role.elected && <span className="text-xs bg-[#FFD700] text-[#1a2744] font-bold px-2 py-0.5 rounded-full">ELECTED</span>}
                 </div>
                 <p className="text-sm text-gray-600 mt-0.5 line-clamp-1">{role.description}</p>
-                {!editUnlocked && leadershipNames[role.abbr] && (
+                {!adminUnlocked && leadershipNames[role.abbr] && (
                   <p className="text-xs text-[#1a2744] font-semibold mt-1">Position Holder: {leadershipNames[role.abbr]}</p>
                 )}
               </div>
@@ -398,11 +308,11 @@ export default function PLCRoles() {
               <div className="px-5 pb-5 space-y-4 border-t border-white/50 pt-4 bg-white/60">
                 <p className="text-gray-700 text-sm leading-relaxed">{role.description}</p>
                 <LeadershipEditor
-                  roleKey={`leadership_${role.abbr}`}
+                  roleKey={role.abbr}
                   currentName={leadershipNames[role.abbr]}
-                  editUnlocked={editUnlocked}
-                  code={activeCode}
-                  onSaved={refreshNames}
+                  editUnlocked={adminUnlocked}
+                  onSave={(name) => handleSaveName(role.abbr, name)}
+                  onClear={() => handleClearName(role.abbr)}
                 />
                 <div>
                   <p className="font-bold text-[#1a2744] text-sm mb-2">Key Duties:</p>
