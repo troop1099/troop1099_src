@@ -128,7 +128,7 @@ const POLICIES = [
       {
         heading: 'Who Can Sign Off Requirements',
         items: [
-          'Tenderfoot, Second Class, and First Class requirements: any First Class Scout or above, or any registered adult leader',
+          'Tenderfoot, Second Class, and First Class requirements: any Registered Adult Leader',
           'Merit badge requirements: only a registered Merit Badge Counselor for that badge',
           'Eagle-required merit badges: only In-Troop counselors, Summer Camp, or district Advance-A-Rama',
           'Scoutmaster Conference: Scoutmaster only (or designated ASM)',
