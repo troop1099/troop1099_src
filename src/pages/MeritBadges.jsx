@@ -548,7 +548,7 @@ export default function MeritBadges() {
         requirements: dbOverride?.requirements
           ? (() => { try { return JSON.parse(dbOverride.requirements); } catch { return b.requirements; } })()
           : b.requirements,
-        eagle_required: dbOverride?.eagle_required ?? b.eagle_required ?? true,
+        eagle_required: b.eagle_required !== undefined ? b.eagle_required : (dbOverride?.eagle_required ?? true),
         dbId: dbOverride?.id,
       };
     }),
