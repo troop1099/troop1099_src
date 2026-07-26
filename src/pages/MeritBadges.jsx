@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Star, Plus, X, User, ExternalLink, ChevronLeft, Upload, Loader2, RefreshCw } from 'lucide-react';
+import { Star, Plus, X, User, ExternalLink, ChevronLeft, Upload, Loader2, RefreshCw, Trash2 } from 'lucide-react';
 import AddBadgeModal from '@/components/meritbadges/AddBadgeModal';
 import BadgeCard from '@/components/meritbadges/BadgeCard';
 import AdminBar from '@/components/meritbadges/AdminBar';
@@ -343,7 +343,7 @@ function CounselorForm({ badge }) {
   );
 }
 
-function BadgeDetail({ badge, onBack, adminUnlocked }) {
+function BadgeDetail({ badge, onBack, adminUnlocked, onDelete }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [badgeImg, uploadBadgeImg, setBadgeImg] = useBadgeImage(badge.id, badge.image_url);
@@ -402,6 +402,14 @@ function BadgeDetail({ badge, onBack, adminUnlocked }) {
         <h1 className="font-bold text-lg">{badge.name}</h1>
         {badge.eagle_required && (
           <span className="bg-[#FFD700] text-[#1a2744] text-xs font-bold px-2 py-0.5 rounded">⭐ EAGLE REQUIRED</span>
+        )}
+        {adminUnlocked && (
+          <button
+            onClick={() => onDelete(badge)}
+            className="ml-auto flex items-center gap-1.5 text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded font-semibold"
+          >
+            <Trash2 className="w-4 h-4" /> Delete Badge
+          </button>
         )}
       </div>
 
@@ -491,8 +499,32 @@ export default function MeritBadges() {
   const [showAdd, setShowAdd] = useState(false);
   const [adminUnlocked, setAdminUnlocked] = useState(false);
   const [refreshingAll, setRefreshingAll] = useState(false);
+  const [hiddenBadges, setHiddenBadges] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('hidden_badges') || '[]'); } catch { return []; }
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const handleDeleteBadge = async (badge) => {
+    const confirmed = window.confirm(`Delete "${badge.name}"?\n${badge.dbId ? 'This badge will be permanently removed from the database.' : 'This built-in badge will be hidden from the library.'}`);
+    if (!confirmed) return;
+
+    if (badge.dbId) {
+      try {
+        await base44.entities.MeritBadge.delete(badge.dbId);
+        queryClient.invalidateQueries(['merit-badges']);
+        toast({ title: `"${badge.name}" deleted from database.` });
+      } catch (err) {
+        toast({ title: 'Failed to delete badge', variant: 'destructive' });
+      }
+    } else {
+      const updated = [...hiddenBadges, badge.id];
+      setHiddenBadges(updated);
+      localStorage.setItem('hidden_badges', JSON.stringify(updated));
+      toast({ title: `"${badge.name}" hidden from library.` });
+    }
+    setSelected(null);
+  };
 
   const { data: allCounselors = [] } = useQuery({
     queryKey: ['counselors-all'],
@@ -531,7 +563,7 @@ export default function MeritBadges() {
         eagle_required: !!b.eagle_required,
         dbId: b.id,
       })),
-  ];
+  ].filter(b => !hiddenBadges.includes(b.id) || b.dbId);
 
   const getCounselorCount = (badgeId) => allCounselors.filter(c => c.badge_id === badgeId).length;
 
@@ -556,7 +588,7 @@ export default function MeritBadges() {
   };
 
   const selectedBadge = selected ? allBadges.find(b => b.id === selected.id) || selected : null;
-  if (selectedBadge) return <BadgeDetail badge={selectedBadge} onBack={() => setSelected(null)} adminUnlocked={adminUnlocked} />;
+  if (selectedBadge) return <BadgeDetail badge={selectedBadge} onBack={() => setSelected(null)} adminUnlocked={adminUnlocked} onDelete={handleDeleteBadge} />;
 
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
@@ -630,6 +662,8 @@ export default function MeritBadges() {
                 badge={badge}
                 count={count}
                 onClick={() => setSelected(badge)}
+                adminUnlocked={adminUnlocked}
+                onDelete={handleDeleteBadge}
               />
             );
           })}
