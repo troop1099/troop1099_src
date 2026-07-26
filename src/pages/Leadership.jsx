@@ -83,39 +83,64 @@ export default function Leadership() {
   const youth = leaders.filter(l => l.type === 'youth');
 
   return (
-    <div className="pt-14 min-h-screen bg-gray-50">
-      <div className="max-w-5xl mx-auto px-4 py-10">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#1a2744]">Troop Leadership</h1>
-          <p className="text-gray-500 mt-2">Troop 1099 is a boy-led troop, guided by experienced adult mentors.</p>
-          <button
-            onClick={() => setModal('add')}
-            className="mt-4 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold text-sm"
-          >
-            <Plus className="w-4 h-4" /> Add Leader
-          </button>
+    <div className="pt-14 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      {/* Hero header */}
+      <div className="bg-[#1a2744] text-white relative overflow-hidden">
+        <div className="absolute inset-0 topo-pattern opacity-40" />
+        <div className="max-w-5xl mx-auto px-6 py-12 relative">
+          <div className="flex flex-col items-center text-center">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
+                <Users className="w-6 h-6 text-[#FFD700]" />
+              </div>
+            </div>
+            <h1 className="text-4xl font-bold tracking-tight">Troop Leadership</h1>
+            <p className="text-white/70 mt-3 max-w-lg">
+              Troop 1099 is a boy-led troop, guided by experienced adult mentors and a dedicated Patrol Leaders Council.
+            </p>
+            <button
+              onClick={() => setModal('add')}
+              className="mt-6 inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-white px-5 py-2.5 rounded-lg font-semibold text-sm shadow-lg shadow-accent/30 transition-all hover:scale-[1.02]"
+            >
+              <Plus className="w-4 h-4" /> Add Leader
+            </button>
+          </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {/* Adult Leaders */}
-          <div>
-            <h2 className="flex items-center gap-2 font-bold text-[#1a2744] text-lg mb-4 pb-2 border-b-2 border-red-600">
-              <Shield className="w-5 h-5 text-red-600" /> Adult Leaders
-            </h2>
-            <div className="space-y-3">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-red-50 to-transparent">
+              <div className="w-11 h-11 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+                <Shield className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <h2 className="font-bold text-[#1a2744] text-lg leading-tight">Adult Leaders</h2>
+                <p className="text-xs text-gray-400">Scoutmaster & committee</p>
+              </div>
+              <span className="ml-auto text-xs font-semibold text-red-600 bg-red-50 px-2.5 py-1 rounded-full">
+                {adults.length} {adults.length === 1 ? 'leader' : 'leaders'}
+              </span>
+            </div>
+            <div className="p-5 space-y-3">
               {adults.length === 0 && (
-                <p className="text-gray-400 text-sm italic">No adult leaders added yet.</p>
+                <div className="text-center py-8">
+                  <Shield className="w-8 h-8 text-red-200 mx-auto mb-2" />
+                  <p className="text-gray-400 text-sm italic">No adult leaders added yet.</p>
+                </div>
               )}
               {adults.map(leader => (
-                <div key={leader.id} className="bg-white rounded-lg border border-gray-200 p-4 flex items-center justify-between">
+                <div key={leader.id} className="group bg-gray-50 hover:bg-white rounded-xl border border-gray-100 hover:border-red-200 hover:shadow-sm p-4 flex items-center justify-between transition-all">
                   <div>
                     <p className="font-semibold text-[#1a2744]">{leader.name}</p>
-                    <p className="text-sm text-red-600">{leader.role}</p>
+                    <p className="text-sm text-red-600 font-medium">{leader.role}</p>
                     {leader.email && <p className="text-xs text-gray-400 mt-0.5">{leader.email}</p>}
                   </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => setModal(leader)} className="p-1.5 hover:bg-gray-100 rounded"><Pencil className="w-4 h-4 text-gray-400" /></button>
-                    <button onClick={() => deleteMutation.mutate(leader.id)} className="p-1.5 hover:bg-gray-100 rounded"><Trash2 className="w-4 h-4 text-gray-400" /></button>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => setModal(leader)} className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"><Pencil className="w-4 h-4 text-gray-500" /></button>
+                    <button onClick={() => deleteMutation.mutate(leader.id)} className="p-1.5 hover:bg-red-100 rounded-lg transition-colors"><Trash2 className="w-4 h-4 text-red-500" /></button>
                   </div>
                 </div>
               ))}
@@ -123,24 +148,36 @@ export default function Leadership() {
           </div>
 
           {/* Youth Leaders */}
-          <div>
-            <h2 className="flex items-center gap-2 font-bold text-[#1a2744] text-lg mb-4 pb-2 border-b-2 border-[#FFD700]">
-              <Users className="w-5 h-5 text-[#FFD700]" /> Youth Leadership (PLC)
-            </h2>
-            <div className="space-y-3">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-yellow-50 to-transparent">
+              <div className="w-11 h-11 rounded-xl bg-yellow-100 flex items-center justify-center shrink-0">
+                <Users className="w-5 h-5 text-[#b8860b]" />
+              </div>
+              <div>
+                <h2 className="font-bold text-[#1a2744] text-lg leading-tight">Youth Leadership (PLC)</h2>
+                <p className="text-xs text-gray-400">Patrol Leaders Council</p>
+              </div>
+              <span className="ml-auto text-xs font-semibold text-[#b8860b] bg-yellow-50 px-2.5 py-1 rounded-full">
+                {youth.length} {youth.length === 1 ? 'leader' : 'leaders'}
+              </span>
+            </div>
+            <div className="p-5 space-y-3">
               {youth.length === 0 && (
-                <p className="text-gray-400 text-sm italic">No youth leaders added yet.</p>
+                <div className="text-center py-8">
+                  <Users className="w-8 h-8 text-yellow-200 mx-auto mb-2" />
+                  <p className="text-gray-400 text-sm italic">No youth leaders added yet.</p>
+                </div>
               )}
               {youth.map(leader => (
-                <div key={leader.id} className="bg-white rounded-lg border border-gray-200 p-4 flex items-center justify-between">
+                <div key={leader.id} className="group bg-gray-50 hover:bg-white rounded-xl border border-gray-100 hover:border-yellow-200 hover:shadow-sm p-4 flex items-center justify-between transition-all">
                   <div>
                     <p className="font-semibold text-[#1a2744]">{leader.name}</p>
-                    <p className="text-sm text-[#b8860b]">{leader.role}</p>
-                    {leader.patrol && <p className="text-xs text-gray-500">{leader.patrol} Patrol</p>}
+                    <p className="text-sm text-[#b8860b] font-medium">{leader.role}</p>
+                    {leader.patrol && <p className="text-xs text-gray-500 mt-0.5">{leader.patrol} Patrol</p>}
                   </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => setModal(leader)} className="p-1.5 hover:bg-gray-100 rounded"><Pencil className="w-4 h-4 text-gray-400" /></button>
-                    <button onClick={() => deleteMutation.mutate(leader.id)} className="p-1.5 hover:bg-gray-100 rounded"><Trash2 className="w-4 h-4 text-gray-400" /></button>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => setModal(leader)} className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"><Pencil className="w-4 h-4 text-gray-500" /></button>
+                    <button onClick={() => deleteMutation.mutate(leader.id)} className="p-1.5 hover:bg-red-100 rounded-lg transition-colors"><Trash2 className="w-4 h-4 text-red-500" /></button>
                   </div>
                 </div>
               ))}
