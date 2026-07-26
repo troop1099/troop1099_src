@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { ClipboardList, ChevronDown, ChevronRight, Lock, FileText } from 'lucide-react';
+import { ClipboardList, ChevronDown, ChevronRight, FileText } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import EmailNotificationSettings from '@/components/advancement/EmailNotificationSettings';
 import { useAdmin } from '@/lib/AdminContext';
@@ -79,34 +79,7 @@ export default function AdminSchedule() {
     },
   });
 
-  if (!authorized) {
-    return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Lock className="w-5 h-5 text-[#1a2744]" />
-          <h2 className="font-bold text-[#1a2744] text-lg">View Reservations (Admin)</h2>
-        </div>
-        <p className="text-sm text-gray-500 mb-4">Enter the admin code to view all Scoutmaster Conference and Board of Review reservations.</p>
-        <div className="flex gap-2">
-          <input
-            type="password"
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1a2744]"
-            value={adminCode}
-            onChange={e => setAdminCode(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleVerify()}
-            placeholder="Admin Code"
-          />
-          <button
-            onClick={handleVerify}
-            disabled={verifying}
-            className="px-5 py-2 bg-[#1a2744] text-white rounded-lg text-sm font-semibold disabled:opacity-50"
-          >
-            {verifying ? 'Verifying...' : 'Unlock'}
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (!authorized) return null;
 
   const scheduledRequests = requests.filter(
     (r) =>

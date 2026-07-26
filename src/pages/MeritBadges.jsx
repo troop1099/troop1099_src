@@ -4,7 +4,6 @@ import { base44 } from '@/api/base44Client';
 import { Star, Plus, X, User, ExternalLink, ChevronLeft, Upload, Loader2, RefreshCw, Trash2 } from 'lucide-react';
 import AddBadgeModal from '@/components/meritbadges/AddBadgeModal';
 import BadgeCard from '@/components/meritbadges/BadgeCard';
-import AdminBar from '@/components/meritbadges/AdminBar';
 import { refreshBadge } from '@/lib/meritBadgeUtils';
 import { useToast } from '@/components/ui/use-toast';
 import { useAdmin } from '@/lib/AdminContext';
@@ -418,27 +417,36 @@ function BadgeDetail({ badge, onBack, adminUnlocked, onDelete }) {
       <div className="max-w-4xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left: image + counselors */}
         <div>
-          <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-[#FFD700] mx-auto mb-1 bg-gray-100 flex items-center justify-center group cursor-pointer" onClick={() => fileRef.current.click()}>
+          <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-[#FFD700] mx-auto mb-1 bg-gray-100 flex items-center justify-center">
             {badgeImg && !imgError ? (
               <img src={badgeImg} alt={badge.name} className="w-full h-full object-contain p-2" onError={() => setImgError(true)} />
             ) : (
               <div className="flex flex-col items-center gap-1 text-gray-400">
                 <Star className="w-8 h-8 text-[#FFD700]" />
-                <span className="text-xs text-center px-2">Upload badge image</span>
               </div>
             )}
-            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
-              <Upload className="w-6 h-6 text-white" />
-            </div>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImgUpload} />
           </div>
           {uploading && <p className="text-center text-xs text-gray-400 mb-1">Uploading...</p>}
-          {badge.bsa_url && (
+          {adminUnlocked && badgeImg && !imgError && (
+            <div className="flex justify-center mb-2">
+              <button onClick={() => fileRef.current.click()} className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
+                <Upload className="w-3 h-3" /> Change Image
+              </button>
+            </div>
+          )}
+          {adminUnlocked && !badgeImg && (
+            <div className="flex justify-center mb-2">
+              <button onClick={() => fileRef.current.click()} className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
+                <Upload className="w-3 h-3" /> Upload Image
+              </button>
+            </div>
+          )}
+          {adminUnlocked && badge.bsa_url && (
             <a href={badge.bsa_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1 text-xs text-blue-600 hover:underline mt-1 mb-2">
               <ExternalLink className="w-3 h-3" /> Official BSA Page
             </a>
           )}
-          {badge.bsa_url && (
+          {adminUnlocked && badge.bsa_url && (
             <button
               onClick={handleRefresh}
               disabled={refreshing}
@@ -458,10 +466,12 @@ function BadgeDetail({ badge, onBack, adminUnlocked, onDelete }) {
                   <p className="text-sm font-medium text-[#1a2744]">{c.name}</p>
                   {c.email && <p className="text-xs text-gray-500">{c.email}</p>}
                 </div>
-                <button onClick={() => deleteMutation.mutate(c.id)} className="text-gray-300 hover:text-red-500"><X className="w-4 h-4" /></button>
+                {adminUnlocked && (
+                  <button onClick={() => deleteMutation.mutate(c.id)} className="text-gray-300 hover:text-red-500"><X className="w-4 h-4" /></button>
+                )}
               </div>
             ))}
-            <CounselorForm badge={badge} />
+            {adminUnlocked && <CounselorForm badge={badge} />}
           </div>
         </div>
 
@@ -499,10 +509,8 @@ function BadgeDetail({ badge, onBack, adminUnlocked, onDelete }) {
 export default function MeritBadges() {
   const [selected, setSelected] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
-  const [adminUnlocked, setAdminUnlocked] = useState(false);
   const { adminUnlocked: globalAdmin } = useAdmin();
-  const canEdit = adminUnlocked || globalAdmin;
-  const [refreshingAll, setRefreshingAll] = useState(false);
+  const canEdit = globalAdmin;
   const [hiddenBadges, setHiddenBadges] = useState(() => {
     try { return JSON.parse(localStorage.getItem('hidden_badges') || '[]'); } catch { return []; }
   });
@@ -571,26 +579,6 @@ export default function MeritBadges() {
 
   const getCounselorCount = (badgeId) => allCounselors.filter(c => c.badge_id === badgeId).length;
 
-  const handleRefreshAll = async () => {
-    setRefreshingAll(true);
-    const success = [];
-    const failed = [];
-    for (const badge of allBadges.filter(b => b.bsa_url)) {
-      try {
-        const result = await refreshBadge(badge, queryClient);
-        if (result.success) success.push(badge.name);
-        else failed.push(badge.name);
-      } catch {
-        failed.push(badge.name);
-      }
-    }
-    setRefreshingAll(false);
-    toast({
-      title: `Refreshed ${success.length} badge${success.length !== 1 ? 's' : ''}`,
-      description: failed.length > 0 ? `Could not refresh: ${failed.join(', ')}` : 'All badges updated successfully.',
-    });
-  };
-
   const selectedBadge = selected ? allBadges.find(b => b.id === selected.id) || selected : null;
   if (selectedBadge) return <BadgeDetail badge={selectedBadge} onBack={() => setSelected(null)} adminUnlocked={canEdit} onDelete={handleDeleteBadge} />;
 
@@ -603,7 +591,6 @@ export default function MeritBadges() {
             <p className="text-white/70 mt-2">Explore the Eagle Required badges. All requirements are listed here for your convenience.</p>
           </div>
           <div className="flex items-center gap-3">
-            <AdminBar unlocked={adminUnlocked} onUnlock={setAdminUnlocked} />
             {canEdit && (
               <button
                 onClick={() => setShowAdd(true)}
@@ -612,17 +599,6 @@ export default function MeritBadges() {
                 <Plus className="w-4 h-4" /> Add Merit Badge
               </button>
             )}
-            <button
-              onClick={handleRefreshAll}
-              disabled={refreshingAll}
-              className="flex items-center gap-1 text-sm bg-[#FFD700] hover:bg-yellow-400 text-[#1a2744] px-3 py-1.5 rounded font-semibold disabled:opacity-50"
-            >
-              {refreshingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-              {refreshingAll ? 'Refreshing...' : 'Refresh All'}
-            </button>
-            <a href="https://www.scouting.org/skills/merit-badges/all/" target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-1 text-sm text-white/70 hover:text-white border border-white/20 px-3 py-1.5 rounded">
-              <ExternalLink className="w-4 h-4" /> Full BSA Badge List
-            </a>
           </div>
         </div>
       </div>
