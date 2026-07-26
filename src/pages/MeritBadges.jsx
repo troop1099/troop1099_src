@@ -1,8 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Star, Plus, X, User, ExternalLink, ChevronLeft, Upload } from 'lucide-react';
+import { Star, Plus, X, User, ExternalLink, ChevronLeft, Upload, Loader2, RefreshCw } from 'lucide-react';
 import AddBadgeModal from '@/components/meritbadges/AddBadgeModal';
+import BadgeCard from '@/components/meritbadges/BadgeCard';
+import AdminBar from '@/components/meritbadges/AdminBar';
+import { refreshBadge } from '@/lib/meritBadgeUtils';
+import { useToast } from '@/components/ui/use-toast';
 
 // Badge images are stored in localStorage keyed by badge id (client-side upload preview)
 // In a real deployment these would be uploaded to storage
@@ -14,7 +18,7 @@ function useBadgeImage(badgeId, initialUrl) {
     localStorage.setItem(key, res.file_url);
     setImg(res.file_url);
   };
-  return [img, upload];
+  return [img, upload, setImg];
 }
 
 // BSA official requirements pages
@@ -339,10 +343,13 @@ function CounselorForm({ badge }) {
   );
 }
 
-function BadgeDetail({ badge, onBack }) {
+function BadgeDetail({ badge, onBack, adminUnlocked }) {
   const queryClient = useQueryClient();
-  const [badgeImg, uploadBadgeImg] = useBadgeImage(badge.id, badge.image_url);
+  const { toast } = useToast();
+  const [badgeImg, uploadBadgeImg, setBadgeImg] = useBadgeImage(badge.id, badge.image_url);
   const [uploading, setUploading] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const fileRef = useRef();
 
   const handleImgUpload = async (e) => {
@@ -363,6 +370,29 @@ function BadgeDetail({ badge, onBack }) {
     onSuccess: () => queryClient.invalidateQueries(['counselors', badge.id])
   });
 
+  const handleRefresh = async () => {
+    if (!badge.bsa_url) {
+      toast({ title: 'No official BSA URL for this badge', variant: 'destructive' });
+      return;
+    }
+    setRefreshing(true);
+    try {
+      const result = await refreshBadge(badge, queryClient);
+      if (result.success) {
+        if (result.updateData?.image_url) {
+          setBadgeImg(result.updateData.image_url);
+          setImgError(false);
+        }
+        toast({ title: 'Badge refreshed from BSA page', description: 'Image, description, and requirements updated.' });
+      } else {
+        toast({ title: 'Unable to refresh', description: result.message, variant: 'destructive' });
+      }
+    } catch (err) {
+      toast({ title: 'Refresh failed', description: err?.message, variant: 'destructive' });
+    }
+    setRefreshing(false);
+  };
+
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
       <div className="bg-[#1a2744] text-white px-6 py-4 flex items-center gap-3">
@@ -377,11 +407,11 @@ function BadgeDetail({ badge, onBack }) {
         {/* Left: image + counselors */}
         <div>
           <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-[#FFD700] mx-auto mb-1 bg-gray-100 flex items-center justify-center group cursor-pointer" onClick={() => fileRef.current.click()}>
-            {badgeImg ? (
-              <img src={badgeImg} alt={badge.name} className="w-full h-full object-contain p-2" />
+            {badgeImg && !imgError ? (
+              <img src={badgeImg} alt={badge.name} className="w-full h-full object-contain p-2" onError={() => setImgError(true)} />
             ) : (
               <div className="flex flex-col items-center gap-1 text-gray-400">
-                <Upload className="w-8 h-8" />
+                <Star className="w-8 h-8 text-[#FFD700]" />
                 <span className="text-xs text-center px-2">Upload badge image</span>
               </div>
             )}
@@ -395,6 +425,15 @@ function BadgeDetail({ badge, onBack }) {
             <a href={badge.bsa_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1 text-xs text-blue-600 hover:underline mt-1 mb-2">
               <ExternalLink className="w-3 h-3" /> Official BSA Page
             </a>
+          )}
+          {adminUnlocked && badge.bsa_url && (
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-[#1a2744] border border-gray-300 px-3 py-2 rounded mb-3 disabled:opacity-50 hover:bg-gray-50"
+            >
+              {refreshing ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Refreshing...</> : <><RefreshCw className="w-3.5 h-3.5" /> Refresh from Official BSA Page</>}
+            </button>
           )}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <p className="font-semibold text-[#1a2744] text-sm mb-3 flex items-center gap-1">
@@ -448,6 +487,9 @@ function BadgeDetail({ badge, onBack }) {
 export default function MeritBadges() {
   const [selected, setSelected] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
+  const [refreshingAll, setRefreshingAll] = useState(false);
+  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: allCounselors = [] } = useQuery({
@@ -461,20 +503,56 @@ export default function MeritBadges() {
   });
 
   const allBadges = [
-    ...BADGES.map(b => ({ ...b, bsa_url: BSA_LINKS[b.id] || null, image_url: null })),
-    ...dbBadges.map(b => ({
-      id: b.id,
-      name: b.name,
-      description: b.description || '',
-      requirements: b.requirements ? (() => { try { return JSON.parse(b.requirements); } catch { return []; } })() : [],
-      bsa_url: b.bsa_url,
-      image_url: b.image_url,
-    })),
+    ...BADGES.map(b => {
+      const dbOverride = dbBadges.find(db => db.bsa_url === BSA_LINKS[b.id]);
+      return {
+        ...b,
+        bsa_url: BSA_LINKS[b.id] || null,
+        image_url: dbOverride?.image_url || null,
+        description: dbOverride?.description || b.description,
+        requirements: dbOverride?.requirements
+          ? (() => { try { return JSON.parse(dbOverride.requirements); } catch { return b.requirements; } })()
+          : b.requirements,
+        dbId: dbOverride?.id,
+      };
+    }),
+    ...dbBadges
+      .filter(db => !Object.values(BSA_LINKS).includes(db.bsa_url))
+      .map(b => ({
+        id: b.id,
+        name: b.name,
+        description: b.description || '',
+        requirements: b.requirements ? (() => { try { return JSON.parse(b.requirements); } catch { return []; } })() : [],
+        bsa_url: b.bsa_url,
+        image_url: b.image_url,
+        dbId: b.id,
+      })),
   ];
 
   const getCounselorCount = (badgeId) => allCounselors.filter(c => c.badge_id === badgeId).length;
 
-  if (selected) return <BadgeDetail badge={selected} onBack={() => setSelected(null)} />;
+  const handleRefreshAll = async () => {
+    setRefreshingAll(true);
+    const success = [];
+    const failed = [];
+    for (const badge of allBadges.filter(b => b.bsa_url)) {
+      try {
+        const result = await refreshBadge(badge, queryClient);
+        if (result.success) success.push(badge.name);
+        else failed.push(badge.name);
+      } catch {
+        failed.push(badge.name);
+      }
+    }
+    setRefreshingAll(false);
+    toast({
+      title: `Refreshed ${success.length} badge${success.length !== 1 ? 's' : ''}`,
+      description: failed.length > 0 ? `Could not refresh: ${failed.join(', ')}` : 'All badges updated successfully.',
+    });
+  };
+
+  const selectedBadge = selected ? allBadges.find(b => b.id === selected.id) || selected : null;
+  if (selectedBadge) return <BadgeDetail badge={selectedBadge} onBack={() => setSelected(null)} adminUnlocked={adminUnlocked} />;
 
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
@@ -485,12 +563,25 @@ export default function MeritBadges() {
             <p className="text-white/70 mt-2">Explore the Eagle Required badges. All requirements are listed here for your convenience.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowAdd(true)}
-              className="flex items-center gap-1 text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded font-semibold"
-            >
-              <Plus className="w-4 h-4" /> Add Merit Badge
-            </button>
+            <AdminBar unlocked={adminUnlocked} onUnlock={setAdminUnlocked} />
+            {adminUnlocked && (
+              <button
+                onClick={() => setShowAdd(true)}
+                className="flex items-center gap-1 text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded font-semibold"
+              >
+                <Plus className="w-4 h-4" /> Add Merit Badge
+              </button>
+            )}
+            {adminUnlocked && (
+              <button
+                onClick={handleRefreshAll}
+                disabled={refreshingAll}
+                className="flex items-center gap-1 text-sm bg-[#FFD700] hover:bg-yellow-400 text-[#1a2744] px-3 py-1.5 rounded font-semibold disabled:opacity-50"
+              >
+                {refreshingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                {refreshingAll ? 'Refreshing...' : 'Refresh All'}
+              </button>
+            )}
             <a href="https://www.scouting.org/skills/merit-badges/all/" target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-1 text-sm text-white/70 hover:text-white border border-white/20 px-3 py-1.5 rounded">
               <ExternalLink className="w-4 h-4" /> Full BSA Badge List
             </a>
@@ -531,23 +622,13 @@ export default function MeritBadges() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {allBadges.map(badge => {
             const count = getCounselorCount(badge.id);
-            const savedImg = localStorage.getItem(`badge_img_${badge.id}`) || badge.image_url;
             return (
-              <button
+              <BadgeCard
                 key={badge.id}
+                badge={badge}
+                count={count}
                 onClick={() => setSelected(badge)}
-                className="bg-white border-2 border-[#FFD700]/40 hover:border-[#FFD700] rounded-lg p-4 text-center hover:shadow-md transition-all group"
-              >
-                <div className="w-16 h-16 rounded-full overflow-hidden mx-auto mb-3 border-2 border-[#FFD700]/30 bg-gray-100 flex items-center justify-center">
-                  {savedImg ? (
-                    <img src={savedImg} alt={badge.name} className="w-full h-full object-contain p-1" />
-                  ) : (
-                    <Star className="w-6 h-6 text-[#FFD700]" />
-                  )}
-                </div>
-                <p className="font-semibold text-[#1a2744] text-xs leading-tight group-hover:text-[#1a2744]">{badge.name}</p>
-                <p className="text-gray-400 text-xs mt-1">{count} Counselor{count !== 1 ? 's' : ''}</p>
-              </button>
+              />
             );
           })}
         </div>
