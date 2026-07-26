@@ -4,7 +4,6 @@ import { base44 } from '@/api/base44Client';
 import { PackageCheck, PackageOpen, RotateCcw, CheckCircle, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
-import { useAdmin } from '@/lib/AdminContext';
 
 const GEAR_OPTIONS = [
   'Troop Tent',
@@ -192,7 +191,6 @@ export default function GearCheckout() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkInRecord, setCheckInRecord] = useState(null);
   const [filter, setFilter] = useState('checked_out');
-  const { adminUnlocked } = useAdmin();
 
   const { data: records = [] } = useQuery({
     queryKey: ['gear_checkouts'],
@@ -212,14 +210,12 @@ export default function GearCheckout() {
             <h1 className="text-3xl font-bold">Troop Gear Checkout</h1>
             <p className="text-white/70 mt-1">Track who has troop gear and when it's returned.</p>
           </div>
-          {adminUnlocked && (
-            <button
-              onClick={() => setShowCheckout(true)}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors"
-            >
-              <PackageOpen className="w-4 h-4" /> Check Out Gear
-            </button>
-          )}
+          <button
+            onClick={() => setShowCheckout(true)}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors"
+          >
+            <PackageOpen className="w-4 h-4" /> Check Out Gear
+          </button>
         </div>
       </div>
 
