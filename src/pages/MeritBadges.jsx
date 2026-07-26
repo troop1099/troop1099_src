@@ -2,12 +2,13 @@ import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Star, Plus, X, User, ExternalLink, ChevronLeft, Upload } from 'lucide-react';
+import AddBadgeModal from '@/components/meritbadges/AddBadgeModal';
 
 // Badge images are stored in localStorage keyed by badge id (client-side upload preview)
 // In a real deployment these would be uploaded to storage
-function useBadgeImage(badgeId) {
+function useBadgeImage(badgeId, initialUrl) {
   const key = `badge_img_${badgeId}`;
-  const [img, setImg] = useState(() => localStorage.getItem(key) || null);
+  const [img, setImg] = useState(() => localStorage.getItem(key) || initialUrl || null);
   const upload = async (file) => {
     const res = await base44.integrations.Core.UploadFile({ file });
     localStorage.setItem(key, res.file_url);
@@ -340,7 +341,7 @@ function CounselorForm({ badge }) {
 
 function BadgeDetail({ badge, onBack }) {
   const queryClient = useQueryClient();
-  const [badgeImg, uploadBadgeImg] = useBadgeImage(badge.id);
+  const [badgeImg, uploadBadgeImg] = useBadgeImage(badge.id, badge.image_url);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef();
 
@@ -390,8 +391,8 @@ function BadgeDetail({ badge, onBack }) {
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImgUpload} />
           </div>
           {uploading && <p className="text-center text-xs text-gray-400 mb-1">Uploading...</p>}
-          {BSA_LINKS[badge.id] && (
-            <a href={BSA_LINKS[badge.id]} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1 text-xs text-blue-600 hover:underline mt-1 mb-2">
+          {badge.bsa_url && (
+            <a href={badge.bsa_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1 text-xs text-blue-600 hover:underline mt-1 mb-2">
               <ExternalLink className="w-3 h-3" /> Official BSA Page
             </a>
           )}
@@ -446,11 +447,30 @@ function BadgeDetail({ badge, onBack }) {
 
 export default function MeritBadges() {
   const [selected, setSelected] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: allCounselors = [] } = useQuery({
     queryKey: ['counselors-all'],
     queryFn: () => base44.entities.MeritBadgeCounselor.list(),
   });
+
+  const { data: dbBadges = [] } = useQuery({
+    queryKey: ['merit-badges'],
+    queryFn: () => base44.entities.MeritBadge.list(),
+  });
+
+  const allBadges = [
+    ...BADGES.map(b => ({ ...b, bsa_url: BSA_LINKS[b.id] || null, image_url: null })),
+    ...dbBadges.map(b => ({
+      id: b.id,
+      name: b.name,
+      description: b.description || '',
+      requirements: b.requirements ? (() => { try { return JSON.parse(b.requirements); } catch { return []; } })() : [],
+      bsa_url: b.bsa_url,
+      image_url: b.image_url,
+    })),
+  ];
 
   const getCounselorCount = (badgeId) => allCounselors.filter(c => c.badge_id === badgeId).length;
 
@@ -464,9 +484,17 @@ export default function MeritBadges() {
             <h1 className="text-3xl font-bold">Merit Badge Library</h1>
             <p className="text-white/70 mt-2">Explore the Eagle Required badges. All requirements are listed here for your convenience.</p>
           </div>
-          <a href="https://www.scouting.org/skills/merit-badges/all/" target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-1 text-sm text-white/70 hover:text-white border border-white/20 px-3 py-1.5 rounded">
-            <ExternalLink className="w-4 h-4" /> Full BSA Badge List
-          </a>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowAdd(true)}
+              className="flex items-center gap-1 text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded font-semibold"
+            >
+              <Plus className="w-4 h-4" /> Add Merit Badge
+            </button>
+            <a href="https://www.scouting.org/skills/merit-badges/all/" target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-1 text-sm text-white/70 hover:text-white border border-white/20 px-3 py-1.5 rounded">
+              <ExternalLink className="w-4 h-4" /> Full BSA Badge List
+            </a>
+          </div>
         </div>
       </div>
 
@@ -501,9 +529,9 @@ export default function MeritBadges() {
 
       <div className="max-w-6xl mx-auto px-4 pb-12">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {BADGES.map(badge => {
+          {allBadges.map(badge => {
             const count = getCounselorCount(badge.id);
-            const savedImg = localStorage.getItem(`badge_img_${badge.id}`);
+            const savedImg = localStorage.getItem(`badge_img_${badge.id}`) || badge.image_url;
             return (
               <button
                 key={badge.id}
@@ -524,6 +552,14 @@ export default function MeritBadges() {
           })}
         </div>
       </div>
+
+      {showAdd && (
+        <AddBadgeModal
+          onClose={() => setShowAdd(false)}
+          onSaved={() => queryClient.invalidateQueries(['merit-badges'])}
+          existingUrls={[...Object.values(BSA_LINKS), ...dbBadges.map(b => b.bsa_url).filter(Boolean)]}
+        />
+      )}
     </div>
   );
 }

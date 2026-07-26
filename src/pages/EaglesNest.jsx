@@ -11,6 +11,9 @@ function groupByYear(eagles) {
     if (!grouped[year]) grouped[year] = [];
     grouped[year].push(e);
   });
+  Object.keys(grouped).forEach(year => {
+    grouped[year].sort((a, b) => new Date(a.date + 'T12:00:00') - new Date(b.date + 'T12:00:00'));
+  });
   return grouped;
 }
 

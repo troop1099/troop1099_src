@@ -1,0 +1,30 @@
+{
+  "name": "MeritBadge",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Merit badge name"
+    },
+    "bsa_url": {
+      "type": "string",
+      "description": "Official BSA merit badge page URL"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Badge image URL"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of the merit badge"
+    },
+    "requirements": {
+      "type": "string",
+      "description": "JSON array of requirement strings"
+    }
+  },
+  "required": [
+    "name",
+    "bsa_url"
+  ]
+}
