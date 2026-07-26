@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { X, Loader2, Search } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { validateImageUrl } from '@/lib/meritBadgeUtils';
 
 export default function AddBadgeModal({ onClose, onSaved, existingUrls }) {
   const { toast } = useToast();
@@ -72,10 +73,15 @@ export default function AddBadgeModal({ onClose, onSaved, existingUrls }) {
         .split('\n')
         .map(r => r.trim())
         .filter(r => r);
+      let imageUrl = form.image_url.trim() || null;
+      if (imageUrl) {
+        const valid = await validateImageUrl(imageUrl);
+        if (!valid) imageUrl = null;
+      }
       await base44.entities.MeritBadge.create({
         name: form.name.trim(),
         bsa_url: form.bsa_url.trim(),
-        image_url: form.image_url.trim() || null,
+        image_url: imageUrl,
         description: form.description.trim(),
         requirements: JSON.stringify(reqArray),
       });

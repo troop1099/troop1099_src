@@ -1,0 +1,15 @@
+import { secrets } from 'base44:runtime';
+
+export default async function(req) {
+  try {
+    const body = await req.json();
+    const adminCode = body?.admin_code;
+    const expectedCode = secrets.get('MERIT_BADGE_ADMIN_CODE');
+    if (!adminCode || adminCode !== expectedCode) {
+      return Response.json({ authorized: false, error: 'Invalid admin code' }, { status: 403 });
+    }
+    return Response.json({ authorized: true });
+  } catch (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+}
