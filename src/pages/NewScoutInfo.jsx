@@ -68,6 +68,37 @@ export default function NewScoutInfo() {
           </div>
         </div>
 
+        {/* Scout Shop */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-xl font-bold text-[#1a2744] mb-3">🛒 Where to Buy Your Uniform & Gear</h2>
+          <p className="text-gray-700 leading-relaxed mb-4">
+            New scouts will need a BSA uniform, handbook, and other gear. The official Scout Shop carries everything you need. There are two nearby locations:
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a
+              href="https://www.scouting.org/programs/scouts-bsa/scouts-bsa-local-council-locator/?council=119&location=jefferson%2C+GA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block bg-blue-50 border border-blue-200 rounded-lg p-4 hover:border-[#1a2744] transition-colors"
+            >
+              <p className="font-bold text-[#1a2744]">📍 Jefferson Scout Shop</p>
+              <p className="text-gray-600 text-sm mt-1">Jefferson, GA</p>
+              <p className="text-blue-600 text-xs mt-2 font-semibold hover:underline">View Location →</p>
+            </a>
+            <a
+              href="https://www.scouting.org/programs/scouts-bsa/scouts-bsa-local-council-locator/?council=119&location=lawrenceville%2C+GA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block bg-blue-50 border border-blue-200 rounded-lg p-4 hover:border-[#1a2744] transition-colors"
+            >
+              <p className="font-bold text-[#1a2744]">📍 Lawrenceville Scout Shop</p>
+              <p className="text-gray-600 text-sm mt-1">Lawrenceville, GA</p>
+              <p className="text-blue-600 text-xs mt-2 font-semibold hover:underline">View Location →</p>
+            </a>
+          </div>
+          <p className="text-gray-500 text-xs mt-3">Tip: Check with the Scoutmaster for a list of required uniform items before shopping.</p>
+        </div>
+
         {/* Quick Links */}
         <div className="bg-[#1a2744] rounded-lg p-6 text-white">
           <h2 className="font-bold text-lg mb-4">Quick Links for New Scouts</h2>

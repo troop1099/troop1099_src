@@ -101,7 +101,18 @@ export default function LifeToEagle() {
       content: (
         <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
           <p>If all other Eagle Rank requirements are complete, the Scout is ready for his <strong>Eagle Board of Review</strong>.</p>
-          <p>Your completed application must be submitted to the Jefferson Service Center a <strong>minimum of TWO weeks</strong> prior to your scheduled Eagle Board appointment.</p>
+          <p>Your completed application must be submitted to the <strong>Jefferson Service Center</strong> a <strong>minimum of TWO weeks</strong> prior to your scheduled Eagle Board appointment.</p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2 space-y-2">
+            <p><strong>Submitting your application:</strong> You can hand-deliver your completed application directly to the <strong>Jefferson Scout Shop / Service Center</strong> in Jefferson, GA, or you can drop it off at the <strong>Lawrenceville Scout Shop</strong> and they will forward it to Jefferson on your behalf. Either way, ensure it arrives at Jefferson at least two weeks before your Eagle Board appointment.</p>
+            <div className="flex flex-wrap gap-3 mt-2">
+              <a href="https://www.scouting.org/programs/scouts-bsa/scouts-bsa-local-council-locator/?council=119&location=jefferson%2C+GA" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-semibold">
+                📍 Jefferson Scout Shop <ExternalLink className="w-3 h-3" />
+              </a>
+              <a href="https://www.scouting.org/programs/scouts-bsa/scouts-bsa-local-council-locator/?council=119&location=lawrenceville%2C+GA" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-semibold">
+                📍 Lawrenceville Scout Shop <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
           <a href={signupUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline font-semibold">
             📅 Schedule Eagle Board Appointment via Etowah District SignUpGenius <ExternalLink className="w-3 h-3" />
           </a>
