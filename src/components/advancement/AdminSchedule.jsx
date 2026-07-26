@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { ClipboardList, ChevronDown, ChevronRight, Lock } from 'lucide-react';
+import { ClipboardList, ChevronDown, ChevronRight, Lock, FileText } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import EmailNotificationSettings from '@/components/advancement/EmailNotificationSettings';
 
@@ -110,6 +110,8 @@ export default function AdminSchedule() {
     (r) =>
       (r.type === 'scoutmaster_conference' || r.type === 'board_of_review') && r.meeting_date
   );
+
+  const blueCardRequests = requests.filter((r) => r.type === 'blue_card');
 
   const byDate = {};
   scheduledRequests.forEach((r) => {
@@ -253,6 +255,43 @@ export default function AdminSchedule() {
         )}
       </div>
     </div>
+    {blueCardRequests.length > 0 && (
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-[#1a2744] text-white p-5 flex items-center gap-2">
+          <FileText className="w-5 h-5" />
+          <h2 className="font-bold text-lg">Blue Card Requests</h2>
+          <span className="ml-auto text-sm text-white/60">{blueCardRequests.length} total</span>
+        </div>
+        <div className="divide-y divide-gray-100">
+          {blueCardRequests.map((req) => {
+            const cfg = statusOptions.find((s) => s.value === req.status) || statusOptions[0];
+            return (
+              <div key={req.id} className={`p-4 flex items-center justify-between gap-3 ${req.status === 'canceled' || req.status === 'rejected' ? 'bg-gray-50 opacity-70' : ''}`}>
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-[#1a2744] text-sm">{req.scout_name}</p>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${cfg.color}`}>{cfg.label}</span>
+                  </div>
+                  {req.merit_badge && <p className="text-xs text-gray-500">Badge: {req.merit_badge}</p>}
+                  {req.scout_email && <p className="text-xs text-gray-400">{req.scout_email}</p>}
+                  {req.notes && <p className="text-xs text-gray-400">Notes: {req.notes}</p>}
+                  <p className="text-xs text-gray-400">Submitted: {req.created_date ? format(new Date(req.created_date), 'MMM d, yyyy h:mm a') : '—'}</p>
+                </div>
+                <select
+                  value={req.status}
+                  onChange={(e) => updateMutation.mutate({ id: req.id, status: e.target.value })}
+                  className={`text-xs font-semibold px-2 py-1 rounded-full border-0 ${cfg.color}`}
+                >
+                  {statusOptions.map((s) => (
+                    <option key={s.value} value={s.value}>{s.label}</option>
+                  ))}
+                </select>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    )}
     <EmailNotificationSettings />
     </div>
   );

@@ -52,18 +52,10 @@ const SUPPLEMENTAL = [
   {
     title: 'Wood Badge',
     description: 'BSA\'s flagship advanced leadership course. A transformative 6-day experience focused on leadership skills applicable to all areas of life. Highly recommended for all leaders.',
-    url: 'https://www.scouting.org/training/adult/supplemental/wood-badge/',
+    url: 'https://www.scouting.org/training/resources-for-program-trainers-training-committees/woodbadge/',
     category: 'Advanced Leadership',
     color: 'border-yellow-300 bg-yellow-50',
     tagColor: 'bg-yellow-100 text-yellow-800',
-  },
-  {
-    title: 'University of Scouting',
-    description: 'One-day training event held by local councils offering dozens of short courses for all leader types. Great for committee members and specialist roles.',
-    url: 'https://www.northfulton.org/training',
-    category: 'Council Training',
-    color: 'border-blue-300 bg-blue-50',
-    tagColor: 'bg-blue-100 text-blue-800',
   },
   {
     title: 'National Youth Leadership Training (NYLT)',
@@ -72,14 +64,6 @@ const SUPPLEMENTAL = [
     category: 'Youth (Ages 13+)',
     color: 'border-green-300 bg-green-50',
     tagColor: 'bg-green-100 text-green-800',
-  },
-  {
-    title: 'Powder Horn',
-    description: 'Resource skills course covering high-adventure activities including COPE, climbing, aquatics, shooting sports, and wilderness survival.',
-    url: 'https://www.scouting.org/training/adult/supplemental/powder-horn/',
-    category: 'High Adventure',
-    color: 'border-purple-300 bg-purple-50',
-    tagColor: 'bg-purple-100 text-purple-800',
   },
   {
     title: 'Safe Swim Defense & Safety Afloat',

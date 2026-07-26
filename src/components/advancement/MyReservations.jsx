@@ -37,11 +37,15 @@ export default function MyReservations() {
     enabled: !!user,
   });
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const myRequests = allRequests.filter(
     (r) =>
       (r.type === 'scoutmaster_conference' || r.type === 'board_of_review') &&
       (r.scout_email?.toLowerCase() === user?.email?.toLowerCase() ||
-        r.created_by_id === user?.id)
+        r.created_by_id === user?.id) &&
+      r.meeting_date && new Date(r.meeting_date + 'T12:00:00') >= today
   );
 
   const cancelMutation = useMutation({
