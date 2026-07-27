@@ -354,8 +354,7 @@ export default function OutingManager() {
 
   const deleteOutingMutation = useMutation({
     mutationFn: async (outingId) => {
-      const attendeesToDelete = await base44.entities.OutingAttendee.filter({ outing_id: outingId });
-      await Promise.all(attendeesToDelete.map(a => base44.entities.OutingAttendee.delete(a.id)));
+      await base44.entities.OutingAttendee.deleteMany({ outing_id: outingId });
       await base44.entities.Outing.delete(outingId);
     },
     onMutate: async (outingId) => {
