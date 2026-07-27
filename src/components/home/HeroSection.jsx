@@ -12,7 +12,8 @@ export default function HeroSection() {
         <img
           src={TROOP_PHOTO}
           alt="Troop 1099 Scouts Camping in Cumming GA"
-          className="w-full h-full object-cover object-[center_75%]"
+          className="w-full h-full object-cover"
+          style={{ objectPosition: 'center top' }}
         />
         <div className="absolute inset-0 bg-[#1a2744]/70" />
       </div>
