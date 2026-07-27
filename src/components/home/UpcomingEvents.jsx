@@ -12,11 +12,32 @@ export default function UpcomingEvents() {
     initialData: [],
   });
 
+  const { data: gcalData } = useQuery({
+    queryKey: ['gcal_events'],
+    queryFn: () => base44.functions.invoke('fetch-google-calendar-events', {}),
+    staleTime: 5 * 60 * 1000,
+  });
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const upcomingEvents = events
+
+  // Merge internal events with Google Calendar events
+  const internalUpcoming = events
     .filter(e => { const d = parseDate(e.date); return d && d >= today; })
-    .slice(0, 3);
+    .map(e => ({
+      id: e.id,
+      title: e.title,
+      start: new Date(parseDate(e.date).setHours(19, 0, 0, 0)).toISOString(),
+      location: e.location || '',
+      all_day: false,
+      source: 'internal',
+    }));
+
+  const gcalEvents = (gcalData?.events || []).map(e => ({ ...e, source: 'gcal' }));
+
+  const upcomingEvents = [...internalUpcoming, ...gcalEvents]
+    .sort((a, b) => new Date(a.start) - new Date(b.start))
+    .slice(0, 5);
 
   const { data: announcements = [] } = useQuery({
     queryKey: ['announcements'],
@@ -57,22 +78,32 @@ export default function UpcomingEvents() {
               <p className="text-gray-400 text-sm italic">No upcoming events scheduled.</p>
             ) : (
               <div className="space-y-4">
-                {upcomingEvents.map((event) => (
-                  <div key={event.id} className="flex items-start gap-4">
-                    <div className="text-center w-10 shrink-0">
-                      <p className="font-heading text-[10px] uppercase text-gray-500 tracking-wider">
-                        {safeFormatDate(event.date, 'MMM')}
-                      </p>
-                      <p className="font-heading font-bold text-[#1a2744] text-2xl leading-none">
-                        {safeFormatDate(event.date, 'd')}
-                      </p>
+                {upcomingEvents.map((event, idx) => {
+                  const eventDate = new Date(event.start);
+                  return (
+                    <div key={event.id || `${event.title}-${idx}`} className="flex items-start gap-4">
+                      <div className="text-center w-10 shrink-0">
+                        <p className="font-heading text-[10px] uppercase text-gray-500 tracking-wider">
+                          {safeFormatDate(eventDate, 'MMM')}
+                        </p>
+                        <p className="font-heading font-bold text-[#1a2744] text-2xl leading-none">
+                          {safeFormatDate(eventDate, 'd')}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-[#1a2744] text-sm">{event.title}</p>
+                        <p className="text-gray-500 text-xs mt-0.5">
+                          {event.all_day
+                            ? safeFormatDate(eventDate, 'EEEE')
+                            : safeFormatDate(eventDate, 'EEE, p')}
+                        </p>
+                        {event.location && (
+                          <p className="text-gray-400 text-xs mt-0.5">📍 {event.location.split(',')[0]}</p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold text-[#1a2744] text-sm">{event.title}</p>
-                      <p className="text-gray-500 text-xs mt-0.5">{event.time || '7:00 PM'}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
             <Link
