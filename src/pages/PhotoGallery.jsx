@@ -26,14 +26,7 @@ export default function PhotoGallery() {
             <h1 className="text-3xl font-bold">Troop Photo Gallery</h1>
             <p className="text-white/70 mt-1">Memories from the trail.</p>
           </div>
-          <a
-            href={ALBUM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded font-semibold text-sm"
-          >
-            <ExternalLink className="w-4 h-4" /> Open Album
-          </a>
+
         </div>
       </div>
 
