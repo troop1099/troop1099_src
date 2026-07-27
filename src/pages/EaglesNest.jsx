@@ -5,16 +5,37 @@ import { format } from 'date-fns';
 import { Plus, X, Search, ArrowUpDown } from 'lucide-react';
 import { useAdmin } from '@/lib/AdminContext';
 
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+  // Already ISO format (YYYY-MM-DD)
+  let d = new Date(dateStr + 'T12:00:00');
+  if (!isNaN(d)) return d;
+  // Try as-is (handles M/D/YYYY, etc.)
+  d = new Date(dateStr);
+  if (!isNaN(d)) return d;
+  // Excel serial number (days since 1899-12-30)
+  const serial = Number(dateStr);
+  if (!isNaN(serial) && serial > 1) {
+    d = new Date(Date.UTC(1899, 11, 30, 0, 0, 0) + serial * 86400000);
+    if (!isNaN(d)) return d;
+  }
+  return null;
+}
+
 function groupByYear(eagles, recentFirst) {
   const grouped = {};
   eagles.forEach(e => {
-    const year = new Date(e.date + 'T12:00:00').getFullYear();
+    const d = parseDate(e.date);
+    const year = d ? d.getFullYear() : 'Unknown';
     if (!grouped[year]) grouped[year] = [];
     grouped[year].push(e);
   });
   Object.keys(grouped).forEach(year => {
     grouped[year].sort((a, b) => {
-      const diff = new Date(a.date + 'T12:00:00') - new Date(b.date + 'T12:00:00');
+      const da = parseDate(a.date);
+      const db = parseDate(b.date);
+      if (!da || !db) return 0;
+      const diff = da - db;
       return recentFirst ? -diff : diff;
     });
   });
@@ -168,7 +189,7 @@ export default function EaglesNest() {
                         </div>
                         <div>
                           <p className="font-semibold text-[#1a2744] text-sm">{eagle.name}</p>
-                          <p className="text-xs text-gray-500">{(() => { const d = new Date(eagle.date + 'T12:00:00'); return isNaN(d) ? eagle.date : format(d, 'MMM d, yyyy'); })()}</p>
+                          <p className="text-xs text-gray-500">{(() => { const d = parseDate(eagle.date); return d ? format(d, 'MMM d, yyyy') : eagle.date; })()}</p>
                           {eagle.project && <p className="text-xs text-gray-400 mt-0.5">{eagle.project}</p>}
                         </div>
                       </div>
