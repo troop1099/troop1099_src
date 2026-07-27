@@ -63,19 +63,7 @@ export default function UpcomingEvents() {
         <div>
           <div className="border-l-4 border-[#1a2744] pl-4">
             <h2 className="font-heading font-bold text-[#1a2744] text-xl mb-5">Upcoming Events</h2>
-            {calendarId ? (
-              <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-                <iframe
-                  src={`https://calendar.google.com/calendar/embed?src=${encodeURIComponent(calendarId)}&ctz=America%2FNew_York&showNav=1&showTitle=0&showPrint=0&showCalendars=0&mode=AGENDA&height=400`}
-                  style={{ border: 0 }}
-                  width="100%"
-                  height="400"
-                  frameBorder="0"
-                  scrolling="no"
-                  title="Troop 1099 Calendar"
-                />
-              </div>
-            ) : upcomingEvents.length === 0 ? (
+            {upcomingEvents.length === 0 ? (
               <p className="text-gray-400 text-sm italic">No upcoming events scheduled.</p>
             ) : (
               <div className="space-y-4">
