@@ -6,19 +6,24 @@ import { Plus, X, Search, ArrowUpDown } from 'lucide-react';
 import { useAdmin } from '@/lib/AdminContext';
 
 function parseDate(dateStr) {
-  if (!dateStr) return null;
-  // Already ISO format (YYYY-MM-DD)
-  let d = new Date(dateStr + 'T12:00:00');
-  if (!isNaN(d)) return d;
-  // Try as-is (handles M/D/YYYY, etc.)
-  d = new Date(dateStr);
-  if (!isNaN(d)) return d;
-  // Excel serial number (days since 1899-12-30)
-  const serial = Number(dateStr);
-  if (!isNaN(serial) && serial > 1) {
-    d = new Date(Date.UTC(1899, 11, 30, 0, 0, 0) + serial * 86400000);
-    if (!isNaN(d)) return d;
+  if (dateStr === null || dateStr === undefined || dateStr === '') return null;
+  // Excel serial number (number type — from Sheets API with UNFORMATTED_VALUE)
+  if (typeof dateStr === 'number') {
+    if (dateStr > 1) return new Date(Date.UTC(1899, 11, 30) + dateStr * 86400000);
+    return null;
   }
+  const str = String(dateStr).trim();
+  // Excel serial number as string (e.g. "45361") — check before Date parse
+  if (/^\d+$/.test(str)) {
+    const serial = Number(str);
+    if (serial > 1) return new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
+  }
+  // ISO format (YYYY-MM-DD)
+  let d = new Date(str + 'T12:00:00');
+  if (!isNaN(d)) return d;
+  // Try as-is (handles M/D/YYYY, MM/DD/YYYY, etc.)
+  d = new Date(str);
+  if (!isNaN(d)) return d;
   return null;
 }
 
