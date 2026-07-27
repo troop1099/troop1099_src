@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Plus, Download, CheckSquare, Square, X, MessageSquare, FileText, Users, Trash2, ChefHat, Clock } from 'lucide-react';
+import { Plus, Download, CheckSquare, Square, X, MessageSquare, FileText, Users, Trash2, ChefHat, Clock, UserPlus } from 'lucide-react';
 import { useAdmin } from '@/lib/AdminContext';
 import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
@@ -41,20 +41,25 @@ function CreateOutingModal({ onClose }) {
       active: true,
       grubmasters: JSON.stringify({}),
     });
-    const roster = await fetchScoutRoster();
-    await base44.entities.OutingAttendee.bulkCreate(
-      roster.map(s => ({
-        outing_id: outing.id,
-        scout_name: s.name,
-        patrol: s.patrol || '',
-        attending: false,
-        permission_slip: false,
-        paid: false,
-      }))
-    );
+    try {
+      const roster = await fetchScoutRoster();
+      await base44.entities.OutingAttendee.bulkCreate(
+        roster.map(s => ({
+          outing_id: outing.id,
+          scout_name: s.name,
+          patrol: s.patrol || '',
+          attending: false,
+          permission_slip: false,
+          paid: false,
+        }))
+      );
+      toast({ title: 'Outing created!', description: `${roster.length} scouts imported from the master roster.` });
+    } catch (err) {
+      toast({ title: 'Outing created', description: 'Could not import roster automatically — use "Import Roster" below.', variant: 'destructive' });
+    }
     queryClient.invalidateQueries(['outings']);
+    queryClient.invalidateQueries(['attendees']);
     setSaving(false);
-    toast({ title: 'Outing created!', description: `${roster.length} scouts imported to the attendee sheet.` });
     onClose();
   };
 
@@ -323,6 +328,28 @@ export default function OutingManager() {
     onSuccess: () => queryClient.invalidateQueries(['attendees', selectedOutingId]),
   });
 
+  const importRosterMutation = useMutation({
+    mutationFn: async (outingId) => {
+      const roster = await fetchScoutRoster();
+      await base44.entities.OutingAttendee.bulkCreate(
+        roster.map(s => ({
+          outing_id: outingId,
+          scout_name: s.name,
+          patrol: s.patrol || '',
+          attending: false,
+          permission_slip: false,
+          paid: false,
+        }))
+      );
+      return roster.length;
+    },
+    onSuccess: (count) => {
+      queryClient.invalidateQueries(['attendees', selectedOutingId]);
+      toast({ title: 'Roster imported!', description: `${count} scouts added to the attendee sheet.` });
+    },
+    onError: (err) => toast({ title: 'Import failed', description: err?.message || 'Could not fetch roster.', variant: 'destructive' }),
+  });
+
   const deleteOutingMutation = useMutation({
     mutationFn: async (outingId) => {
       const attendeesToDelete = await base44.entities.OutingAttendee.filter({ outing_id: outingId });
@@ -467,6 +494,13 @@ export default function OutingManager() {
                               className="flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-100">
                               <Download className="w-3.5 h-3.5" /> Permission Slip
                             </a>
+                          )}
+                          {adminUnlocked && attendees.length === 0 && (
+                            <button onClick={() => importRosterMutation.mutate(selectedOutingId)}
+                              disabled={importRosterMutation.isPending}
+                              className="flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-green-100 disabled:opacity-50">
+                              <UserPlus className="w-3.5 h-3.5" /> {importRosterMutation.isPending ? 'Importing...' : 'Import Roster'}
+                            </button>
                           )}
                           <button onClick={() => setShowRequest(true)}
                             className="flex items-center gap-1.5 bg-orange-50 text-orange-700 border border-orange-200 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-orange-100">
