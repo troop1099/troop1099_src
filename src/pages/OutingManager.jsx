@@ -6,38 +6,10 @@ import { useAdmin } from '@/lib/AdminContext';
 import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 
-const SCOUT_ROSTER = [
-  { scout_name: 'Mark Romero', patrol: 'Bonsai' },
-  { scout_name: 'Aarav Swami', patrol: 'Bonsai' },
-  { scout_name: 'Jaykrith Vallabhaneni', patrol: 'Bonsai' },
-  { scout_name: 'Karthik Sirigiri', patrol: 'Bonsai' },
-  { scout_name: 'Abhijith Mokkapatti', patrol: 'Bonsai' },
-  { scout_name: 'Jashith Dadibattina', patrol: 'Bonsai' },
-  { scout_name: 'Nimallen Karthikeyan', patrol: 'Bonsai' },
-  { scout_name: 'Owen Causseaux', patrol: 'Pyro' },
-  { scout_name: 'Jack Kashin', patrol: 'Pyro' },
-  { scout_name: 'Sathvik Narsepalle', patrol: 'Pyro' },
-  { scout_name: 'Maanas Shastri', patrol: 'Pyro' },
-  { scout_name: 'Vibhav Reddy Ade', patrol: 'Pyro' },
-  { scout_name: 'Prajeeth Eskala', patrol: 'Shamrock' },
-  { scout_name: 'Kyle Guillory', patrol: 'Shamrock' },
-  { scout_name: 'Aditya Harathi', patrol: 'Shamrock' },
-  { scout_name: 'Praful Musty', patrol: 'Shamrock' },
-  { scout_name: 'Arjun Puvvada', patrol: 'Shamrock' },
-  { scout_name: 'Elliott Surguine', patrol: 'Shamrock' },
-  { scout_name: 'Rohan Ravikumara', patrol: 'Shamrock' },
-  { scout_name: 'Anirudh Konakalla', patrol: '' },
-  { scout_name: 'Agasthya Ucha', patrol: '' },
-  { scout_name: 'Sriyan Chopperla', patrol: '' },
-  { scout_name: 'Sriyansh Jayamangala', patrol: '' },
-  { scout_name: 'Ridhit Malav', patrol: '' },
-  { scout_name: 'Naithik Nandyala', patrol: '' },
-  { scout_name: 'Saisurya Yeduvaka', patrol: '' },
-  { scout_name: 'Arvin Reddy', patrol: '' },
-  { scout_name: 'Anish Reddy', patrol: '' },
-];
-
-const PATROLS = ['Bonsai', 'Pyro', 'Shamrock'];
+async function fetchScoutRoster() {
+  const res = await base44.functions.invoke('fetch-roster', {});
+  return res.data?.scouts || [];
+}
 
 function CreateOutingModal({ onClose }) {
   const { toast } = useToast();
@@ -69,12 +41,20 @@ function CreateOutingModal({ onClose }) {
       active: true,
       grubmasters: JSON.stringify({}),
     });
+    const roster = await fetchScoutRoster();
     await base44.entities.OutingAttendee.bulkCreate(
-      SCOUT_ROSTER.map(s => ({ ...s, outing_id: outing.id, attending: false, permission_slip: false, paid: false }))
+      roster.map(s => ({
+        outing_id: outing.id,
+        scout_name: s.name,
+        patrol: s.patrol || '',
+        attending: false,
+        permission_slip: false,
+        paid: false,
+      }))
     );
     queryClient.invalidateQueries(['outings']);
     setSaving(false);
-    toast({ title: 'Outing created!', description: form.title });
+    toast({ title: 'Outing created!', description: `${roster.length} scouts imported to the attendee sheet.` });
     onClose();
   };
 

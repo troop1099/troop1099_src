@@ -37,9 +37,10 @@ export default async function (req) {
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
     const name = row[0]?.trim();
+    const patrol = row[2]?.trim() || '';
     const email = row[5]?.trim() || '';
     if (!name || name.toLowerCase().includes('name')) continue;
-    scouts.push({ name, email });
+    scouts.push({ name, patrol, email });
   }
 
   scouts.sort((a, b) => a.name.localeCompare(b.name));
