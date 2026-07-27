@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { ensureSpreadsheet, readSheet, appendRow, bulkAppendRows, updateRow, deleteRow } from '../../shared/googleSheets.ts';
+import { ensureSpreadsheet, readSheet, readSheetAuth, appendRow, bulkAppendRows, updateRow, deleteRow } from '../../shared/googleSheets.ts';
 
 function matchesQuery(row, query) {
   if (!query) return true;
@@ -96,7 +96,7 @@ export default async function(req) {
         return Response.json({ success: true });
       }
       case 'updateMany': {
-        let rows = await readSheet(accessToken, spreadsheetId, entity);
+        let rows = await readSheetAuth(accessToken, spreadsheetId, entity);
         const matching = rows.filter(row => matchesQuery(row, query));
         for (const row of matching) {
           const updatedData = applyUpdate(row, data);
@@ -105,7 +105,7 @@ export default async function(req) {
         return Response.json({ updated: matching.length });
       }
       case 'deleteMany': {
-        let rows = await readSheet(accessToken, spreadsheetId, entity);
+        let rows = await readSheetAuth(accessToken, spreadsheetId, entity);
         const matching = rows.filter(row => matchesQuery(row, query));
         for (const row of matching) {
           await deleteRow(accessToken, spreadsheetId, entity, row.id);

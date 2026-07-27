@@ -88,7 +88,13 @@ export default function EaglesNest() {
 
   const addMutation = useMutation({
     mutationFn: (data) => base44.entities.Eagle.create(data),
-    onSuccess: () => { queryClient.invalidateQueries(['eagles']); setShowAdd(false); }
+    onSuccess: (created) => {
+      queryClient.setQueryData(['eagles'], (old) => {
+        const arr = Array.isArray(old) ? old : [];
+        return [created, ...arr];
+      });
+      setShowAdd(false);
+    }
   });
 
   const filtered = search.trim()

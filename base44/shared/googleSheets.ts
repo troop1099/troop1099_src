@@ -206,6 +206,33 @@ export async function readSheet(accessToken, spreadsheetId, entityName) {
     });
 }
 
+/**
+ * Authenticated read via the Google Sheets API v4.
+ * Used by write operations (update, updateMany, deleteMany) to get
+ * fresh data immediately after writes — the public CSV export endpoint
+ * is CDN-cached and can return stale data for ~30s–2min.
+ */
+export async function readSheetAuth(accessToken, spreadsheetId, entityName) {
+  const headers = authHeader(accessToken);
+  const range = `${encodeURIComponent(entityName)}!A1:Z10000`;
+  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueRenderOption=UNFORMATTED_VALUE`, { headers });
+  if (!res.ok) return [];
+
+  const data = await res.json();
+  if (!data.values || data.values.length < 2) return [];
+
+  const headerRow = data.values[0];
+  return data.values.slice(1)
+    .filter(row => row[0])
+    .map(row => {
+      const obj = {};
+      headerRow.forEach((key, i) => {
+        obj[key] = convertValue(entityName, key, row[i] !== undefined ? row[i] : '');
+      });
+      return obj;
+    });
+}
+
 export async function appendRow(accessToken, spreadsheetId, entityName, data, user) {
   const headers = authHeader(accessToken);
   await ensureSheet(accessToken, spreadsheetId, entityName);
@@ -269,7 +296,7 @@ export async function updateRow(accessToken, spreadsheetId, entityName, id, data
   const headers = authHeader(accessToken);
   const fieldList = getHeaders(entityName);
 
-  const rows = await readSheet(accessToken, spreadsheetId, entityName);
+  const rows = await readSheetAuth(accessToken, spreadsheetId, entityName);
   const rowIndex = rows.findIndex(r => r.id === id);
   if (rowIndex === -1) throw new Error('Record not found');
 
