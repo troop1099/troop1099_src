@@ -9,11 +9,14 @@ export default function HeroSection() {
   return (
     <section className="relative w-full overflow-hidden" style={{ minHeight: '600px' }}>
       <div className="absolute inset-0">
-        <img
-          src={TROOP_PHOTO}
-          alt="Troop 1099 Scouts Camping in Cumming GA"
-          className="w-full h-full object-cover"
-          style={{ objectPosition: 'center top' }}
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundImage: `url(${TROOP_PHOTO})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center top',
+            backgroundRepeat: 'no-repeat',
+          }}
         />
         <div className="absolute inset-0 bg-[#1a2744]/70" />
       </div>
