@@ -5,6 +5,7 @@ import { Plus, Download, CheckSquare, Square, X, MessageSquare, FileText, Users,
 import { useAdmin } from '@/lib/AdminContext';
 import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
+import ScoutCheckmarkModal from '@/components/outing/ScoutCheckmarkModal';
 
 async function fetchScoutRoster() {
   const res = await base44.functions.invoke('fetch-roster', {});
@@ -146,23 +147,23 @@ function CreateOutingModal({ onClose }) {
   );
 }
 
-function AttendeeRow({ attendee, onToggle, onMessage }) {
+function AttendeeRow({ attendee, onToggle, onMessage, onCheckIn, isAdmin }) {
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
       <td className="py-2 px-3 text-sm font-medium text-[#1a2744]">{attendee.scout_name}</td>
       <td className="py-2 px-3 text-xs text-gray-500">{attendee.patrol || '—'}</td>
       <td className="py-2 px-3 text-center">
-        <button onClick={() => onToggle(attendee.id, 'attending', !attendee.attending)}>
+        <button onClick={() => isAdmin ? onToggle(attendee.id, 'attending', !attendee.attending) : onCheckIn(attendee)}>
           {attendee.attending ? <CheckSquare className="w-5 h-5 text-green-500 mx-auto" /> : <Square className="w-5 h-5 text-gray-300 mx-auto" />}
         </button>
       </td>
       <td className="py-2 px-3 text-center">
-        <button onClick={() => onToggle(attendee.id, 'permission_slip', !attendee.permission_slip)}>
+        <button onClick={() => isAdmin ? onToggle(attendee.id, 'permission_slip', !attendee.permission_slip) : onCheckIn(attendee)}>
           {attendee.permission_slip ? <CheckSquare className="w-5 h-5 text-blue-500 mx-auto" /> : <Square className="w-5 h-5 text-gray-300 mx-auto" />}
         </button>
       </td>
       <td className="py-2 px-3 text-center">
-        <button onClick={() => onToggle(attendee.id, 'paid', !attendee.paid)}>
+        <button onClick={() => isAdmin ? onToggle(attendee.id, 'paid', !attendee.paid) : onCheckIn(attendee)}>
           {attendee.paid ? <CheckSquare className="w-5 h-5 text-yellow-500 mx-auto" /> : <Square className="w-5 h-5 text-gray-300 mx-auto" />}
         </button>
       </td>
@@ -310,6 +311,7 @@ export default function OutingManager() {
   const [selectedOutingId, setSelectedOutingId] = useState(null);
   const [showRequest, setShowRequest] = useState(false);
   const [noteModal, setNoteModal] = useState(null);
+  const [checkInAttendee, setCheckInAttendee] = useState(null);
   const { adminUnlocked } = useAdmin();
 
   const { data: outings = [] } = useQuery({
@@ -531,6 +533,8 @@ export default function OutingManager() {
                                 <AttendeeRow key={a.id} attendee={a}
                                   onToggle={(id, field, val) => updateMutation.mutate({ id, data: { [field]: val } })}
                                   onMessage={setNoteModal}
+                                  onCheckIn={setCheckInAttendee}
+                                  isAdmin={adminUnlocked}
                                 />
                               ))}
                             </React.Fragment>
@@ -552,6 +556,9 @@ export default function OutingManager() {
       {showCreate && <CreateOutingModal onClose={() => { setShowCreate(false); queryClient.invalidateQueries(['outings']); }} />}
       {showRequest && selectedOutingId && (
         <RequestAttendanceModal outingId={selectedOutingId} onClose={() => { setShowRequest(false); queryClient.invalidateQueries(['attendees', selectedOutingId]); }} />
+      )}
+      {checkInAttendee && (
+        <ScoutCheckmarkModal attendee={checkInAttendee} onClose={() => setCheckInAttendee(null)} />
       )}
 
       {/* Note modal */}
