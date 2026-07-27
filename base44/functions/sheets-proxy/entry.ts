@@ -55,8 +55,13 @@ export default async function(req) {
       return Response.json({ error: 'Entity and operation required' }, { status: 400 });
     }
 
-    const { accessToken } = await base44.asServiceRole.connectors.getConnection('googledrive');
-    const spreadsheetId = await ensureSpreadsheet(accessToken);
+    let accessToken = null;
+    let spreadsheetId = null;
+    if (!READ_OPS.includes(operation)) {
+      const conn = await base44.asServiceRole.connectors.getConnection('googledrive');
+      accessToken = conn.accessToken;
+      spreadsheetId = await ensureSpreadsheet(accessToken);
+    }
 
     switch (operation) {
       case 'list': {

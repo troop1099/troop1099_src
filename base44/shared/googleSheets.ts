@@ -1,5 +1,6 @@
 const FOLDER_ID = '1yvJLciaTLBNvx9_IMY5Z6WoGBK3ObGXm';
 const SPREADSHEET_NAME = 'Troop 1099 Data';
+const SPREADSHEET_ID = '1GF_hdMqij-qdL9-7IKiS4WKzm36j9MXu-LRP8kbouHA';
 
 export const ENTITY_FIELDS = {
   Event: ['title', 'date', 'end_date', 'location', 'type', 'description'],
@@ -153,21 +154,48 @@ async function ensureSheet(accessToken, spreadsheetId, entityName) {
   });
 }
 
-export async function readSheet(accessToken, spreadsheetId, entityName) {
-  const headers = authHeader(accessToken);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(entityName)}?valueRenderOption=UNFORMATTED_VALUE`;
-  const res = await fetch(url, { headers });
-
-  if (!res.ok) {
-    await ensureSheet(accessToken, spreadsheetId, entityName);
-    return [];
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  const rows = [];
+  for (const line of lines) {
+    const fields = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        fields.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    fields.push(current.trim());
+    rows.push(fields);
   }
+  return rows;
+}
 
-  const data = await res.json();
-  if (!data.values || data.values.length < 2) return [];
+export async function readSheet(accessToken, spreadsheetId, entityName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(entityName)}`;
+  const res = await fetch(url);
+  if (!res.ok) return [];
 
-  const headerRow = data.values[0];
-  return data.values.slice(1)
+  const text = await res.text();
+  if (!text || text.startsWith('<')) return [];
+
+  const rows = parseCSV(text);
+  if (rows.length < 2) return [];
+
+  const headerRow = rows[0];
+  return rows.slice(1)
     .filter(row => row[0])
     .map(row => {
       const obj = {};
