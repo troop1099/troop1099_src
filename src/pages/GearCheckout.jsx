@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { PackageCheck, PackageOpen, RotateCcw, CheckCircle, X } from 'lucide-react';
+import { PackageCheck, PackageOpen, RotateCcw, CheckCircle, X, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -32,11 +32,25 @@ function CheckoutForm({ onClose }) {
   const [saving, setSaving] = useState(false);
   const [quartermasterCode, setQuartermasterCode] = useState('');
 
+  const { data: scouts = [], isLoading: rosterLoading } = useQuery({
+    queryKey: ['roster'],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('fetch-roster', {});
+      return res.data?.scouts || [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   const isTent = form.gear_item === 'Troop Tent';
+
+  const handleScoutSelect = (name) => {
+    const scout = scouts.find(s => s.name === name);
+    setForm(f => ({ ...f, scout_name: name, scout_email: scout?.email || '' }));
+  };
 
   const handleSubmit = async () => {
     if (!form.scout_name.trim() || !form.scout_email.trim()) {
-      toast({ title: 'Please fill in your name and email.', variant: 'destructive' });
+      toast({ title: 'Please select a scout and enter their email.', variant: 'destructive' });
       return;
     }
     if (isTent && !form.tent_number.trim()) {
@@ -82,12 +96,19 @@ function CheckoutForm({ onClose }) {
         </div>
         <div className="space-y-3">
           <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Your Name *</label>
-            <input className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" value={form.scout_name} onChange={e => setForm(f => ({...f, scout_name: e.target.value}))} placeholder="Scout's full name" />
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Scout Name *</label>
+            {rosterLoading ? (
+              <div className="flex items-center gap-2 text-sm text-gray-400 py-2.5"><Loader2 className="w-4 h-4 animate-spin" /> Loading roster...</div>
+            ) : (
+              <select className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" value={form.scout_name} onChange={e => handleScoutSelect(e.target.value)}>
+                <option value="">Select a scout...</option>
+                {scouts.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
+              </select>
+            )}
           </div>
           <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Your Email *</label>
-            <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" value={form.scout_email} onChange={e => setForm(f => ({...f, scout_email: e.target.value}))} placeholder="your@email.com" />
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Scout Email *</label>
+            <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" value={form.scout_email} onChange={e => setForm(f => ({...f, scout_email: e.target.value}))} placeholder="scout@email.com" />
           </div>
           <div>
             <label className="text-xs font-semibold text-gray-600 block mb-1">Gear Item *</label>
