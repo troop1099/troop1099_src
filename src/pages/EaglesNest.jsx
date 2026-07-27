@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Plus, X, Search, ArrowUpDown } from 'lucide-react';
+import { Plus, X, Search, ArrowUpDown, Trash2 } from 'lucide-react';
 import { useAdmin } from '@/lib/AdminContext';
 import { parseDate, safeFormatDate } from '@/lib/dateUtils';
 
@@ -97,6 +97,15 @@ export default function EaglesNest() {
     }
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Eagle.delete(id),
+    onSuccess: (_, deletedId) => {
+      queryClient.setQueryData(['eagles'], (old) =>
+        (Array.isArray(old) ? old : []).filter(e => e.id !== deletedId)
+      );
+    }
+  });
+
   const filtered = search.trim()
     ? allEagles.filter(e => e.name?.toLowerCase().includes(search.trim().toLowerCase()))
     : allEagles;
@@ -176,11 +185,20 @@ export default function EaglesNest() {
                             <span className="text-[#1a2744] font-bold text-lg">{eagle.name?.[0] || '?'}</span>
                           )}
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <p className="font-semibold text-[#1a2744] text-sm">{eagle.name}</p>
                           <p className="text-xs text-gray-500">{safeFormatDate(eagle.date, 'MMM d, yyyy')}</p>
                           {eagle.project && <p className="text-xs text-gray-400 mt-0.5">{eagle.project}</p>}
                         </div>
+                        {adminUnlocked && (
+                          <button
+                            onClick={() => deleteMutation.mutate(eagle.id)}
+                            className="text-gray-300 hover:text-red-500 transition-colors shrink-0"
+                            title="Remove Eagle Scout"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
 
                       {/* Center connector */}
