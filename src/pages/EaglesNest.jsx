@@ -168,7 +168,7 @@ export default function EaglesNest() {
                         </div>
                         <div>
                           <p className="font-semibold text-[#1a2744] text-sm">{eagle.name}</p>
-                          <p className="text-xs text-gray-500">{format(new Date(eagle.date + 'T12:00:00'), 'MMM d, yyyy')}</p>
+                          <p className="text-xs text-gray-500">{(() => { const d = new Date(eagle.date + 'T12:00:00'); return isNaN(d) ? eagle.date : format(d, 'MMM d, yyyy'); })()}</p>
                           {eagle.project && <p className="text-xs text-gray-400 mt-0.5">{eagle.project}</p>}
                         </div>
                       </div>
