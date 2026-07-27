@@ -45,36 +45,30 @@ export default async function(req) {
     const { entity, operation } = body;
     const { data, id, query, sort, limit } = body;
 
-    const READ_OPS = ['list', 'filter', 'get', 'count'];
-
     if (!entity || !operation) {
       return Response.json({ error: 'Entity and operation required' }, { status: 400 });
     }
 
-    let accessToken = null;
-    let spreadsheetId = null;
-    if (!READ_OPS.includes(operation)) {
-      const conn = await base44.asServiceRole.connectors.getConnection('googledrive');
-      accessToken = conn.accessToken;
-      spreadsheetId = await ensureSpreadsheet(accessToken);
-    }
+    const conn = await base44.asServiceRole.connectors.getConnection('googledrive');
+    const accessToken = conn.accessToken;
+    const spreadsheetId = await ensureSpreadsheet(accessToken);
 
     switch (operation) {
       case 'list': {
-        let rows = await readSheet(accessToken, spreadsheetId, entity);
+        let rows = await readSheetAuth(accessToken, spreadsheetId, entity);
         rows = sortRows(rows, sort);
         if (limit) rows = rows.slice(0, limit);
         return Response.json(rows);
       }
       case 'filter': {
-        let rows = await readSheet(accessToken, spreadsheetId, entity);
+        let rows = await readSheetAuth(accessToken, spreadsheetId, entity);
         rows = rows.filter(row => matchesQuery(row, query));
         rows = sortRows(rows, sort);
         if (limit) rows = rows.slice(0, limit);
         return Response.json(rows);
       }
       case 'get': {
-        const rows = await readSheet(accessToken, spreadsheetId, entity);
+        const rows = await readSheetAuth(accessToken, spreadsheetId, entity);
         const row = rows.find(r => r.id === id);
         if (!row) return Response.json({ error: 'Not found' }, { status: 404 });
         return Response.json(row);
@@ -121,7 +115,7 @@ export default async function(req) {
         return Response.json(results);
       }
       case 'count': {
-        let rows = await readSheet(accessToken, spreadsheetId, entity);
+        let rows = await readSheetAuth(accessToken, spreadsheetId, entity);
         rows = rows.filter(row => matchesQuery(row, query));
         return Response.json({ count: rows.length });
       }
