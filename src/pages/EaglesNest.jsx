@@ -1,31 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { format } from 'date-fns';
 import { Plus, X, Search, ArrowUpDown } from 'lucide-react';
 import { useAdmin } from '@/lib/AdminContext';
-
-function parseDate(dateStr) {
-  if (dateStr === null || dateStr === undefined || dateStr === '') return null;
-  // Excel serial number (number type — from Sheets API with UNFORMATTED_VALUE)
-  if (typeof dateStr === 'number') {
-    if (dateStr > 1) return new Date(Date.UTC(1899, 11, 30) + dateStr * 86400000);
-    return null;
-  }
-  const str = String(dateStr).trim();
-  // Excel serial number as string (e.g. "45361") — check before Date parse
-  if (/^\d+$/.test(str)) {
-    const serial = Number(str);
-    if (serial > 1) return new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
-  }
-  // ISO format (YYYY-MM-DD)
-  let d = new Date(str + 'T12:00:00');
-  if (!isNaN(d)) return d;
-  // Try as-is (handles M/D/YYYY, MM/DD/YYYY, etc.)
-  d = new Date(str);
-  if (!isNaN(d)) return d;
-  return null;
-}
+import { parseDate, safeFormatDate } from '@/lib/dateUtils';
 
 function groupByYear(eagles, recentFirst) {
   const grouped = {};
@@ -194,7 +172,7 @@ export default function EaglesNest() {
                         </div>
                         <div>
                           <p className="font-semibold text-[#1a2744] text-sm">{eagle.name}</p>
-                          <p className="text-xs text-gray-500">{(() => { const d = parseDate(eagle.date); return d ? format(d, 'MMM d, yyyy') : eagle.date; })()}</p>
+                          <p className="text-xs text-gray-500">{safeFormatDate(eagle.date, 'MMM d, yyyy')}</p>
                           {eagle.project && <p className="text-xs text-gray-400 mt-0.5">{eagle.project}</p>}
                         </div>
                       </div>

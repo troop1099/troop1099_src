@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { format } from 'date-fns';
 import { Plus, X, MapPin, Trash2, Settings, CalendarPlus, Check, Edit2 } from 'lucide-react';
 import { useAdmin } from '@/lib/AdminContext';
+import { safeFormatDate } from '@/lib/dateUtils';
 
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
 
@@ -235,8 +235,8 @@ export default function Events() {
                 return (
                   <div key={event.id} className="bg-white rounded-lg border border-gray-200 p-5 flex gap-4 group hover:shadow-sm transition-shadow">
                     <div className="text-center w-14 shrink-0">
-                      <p className="font-bold text-red-600 text-2xl leading-none">{format(new Date(event.date), 'd')}</p>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider">{format(new Date(event.date), 'MMM')}</p>
+                      <p className="font-bold text-red-600 text-2xl leading-none">{safeFormatDate(event.date, 'd')}</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wider">{safeFormatDate(event.date, 'MMM')}</p>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">

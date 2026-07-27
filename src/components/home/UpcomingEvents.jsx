@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { format } from 'date-fns';
 import { ChevronRight, Info } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { parseDate, safeFormatDate } from '@/lib/dateUtils';
 
 export default function UpcomingEvents() {
   const { data: events = [] } = useQuery({
@@ -15,7 +15,7 @@ export default function UpcomingEvents() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const upcomingEvents = events
-    .filter(e => new Date(e.date) >= today)
+    .filter(e => { const d = parseDate(e.date); return d && d >= today; })
     .slice(0, 3);
 
   const { data: announcements = [] } = useQuery({
@@ -83,10 +83,10 @@ export default function UpcomingEvents() {
                   <div key={event.id} className="flex items-start gap-4">
                     <div className="text-center w-10 shrink-0">
                       <p className="font-heading text-[10px] uppercase text-gray-500 tracking-wider">
-                        {format(new Date(event.date), 'MMM')}
+                        {safeFormatDate(event.date, 'MMM')}
                       </p>
                       <p className="font-heading font-bold text-[#1a2744] text-2xl leading-none">
-                        {format(new Date(event.date), 'd')}
+                        {safeFormatDate(event.date, 'd')}
                       </p>
                     </div>
                     <div>
