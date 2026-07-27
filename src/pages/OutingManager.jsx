@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Plus, Download, CheckSquare, Square, X, MessageSquare, FileText, Users, Trash2, ChefHat, Clock, UserPlus } from 'lucide-react';
 import { useAdmin } from '@/lib/AdminContext';
 import { useToast } from '@/components/ui/use-toast';
-import { format } from 'date-fns';
+import { safeFormatDate } from '@/lib/dateUtils';
 import ScoutCheckmarkModal from '@/components/outing/ScoutCheckmarkModal';
 
 async function fetchScoutRoster() {
@@ -427,7 +427,7 @@ export default function OutingManager() {
                     <p className={`font-bold text-sm ${selectedOutingId === o.id ? 'text-white' : 'text-gray-700'}`}>{o.title}</p>
                     {o.departure_date && (
                       <p className={`text-xs mt-0.5 ${selectedOutingId === o.id ? 'text-white/70' : 'text-gray-400'}`}>
-                        {format(new Date(o.departure_date + 'T12:00:00'), 'MMM d, yyyy')}
+                        {safeFormatDate(o.departure_date, 'MMM d, yyyy')}
                         {o.departure_time && ` · ${formatTime(o.departure_time)}`}
                       </p>
                     )}
@@ -467,14 +467,14 @@ export default function OutingManager() {
                               {selectedOuting.departure_date && (
                                 <span className="flex items-center gap-1 text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
                                   <Clock className="w-3 h-3" />
-                                  Depart: {format(new Date(selectedOuting.departure_date + 'T12:00:00'), 'EEE MMM d')}
+                                  Depart: {safeFormatDate(selectedOuting.departure_date, 'EEE MMM d')}
                                   {selectedOuting.departure_time && ` at ${formatTime(selectedOuting.departure_time)}`}
                                 </span>
                               )}
                               {selectedOuting.return_date && (
                                 <span className="flex items-center gap-1 text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
                                   <Clock className="w-3 h-3" />
-                                  Return: {format(new Date(selectedOuting.return_date + 'T12:00:00'), 'EEE MMM d')}
+                                  Return: {safeFormatDate(selectedOuting.return_date, 'EEE MMM d')}
                                   {selectedOuting.return_time && ` ~${formatTime(selectedOuting.return_time)}`}
                                 </span>
                               )}
