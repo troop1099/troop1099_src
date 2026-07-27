@@ -41,12 +41,15 @@ function sortRows(rows, sort) {
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-
     const body = await req.json();
     const { entity, operation } = body;
     const { data, id, query, sort, limit } = body;
+
+    const READ_OPS = ['list', 'filter', 'get', 'count'];
+    const user = await base44.auth.me().catch(() => null);
+    if (!user && !READ_OPS.includes(operation)) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     if (!entity || !operation) {
       return Response.json({ error: 'Entity and operation required' }, { status: 400 });
