@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { Plus, X, Search, ArrowUpDown } from 'lucide-react';
 import { useAdmin } from '@/lib/AdminContext';
 
-function groupByYear(eagles) {
+function groupByYear(eagles, recentFirst) {
   const grouped = {};
   eagles.forEach(e => {
     const year = new Date(e.date + 'T12:00:00').getFullYear();
@@ -13,7 +13,10 @@ function groupByYear(eagles) {
     grouped[year].push(e);
   });
   Object.keys(grouped).forEach(year => {
-    grouped[year].sort((a, b) => new Date(a.date + 'T12:00:00') - new Date(b.date + 'T12:00:00'));
+    grouped[year].sort((a, b) => {
+      const diff = new Date(a.date + 'T12:00:00') - new Date(b.date + 'T12:00:00');
+      return recentFirst ? -diff : diff;
+    });
   });
   return grouped;
 }
@@ -87,7 +90,7 @@ export default function EaglesNest() {
   const filtered = search.trim()
     ? allEagles.filter(e => e.name?.toLowerCase().includes(search.trim().toLowerCase()))
     : allEagles;
-  const grouped = groupByYear(filtered);
+  const grouped = groupByYear(filtered, recentFirst);
   const years = Object.keys(grouped).sort((a, b) => recentFirst ? Number(b) - Number(a) : Number(a) - Number(b));
 
   return (
