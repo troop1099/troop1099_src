@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import SchedulingModal from '@/components/advancement/SchedulingModal';
+import ScoutPhoneLookup from '@/components/advancement/ScoutPhoneLookup';
 import MyReservations from '@/components/advancement/MyReservations';
 import AdminSchedule from '@/components/advancement/AdminSchedule';
 
@@ -203,14 +204,33 @@ const requestTypes = [
 
 function RequestModal({ reqType, onClose }) {
   const { toast } = useToast();
-  const [form, setForm] = useState({ scout_name: '', scout_email: '', rank: '', merit_badge: '', date_requested: 'next_meeting', notes: '' });
+  const [form, setForm] = useState({ scout_email: '', rank: '', merit_badge: '', date_requested: 'next_meeting', notes: '' });
+  const [verifiedPhone, setVerifiedPhone] = useState('');
+  const [scoutName, setScoutName] = useState('');
+  const [verified, setVerified] = useState(false);
+
   const mutation = useMutation({
-    mutationFn: (data) => base44.entities.AdvancementRequest.create({ ...data, type: reqType.type }),
+    mutationFn: (data) =>
+      base44.functions.invoke('submit-advancement-request', {
+        phone_number: verifiedPhone,
+        request_data: { ...data, type: reqType.type },
+      }),
     onSuccess: () => {
       toast({ title: 'Request submitted!', description: 'The Scoutmaster will follow up soon.' });
       onClose();
     }
   });
+
+  const handleReset = () => {
+    setVerified(false);
+    setScoutName('');
+    setVerifiedPhone('');
+    setForm({ scout_email: '', rank: '', merit_badge: '', date_requested: 'next_meeting', notes: '' });
+  };
+
+  const handleSubmit = () => {
+    mutation.mutate({ ...form, scout_name: scoutName });
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
@@ -238,69 +258,85 @@ function RequestModal({ reqType, onClose }) {
           )}
         </div>
 
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-semibold text-gray-600 block mb-1">First Name *</label>
-              <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value={form.scout_name.split(' ')[0] || ''} onChange={e => setForm(f => ({...f, scout_name: e.target.value + ' ' + (f.scout_name.split(' ')[1] || '')}))} placeholder="First" />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-600 block mb-1">Last Name *</label>
-              <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value={form.scout_name.split(' ').slice(1).join(' ') || ''} onChange={e => setForm(f => ({...f, scout_name: (f.scout_name.split(' ')[0] || '') + ' ' + e.target.value}))} placeholder="Last" />
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Email</label>
-            <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value={form.scout_email} onChange={e => setForm(f => ({...f, scout_email: e.target.value}))} placeholder="your@email.com" />
-          </div>
-          {(reqType.type === 'scoutmaster_conference' || reqType.type === 'board_of_review') && (
-            <>
-              <div>
-                <label className="text-xs font-semibold text-gray-600 block mb-1">Current Rank</label>
-                <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" onChange={e => setForm(f => ({...f, notes: 'Current: ' + e.target.value + (f.notes ? ' | ' + f.notes : '')}))}>
-                  <option value="">Please select your current rank</option>
-                  {ranks.map(r => <option key={r.name}>{r.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-600 block mb-1">Rank Being Pursued</label>
-                <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value={form.rank} onChange={e => setForm(f => ({...f, rank: e.target.value}))}>
-                  <option value="">Please select your rank request</option>
-                  {ranks.map(r => <option key={r.name}>{r.name}</option>)}
-                </select>
-              </div>
-            </>
-          )}
-          {reqType.type === 'blue_card' && (
-            <div>
-              <label className="text-xs font-semibold text-gray-600 block mb-1">Merit Badge Name</label>
-              <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Cooking" value={form.merit_badge} onChange={e => setForm(f => ({...f, merit_badge: e.target.value}))} />
-            </div>
-          )}
-          <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Date Requested</label>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <input type="radio" name="date" value="next_meeting" checked={form.date_requested === 'next_meeting'} onChange={() => setForm(f => ({...f, date_requested: 'next_meeting'}))} />
-                Next Troop Meeting
-              </label>
-              <label className="flex items-center gap-2 text-sm cursor-pointer">
-                <input type="radio" name="date" value="other" checked={form.date_requested !== 'next_meeting'} onChange={() => setForm(f => ({...f, date_requested: 'other'}))} />
-                Other
-              </label>
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-gray-600 block mb-1">Any Additional Information</label>
-            <textarea className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" rows={3} value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))} />
-          </div>
+        {/* Scout verification gate */}
+        <div className="mb-5">
+          <ScoutPhoneLookup
+            instruction="You must verify your Scout record before filling out this request. Enter the phone number on file with the troop roster."
+            onVerified={(phone, name) => {
+              setVerifiedPhone(phone);
+              setScoutName(name);
+              setVerified(true);
+            }}
+            onReset={handleReset}
+          />
         </div>
-        <div className="flex gap-2 mt-5">
-          <button onClick={onClose} className="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm">Cancel</button>
-          <button onClick={() => mutation.mutate(form)} disabled={!form.scout_name.trim() || mutation.isPending} className={`flex-1 py-2.5 text-white rounded-lg text-sm font-semibold disabled:opacity-50 ${reqType.btnColor}`}>
-            {mutation.isPending ? 'Submitting...' : 'Submit Request'}
-          </button>
-        </div>
+
+        {/* Form fields — only visible after verification */}
+        {verified && (
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1">Scout Name</label>
+              <input
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-100 cursor-not-allowed"
+                value={scoutName}
+                readOnly
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1">Email</label>
+              <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1a2744]" value={form.scout_email} onChange={e => setForm(f => ({...f, scout_email: e.target.value}))} placeholder="your@email.com" />
+            </div>
+            {(reqType.type === 'scoutmaster_conference' || reqType.type === 'board_of_review') && (
+              <>
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">Current Rank</label>
+                  <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" onChange={e => setForm(f => ({...f, notes: 'Current: ' + e.target.value + (f.notes ? ' | ' + f.notes : '')}))}>
+                    <option value="">Please select your current rank</option>
+                    {ranks.map(r => <option key={r.name}>{r.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 block mb-1">Rank Being Pursued</label>
+                  <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value={form.rank} onChange={e => setForm(f => ({...f, rank: e.target.value}))}>
+                    <option value="">Please select your rank request</option>
+                    {ranks.map(r => <option key={r.name}>{r.name}</option>)}
+                  </select>
+                </div>
+              </>
+            )}
+            {reqType.type === 'blue_card' && (
+              <div>
+                <label className="text-xs font-semibold text-gray-600 block mb-1">Merit Badge Name</label>
+                <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1a2744]" placeholder="e.g. Cooking" value={form.merit_badge} onChange={e => setForm(f => ({...f, merit_badge: e.target.value}))} />
+              </div>
+            )}
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1">Date Requested</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input type="radio" name="date" value="next_meeting" checked={form.date_requested === 'next_meeting'} onChange={() => setForm(f => ({...f, date_requested: 'next_meeting'}))} />
+                  Next Troop Meeting
+                </label>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input type="radio" name="date" value="other" checked={form.date_requested !== 'next_meeting'} onChange={() => setForm(f => ({...f, date_requested: 'other'}))} />
+                  Other
+                </label>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-600 block mb-1">Any Additional Information</label>
+              <textarea className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1a2744]" rows={3} value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))} />
+            </div>
+          </div>
+        )}
+        {verified && (
+          <div className="flex gap-2 mt-5">
+            <button onClick={onClose} className="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm">Cancel</button>
+            <button onClick={handleSubmit} disabled={!scoutName.trim() || mutation.isPending} className={`flex-1 py-2.5 text-white rounded-lg text-sm font-semibold disabled:opacity-50 ${reqType.btnColor}`}>
+              {mutation.isPending ? 'Submitting...' : 'Submit Request'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
