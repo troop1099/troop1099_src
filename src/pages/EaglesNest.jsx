@@ -7,10 +7,19 @@ import { useAdmin } from '@/lib/AdminContext';
 
 function parseDate(dateStr) {
   if (!dateStr) return null;
-  // Already ISO format (YYYY-MM-DD)
+  dateStr = String(dateStr).trim();
+  // MM/DD/YYYY or M/D/YY format from Google Sheets
+  const slashMatch = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (slashMatch) {
+    let [, m, d, y] = slashMatch;
+    if (y.length === 2) y = '20' + y;
+    const dt = new Date(Number(y), Number(m) - 1, Number(d), 12, 0, 0);
+    if (!isNaN(dt)) return dt;
+  }
+  // ISO format (YYYY-MM-DD)
   let d = new Date(dateStr + 'T12:00:00');
   if (!isNaN(d)) return d;
-  // Try as-is (handles M/D/YYYY, etc.)
+  // Try as-is
   d = new Date(dateStr);
   if (!isNaN(d)) return d;
   // Excel serial number (days since 1899-12-30)
