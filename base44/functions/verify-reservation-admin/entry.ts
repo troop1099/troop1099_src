@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { secrets } from 'base44:runtime';
+import { ensureSpreadsheet, readSheet } from '../../shared/googleSheets.ts';
 
 export default async function(req) {
   try {
@@ -10,7 +11,10 @@ export default async function(req) {
     if (!adminCode || adminCode !== expectedCode) {
       return Response.json({ authorized: false, error: 'Invalid admin code' }, { status: 403 });
     }
-    const requests = await base44.asServiceRole.entities.AdvancementRequest.list('-created_date', 200);
+    const { accessToken } = await base44.asServiceRole.connectors.getConnection('googledrive');
+    const spreadsheetId = await ensureSpreadsheet(accessToken);
+    let requests = await readSheet(accessToken, spreadsheetId, 'AdvancementRequest');
+    requests.sort((a, b) => String(b.created_date || '').localeCompare(String(a.created_date || '')));
     return Response.json({ authorized: true, requests });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { secrets } from 'base44:runtime';
+import { ensureSpreadsheet, updateRow } from '../../shared/googleSheets.ts';
 
 export default async function(req) {
   try {
@@ -14,7 +15,9 @@ export default async function(req) {
     const notes = body?.notes || '';
     if (recordId) {
       const today = new Date().toISOString().split('T')[0];
-      await base44.asServiceRole.entities.GearCheckout.update(recordId, {
+      const { accessToken } = await base44.asServiceRole.connectors.getConnection('googledrive');
+      const spreadsheetId = await ensureSpreadsheet(accessToken);
+      await updateRow(accessToken, spreadsheetId, 'GearCheckout', recordId, {
         status: 'returned',
         checkin_date: today,
         notes,

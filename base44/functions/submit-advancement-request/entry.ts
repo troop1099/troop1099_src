@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { lookupScout } from '../../shared/scoutLookup.ts';
+import { ensureSpreadsheet, appendRow } from '../../shared/googleSheets.ts';
 
 export default async function (req) {
   try {
@@ -21,11 +22,13 @@ export default async function (req) {
       );
     }
 
-    const created = await base44.asServiceRole.entities.AdvancementRequest.create({
+    const { accessToken } = await base44.asServiceRole.connectors.getConnection('googledrive');
+    const spreadsheetId = await ensureSpreadsheet(accessToken);
+    const created = await appendRow(accessToken, spreadsheetId, 'AdvancementRequest', {
       ...requestData,
       scout_name: result.scout_name,
       status: requestData.status || 'pending',
-    });
+    }, user);
 
     return Response.json({ success: true, request: created });
   } catch (error) {

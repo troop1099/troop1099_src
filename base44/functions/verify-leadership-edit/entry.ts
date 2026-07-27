@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { secrets } from 'base44:runtime';
+import { ensureSpreadsheet, readSheet, appendRow, updateRow, deleteRow } from '../../shared/googleSheets.ts';
 
 export default async function(req) {
   try {
@@ -10,20 +11,27 @@ export default async function(req) {
     if (!adminCode || adminCode !== expectedCode) {
       return Response.json({ authorized: false, error: 'Invalid admin code' }, { status: 403 });
     }
+
+    const { accessToken } = await base44.asServiceRole.connectors.getConnection('googledrive');
+    const spreadsheetId = await ensureSpreadsheet(accessToken);
+
     const action = body?.action;
     const positionKey = body?.position_key;
     const name = body?.name;
+
     if (action === 'save' && positionKey) {
-      const existing = await base44.asServiceRole.entities.Setting.filter({ key: positionKey });
-      if (existing.length > 0) {
-        await base44.asServiceRole.entities.Setting.update(existing[0].id, { value: name });
+      const settings = await readSheet(accessToken, spreadsheetId, 'Setting');
+      const existing = settings.find(s => s.key === positionKey);
+      if (existing) {
+        await updateRow(accessToken, spreadsheetId, 'Setting', existing.id, { value: name });
       } else {
-        await base44.asServiceRole.entities.Setting.create({ key: positionKey, value: name });
+        await appendRow(accessToken, spreadsheetId, 'Setting', { key: positionKey, value: name }, null);
       }
     } else if (action === 'delete' && positionKey) {
-      const existing = await base44.asServiceRole.entities.Setting.filter({ key: positionKey });
-      for (const s of existing) {
-        await base44.asServiceRole.entities.Setting.delete(s.id);
+      const settings = await readSheet(accessToken, spreadsheetId, 'Setting');
+      const matching = settings.filter(s => s.key === positionKey);
+      for (const s of matching) {
+        await deleteRow(accessToken, spreadsheetId, 'Setting', s.id);
       }
     }
     return Response.json({ authorized: true });
