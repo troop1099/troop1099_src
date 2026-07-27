@@ -24,16 +24,6 @@ export default function UpcomingEvents() {
     initialData: [],
   });
 
-  const { data: calendarSetting } = useQuery({
-    queryKey: ['setting', 'google_calendar_id'],
-    queryFn: async () => {
-      const results = await base44.entities.Setting.filter({ key: 'google_calendar_id' });
-      return results[0] || null;
-    },
-  });
-
-  const calendarId = calendarSetting?.value || '';
-
   return (
     <section className="bg-white py-12 px-4">
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
