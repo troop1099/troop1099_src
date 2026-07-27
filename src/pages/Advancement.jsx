@@ -4,6 +4,7 @@ import { X, ChevronRight, Award, User, Users, FileText, Upload, Calendar } from 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
+import { useAdmin } from '@/lib/AdminContext';
 import SchedulingModal from '@/components/advancement/SchedulingModal';
 import ScoutPhoneLookup from '@/components/advancement/ScoutPhoneLookup';
 import MyReservations from '@/components/advancement/MyReservations';
@@ -37,6 +38,7 @@ function RankCircle({ rank, size = 'lg', onClick }) {
   const [img, uploadImg] = useRankImage(rank.name);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef();
+  const { adminUnlocked } = useAdmin();
 
   const handleUpload = async (e) => {
     e.stopPropagation();
@@ -63,14 +65,18 @@ function RankCircle({ rank, size = 'lg', onClick }) {
           <Award className={isLg ? 'w-6 h-6' : 'w-5 h-5'} style={{ color: rank.color }} />
         )}
       </div>
-      <button
-        className="absolute -bottom-1 -right-1 w-5 h-5 bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
-        onClick={(e) => { e.stopPropagation(); fileRef.current.click(); }}
-        title="Upload rank image"
-      >
-        <Upload className="w-3 h-3 text-white" />
-      </button>
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+      {adminUnlocked && (
+        <>
+          <button
+            className="absolute -bottom-1 -right-1 w-5 h-5 bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            onClick={(e) => { e.stopPropagation(); fileRef.current.click(); }}
+            title="Upload rank image"
+          >
+            <Upload className="w-3 h-3 text-white" />
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+        </>
+      )}
     </div>
   );
 }

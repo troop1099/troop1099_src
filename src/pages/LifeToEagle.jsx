@@ -49,15 +49,16 @@ export default function LifeToEagle() {
             <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-xs font-bold text-yellow-800 uppercase tracking-wide">Etowah District — Approval Appointments</p>
-                {!editingUrl && adminUnlocked
-                  ? <button onClick={() => { setUrlDraft(signupUrl); setEditingUrl(true); }} className="text-xs text-gray-500 hover:text-[#1a2744] flex items-center gap-1">
-                      <Edit2 className="w-3 h-3" /> Edit Link
-                    </button>
-                  : <div className="flex gap-1">
-                      <button onClick={saveUrl} className="text-xs text-green-700 hover:text-green-900 flex items-center gap-1"><Save className="w-3 h-3" /> Save</button>
-                      <button onClick={() => setEditingUrl(false)} className="text-xs text-gray-500 ml-2 flex items-center gap-1"><X className="w-3 h-3" /> Cancel</button>
-                    </div>
-                }
+                {adminUnlocked && (
+                  editingUrl
+                    ? <div className="flex gap-1">
+                        <button onClick={saveUrl} className="text-xs text-green-700 hover:text-green-900 flex items-center gap-1"><Save className="w-3 h-3" /> Save</button>
+                        <button onClick={() => setEditingUrl(false)} className="text-xs text-gray-500 ml-2 flex items-center gap-1"><X className="w-3 h-3" /> Cancel</button>
+                      </div>
+                    : <button onClick={() => { setUrlDraft(signupUrl); setEditingUrl(true); }} className="text-xs text-gray-500 hover:text-[#1a2744] flex items-center gap-1">
+                        <Edit2 className="w-3 h-3" /> Edit Link
+                      </button>
+                )}
               </div>
               {editingUrl
                 ? <input className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs mt-1" value={urlDraft} onChange={e => setUrlDraft(e.target.value)} placeholder="Paste SignUpGenius URL here..." />
