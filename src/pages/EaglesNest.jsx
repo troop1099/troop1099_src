@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Search, ArrowUpDown } from 'lucide-react';
 import { useAdmin } from '@/lib/AdminContext';
 
 function groupByYear(eagles) {
@@ -69,6 +69,8 @@ function AddEagleModal({ onClose, onSave }) {
 
 export default function EaglesNest() {
   const [showAdd, setShowAdd] = useState(false);
+  const [search, setSearch] = useState('');
+  const [recentFirst, setRecentFirst] = useState(true);
   const queryClient = useQueryClient();
   const { adminUnlocked } = useAdmin();
 
@@ -82,8 +84,11 @@ export default function EaglesNest() {
     onSuccess: () => { queryClient.invalidateQueries(['eagles']); setShowAdd(false); }
   });
 
-  const grouped = groupByYear(allEagles);
-  const years = Object.keys(grouped).sort((a, b) => Number(a) - Number(b));
+  const filtered = search.trim()
+    ? allEagles.filter(e => e.name?.toLowerCase().includes(search.trim().toLowerCase()))
+    : allEagles;
+  const grouped = groupByYear(filtered);
+  const years = Object.keys(grouped).sort((a, b) => recentFirst ? Number(b) - Number(a) : Number(a) - Number(b));
 
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
@@ -102,8 +107,35 @@ export default function EaglesNest() {
         )}
       </div>
 
+      {/* Search & Flip Controls */}
+      <div className="max-w-4xl mx-auto px-4 py-6 flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search Eagle Scouts by name..."
+            className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#1a2744]"
+          />
+        </div>
+        <button
+          onClick={() => setRecentFirst(prev => !prev)}
+          className="flex items-center gap-2 bg-white border border-gray-300 hover:border-[#1a2744] text-[#1a2744] px-4 py-2 rounded-lg text-sm font-semibold transition-colors w-full sm:w-auto justify-center"
+        >
+          <ArrowUpDown className="w-4 h-4" />
+          {recentFirst ? 'Recent → Oldest' : 'Oldest → Recent'}
+        </button>
+      </div>
+
       {/* Timeline */}
       <div className="max-w-4xl mx-auto px-4 py-10">
+        {years.length === 0 ? (
+          <div className="text-center py-16 text-gray-400">
+            <Search className="w-12 h-12 mx-auto mb-3 opacity-30" />
+            <p className="font-semibold">No Eagle Scouts found matching "{search}"</p>
+          </div>
+        ) : (
         <div className="relative">
           {/* Center line */}
           <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-[#1a2744]/20 -translate-x-1/2" />
@@ -152,6 +184,7 @@ export default function EaglesNest() {
             </div>
           ))}
         </div>
+        )}
       </div>
 
       {showAdd && (
