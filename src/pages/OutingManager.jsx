@@ -147,23 +147,23 @@ function CreateOutingModal({ onClose }) {
   );
 }
 
-function AttendeeRow({ attendee, onToggle, onMessage, onCheckIn, isAdmin }) {
+function AttendeeRow({ attendee, onToggle, onMessage, onCheckIn }) {
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
       <td className="py-2 px-3 text-sm font-medium text-[#1a2744]">{attendee.scout_name}</td>
       <td className="py-2 px-3 text-xs text-gray-500">{attendee.patrol || '—'}</td>
       <td className="py-2 px-3 text-center">
-        <button onClick={() => isAdmin ? onToggle(attendee.id, 'attending', !attendee.attending) : onCheckIn(attendee)}>
+        <button onClick={() => onCheckIn(attendee)}>
           {attendee.attending ? <CheckSquare className="w-5 h-5 text-green-500 mx-auto" /> : <Square className="w-5 h-5 text-gray-300 mx-auto" />}
         </button>
       </td>
       <td className="py-2 px-3 text-center">
-        <button onClick={() => isAdmin ? onToggle(attendee.id, 'permission_slip', !attendee.permission_slip) : onCheckIn(attendee)}>
+        <button onClick={() => onCheckIn(attendee)}>
           {attendee.permission_slip ? <CheckSquare className="w-5 h-5 text-blue-500 mx-auto" /> : <Square className="w-5 h-5 text-gray-300 mx-auto" />}
         </button>
       </td>
       <td className="py-2 px-3 text-center">
-        <button onClick={() => isAdmin ? onToggle(attendee.id, 'paid', !attendee.paid) : onCheckIn(attendee)}>
+        <button onClick={() => onCheckIn(attendee)}>
           {attendee.paid ? <CheckSquare className="w-5 h-5 text-yellow-500 mx-auto" /> : <Square className="w-5 h-5 text-gray-300 mx-auto" />}
         </button>
       </td>
@@ -534,7 +534,6 @@ export default function OutingManager() {
                                   onToggle={(id, field, val) => updateMutation.mutate({ id, data: { [field]: val } })}
                                   onMessage={setNoteModal}
                                   onCheckIn={setCheckInAttendee}
-                                  isAdmin={adminUnlocked}
                                 />
                               ))}
                             </React.Fragment>
