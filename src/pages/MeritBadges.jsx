@@ -396,6 +396,7 @@ function BadgeDetail({ badge, onBack, adminUnlocked, onDelete }) {
 
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImgUpload} />
       <div className="bg-[#1a2744] text-white px-6 py-4 flex items-center gap-3">
         <button onClick={onBack} className="flex items-center gap-1 text-white/70 hover:text-white text-sm">
           <ChevronLeft className="w-4 h-4" /> Back
