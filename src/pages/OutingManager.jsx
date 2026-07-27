@@ -138,7 +138,7 @@ function CreateOutingModal({ onClose }) {
         </div>
         <div className="flex gap-2 mt-5">
           <button onClick={onClose} className="flex-1 py-2 border border-gray-300 rounded-lg text-sm">Cancel</button>
-          <button onClick={handleSave} disabled={saving || !form.title.trim() || !form.month_label.trim() || !form.departure_date || !form.departure_time || !form.return_date || !form.return_time || !form.price_per_scout || !file} className="flex-1 py-2 bg-[#1a2744] text-white rounded-lg text-sm font-semibold disabled:opacity-50">
+          <button onClick={handleSave} disabled={saving || !form.title.trim() || !form.departure_date || !form.return_date} className="flex-1 py-2 bg-[#1a2744] text-white rounded-lg text-sm font-semibold disabled:opacity-50">
             {saving ? 'Creating...' : 'Create Outing'}
           </button>
         </div>
