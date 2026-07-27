@@ -82,6 +82,9 @@ export default function SchedulingModal({ onClose }) {
       toast({ title: 'Slot reserved!', description: 'Your request has been submitted.' });
       onClose();
     },
+    onError: (err) => {
+      toast({ title: 'Failed to reserve slot', description: err?.message || 'Please try again.', variant: 'destructive' });
+    },
   });
 
   const handleRegister = () => {

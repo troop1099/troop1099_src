@@ -5,8 +5,6 @@ import { ensureSpreadsheet, appendRow } from '../../shared/googleSheets.ts';
 export default async function (req) {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
     const phoneNumber = body?.phone_number;
@@ -28,7 +26,7 @@ export default async function (req) {
       ...requestData,
       scout_name: result.scout_name,
       status: requestData.status || 'pending',
-    }, user);
+    }, null);
 
     return Response.json({ success: true, request: created });
   } catch (error) {

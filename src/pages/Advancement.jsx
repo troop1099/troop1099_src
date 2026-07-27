@@ -218,6 +218,9 @@ function RequestModal({ reqType, onClose }) {
     onSuccess: () => {
       toast({ title: 'Request submitted!', description: 'The Scoutmaster will follow up soon.' });
       onClose();
+    },
+    onError: (err) => {
+      toast({ title: 'Failed to submit request', description: err?.message || 'Please try again.', variant: 'destructive' });
     }
   });
 
