@@ -187,6 +187,11 @@ function RequestAttendanceModal({ outingId, onClose }) {
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const { data: roster = [], isLoading } = useQuery({
+    queryKey: ['scout-roster'],
+    queryFn: fetchScoutRoster,
+  });
+
   const handleSubmit = async () => {
     if (!name.trim()) return;
     setSaving(true);
@@ -211,7 +216,15 @@ function RequestAttendanceModal({ outingId, onClose }) {
         <div className="space-y-3">
           <div>
             <label className="text-xs font-semibold text-gray-600 block mb-1">Your Name *</label>
-            <input className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm" placeholder="Full name" value={name} onChange={e => setName(e.target.value)} />
+            <select
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white"
+              value={name}
+              disabled={isLoading}
+              onChange={e => setName(e.target.value)}
+            >
+              <option value="">{isLoading ? 'Loading roster...' : '— Select your name —'}</option>
+              {roster.map(s => <option key={s.name} value={s.name}>{s.name}{s.patrol ? ` (${s.patrol})` : ''}</option>)}
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-gray-600 block mb-1">Message (optional)</label>
