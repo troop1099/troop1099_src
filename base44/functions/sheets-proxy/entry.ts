@@ -86,7 +86,38 @@ export default async function(req) {
         return Response.json(row);
       }
       case 'delete': {
-        await deleteRow(accessToken, spreadsheetId, entity, id);
+        const headers = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
+        const range = `${encodeURIComponent(entity)}!A1:Z10000`;
+        const readRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueRenderOption=UNFORMATTED_VALUE`, { headers });
+        const readData = await readRes.json();
+        if (!readData.values || readData.values.length < 2) throw new Error('Record not found');
+
+        const headerRow = readData.values[0];
+        const idColIndex = headerRow.findIndex(h => h === 'id');
+        const dataRowIndex = readData.values.slice(1).findIndex(row => row[idColIndex] === id);
+        if (dataRowIndex === -1) throw new Error('Record not found');
+
+        const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets(properties(sheetId,title))`, { headers });
+        const metaData = await metaRes.json();
+        const sheet = metaData.sheets.find(s => s.properties.title === entity);
+        if (!sheet) throw new Error('Sheet not found');
+
+        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            requests: [{
+              deleteDimension: {
+                range: {
+                  sheetId: sheet.properties.sheetId,
+                  dimension: 'ROWS',
+                  startIndex: dataRowIndex + 1,
+                  endIndex: dataRowIndex + 2,
+                },
+              },
+            }],
+          }),
+        });
         return Response.json({ success: true });
       }
       case 'updateMany': {
@@ -99,12 +130,47 @@ export default async function(req) {
         return Response.json({ updated: matching.length });
       }
       case 'deleteMany': {
-        let rows = await readSheetAuth(accessToken, spreadsheetId, entity);
-        const matching = rows.filter(row => matchesQuery(row, query));
-        for (const row of matching) {
-          await deleteRow(accessToken, spreadsheetId, entity, row.id);
-        }
-        return Response.json({ deleted: matching.length });
+        const headers = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
+        const range = `${encodeURIComponent(entity)}!A1:Z10000`;
+        const readRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueRenderOption=UNFORMATTED_VALUE`, { headers });
+        const readData = await readRes.json();
+        if (!readData.values || readData.values.length < 2) return Response.json({ deleted: 0 });
+
+        const headerRow = readData.values[0];
+        const idColIndex = headerRow.findIndex(h => h === 'id');
+        const matchingIndices = [];
+        readData.values.slice(1).forEach((row, i) => {
+          if (row[0] && matchesQuery(
+            Object.fromEntries(headerRow.map((k, j) => [k, row[j] !== undefined ? row[j] : ''])),
+            query
+          )) matchingIndices.push(i);
+        });
+
+        if (matchingIndices.length === 0) return Response.json({ deleted: 0 });
+
+        const metaRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets(properties(sheetId,title))`, { headers });
+        const metaData = await metaRes.json();
+        const sheet = metaData.sheets.find(s => s.properties.title === entity);
+        if (!sheet) throw new Error('Sheet not found');
+
+        // Sort descending so earlier deletions don't shift later row indices
+        matchingIndices.sort((a, b) => b - a);
+        const requests = matchingIndices.map(idx => ({
+          deleteDimension: {
+            range: {
+              sheetId: sheet.properties.sheetId,
+              dimension: 'ROWS',
+              startIndex: idx + 1,
+              endIndex: idx + 2,
+            },
+          },
+        }));
+        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ requests }),
+        });
+        return Response.json({ deleted: matchingIndices.length });
       }
       case 'bulkUpdate': {
         const results = [];
