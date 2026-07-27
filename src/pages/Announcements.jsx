@@ -3,9 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAdmin } from '@/lib/AdminContext';
 import { useToast } from '@/components/ui/use-toast';
-import { Plus, X, Trash2, Loader2, Lock, Shield, Info } from 'lucide-react';
+import { Plus, X, Trash2, Info, Megaphone, Globe, Users } from 'lucide-react';
 
-function AnnouncementForm({ onSaved }) {
+function AnnouncementForm({ onClose, onSaved }) {
   const [form, setForm] = useState({ title: '', body: '', visibility: 'members' });
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -21,50 +21,66 @@ function AnnouncementForm({ onSaved }) {
   });
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-5">
-      <h3 className="font-bold text-[#1a2744] text-base mb-4 flex items-center gap-2">
-        <Plus className="w-4 h-4" /> New Announcement
-      </h3>
-      <div className="space-y-3">
-        <input
-          placeholder="Title"
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-          value={form.title}
-          onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-        />
-        <textarea
-          placeholder="Body text"
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-          rows={3}
-          value={form.body}
-          onChange={e => setForm(f => ({ ...f, body: e.target.value }))}
-        />
-        <select
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-          value={form.visibility}
-          onChange={e => setForm(f => ({ ...f, visibility: e.target.value }))}
-        >
-          <option value="members">Members Only</option>
-          <option value="public">Public</option>
-        </select>
-        <button
-          onClick={() => createMutation.mutate(form)}
-          disabled={!form.title || !form.body || createMutation.isPending}
-          className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-semibold disabled:opacity-50 transition-colors"
-        >
-          {createMutation.isPending ? 'Posting...' : 'Post Announcement'}
-        </button>
+    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+        <div className="flex justify-between items-center mb-5">
+          <h3 className="font-bold text-[#1a2744] text-lg flex items-center gap-2">
+            <Plus className="w-5 h-5 text-red-600" /> New Announcement
+          </h3>
+          <button onClick={onClose}><X className="w-5 h-5 text-gray-400" /></button>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Title *</label>
+            <input
+              placeholder="Announcement title"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]"
+              value={form.title}
+              onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Body *</label>
+            <textarea
+              placeholder="Write the announcement..."
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]"
+              rows={4}
+              value={form.body}
+              onChange={e => setForm(f => ({ ...f, body: e.target.value }))}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 block mb-1">Visibility</label>
+            <select
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]"
+              value={form.visibility}
+              onChange={e => setForm(f => ({ ...f, visibility: e.target.value }))}
+            >
+              <option value="members">Members Only</option>
+              <option value="public">Public</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex gap-2 mt-5">
+          <button onClick={onClose} className="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm">Cancel</button>
+          <button
+            onClick={() => createMutation.mutate(form)}
+            disabled={!form.title || !form.body || createMutation.isPending}
+            className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors"
+          >
+            {createMutation.isPending ? 'Posting...' : 'Post Announcement'}
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
 export default function Announcements() {
-  const { adminUnlocked, unlock, lock } = useAdmin();
-  const { toast } = useToast();
-  const [code, setCode] = useState('');
-  const [verifying, setVerifying] = useState(false);
+  const { adminUnlocked } = useAdmin();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [showForm, setShowForm] = useState(false);
 
   const { data: announcements = [] } = useQuery({
     queryKey: ['announcements'],
@@ -79,103 +95,68 @@ export default function Announcements() {
     }
   });
 
-  const handleUnlock = async () => {
-    setVerifying(true);
-    try {
-      const ok = await unlock(code);
-      if (!ok) toast({ title: 'Incorrect admin code', variant: 'destructive' });
-      else { setCode(''); }
-    } catch {
-      toast({ title: 'Incorrect admin code', variant: 'destructive' });
-    }
-    setVerifying(false);
-  };
-
-  // Locked state
-  if (!adminUnlocked) {
-    return (
-      <div className="pt-14 min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 max-w-md w-full text-center">
-          <div className="w-14 h-14 rounded-full bg-[#1a2744]/10 flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-7 h-7 text-[#1a2744]" />
-          </div>
-          <h1 className="font-bold text-[#1a2744] text-xl mb-2">Admin Access Required</h1>
-          <p className="text-gray-500 text-sm mb-6">Enter the admin code to manage news and announcements.</p>
-          <input
-            type="password"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mb-3 focus:outline-none focus:border-[#1a2744]"
-            value={code}
-            onChange={e => setCode(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleUnlock()}
-            placeholder="Admin code"
-            autoFocus
-          />
-          <button
-            onClick={handleUnlock}
-            disabled={verifying || !code.trim()}
-            className="w-full bg-[#1a2744] hover:bg-[#1a2744]/90 text-white px-4 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors"
-          >
-            {verifying ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Unlock'}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="pt-14 min-h-screen bg-gray-50">
       <div className="bg-[#1a2744] text-white py-10 px-6">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+        <div className="max-w-4xl mx-auto flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-bold">News & Announcements</h1>
-            <p className="text-white/70 mt-1">Manage announcements shown on the homepage.</p>
+            <p className="text-white/70 mt-1">Stay up to date with the latest from Troop 1099.</p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 text-sm bg-green-500/20 text-green-300 px-3 py-1.5 rounded font-semibold border border-green-500/30">
-              <Shield className="w-4 h-4" /> Admin Mode
-            </span>
-            <button onClick={lock} className="text-sm text-white/70 hover:text-white border border-white/20 px-3 py-1.5 rounded">
-              Lock
+          {adminUnlocked && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Add Announcement
             </button>
-          </div>
+          )}
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <AnnouncementForm />
-
-        <div>
-          <h2 className="font-bold text-[#1a2744] text-lg mb-4 flex items-center gap-2">
-            <Info className="w-5 h-5" /> All Announcements ({announcements.length})
-          </h2>
-          {announcements.length === 0 && (
-            <p className="text-gray-400 text-sm italic">No announcements yet.</p>
-          )}
-          <div className="space-y-3">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {announcements.length === 0 ? (
+          <div className="text-center py-20 text-gray-400">
+            <Megaphone className="w-14 h-14 mx-auto mb-3 opacity-30" />
+            <p className="font-semibold">No announcements yet.</p>
+            <p className="text-sm mt-1">Check back soon for updates!</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
             {announcements.map(a => (
-              <div key={a.id} className="bg-white rounded-lg border border-gray-200 p-4 group">
-                <div className="flex justify-between items-start gap-2">
+              <div key={a.id} className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                <div className="flex justify-between items-start gap-3">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold text-[#1a2744] text-sm">{a.title}</p>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${a.visibility === 'public' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="font-bold text-[#1a2744] text-base">{a.title}</h2>
+                      <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${a.visibility === 'public' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {a.visibility === 'public' ? <Globe className="w-3 h-3" /> : <Users className="w-3 h-3" />}
                         {a.visibility === 'public' ? 'Public' : 'Members'}
                       </span>
                     </div>
-                    <p className="text-gray-600 text-xs mt-1">{a.body}</p>
+                    <p className="text-gray-600 text-sm mt-2 leading-relaxed whitespace-pre-wrap">{a.body}</p>
+                    {a.created_date && (
+                      <p className="text-xs text-gray-400 mt-3">
+                        {new Date(a.created_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                      </p>
+                    )}
                   </div>
-                  <button
-                    onClick={() => deleteMutation.mutate(a.id)}
-                    className="text-gray-300 hover:text-red-500 shrink-0"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {adminUnlocked && (
+                    <button
+                      onClick={() => deleteMutation.mutate(a.id)}
+                      className="text-gray-300 hover:text-red-500 shrink-0"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        )}
       </div>
+
+      {showForm && <AnnouncementForm onClose={() => setShowForm(false)} onSaved={() => setShowForm(false)} />}
     </div>
   );
 }

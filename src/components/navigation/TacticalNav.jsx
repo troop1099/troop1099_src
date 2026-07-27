@@ -11,6 +11,7 @@ const NAV = [
     label: 'About',
     links: [
       { label: 'About the Troop', path: '/about' },
+      { label: 'News & Announcements', path: '/announcements' },
       { label: 'Leadership', path: '/leadership' },
       { label: 'Eagles Nest', path: '/eagles' },
       { label: 'Adventures', path: '/adventures' },
