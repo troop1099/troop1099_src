@@ -147,23 +147,24 @@ function CreateOutingModal({ onClose }) {
   );
 }
 
-function AttendeeRow({ attendee, onToggle, onMessage, onCheckIn }) {
+function AttendeeRow({ attendee, onToggle, onMessage, onCheckIn, isAdmin }) {
+  const handle = (field) => isAdmin ? () => onToggle(attendee.id, field, !attendee[field]) : () => onCheckIn(attendee);
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
       <td className="py-2 px-3 text-sm font-medium text-[#1a2744]">{attendee.scout_name}</td>
       <td className="py-2 px-3 text-xs text-gray-500">{attendee.patrol || '—'}</td>
       <td className="py-2 px-3 text-center">
-        <button onClick={() => onCheckIn(attendee)}>
+        <button onClick={handle('attending')}>
           {attendee.attending ? <CheckSquare className="w-5 h-5 text-green-500 mx-auto" /> : <Square className="w-5 h-5 text-gray-300 mx-auto" />}
         </button>
       </td>
       <td className="py-2 px-3 text-center">
-        <button onClick={() => onCheckIn(attendee)}>
+        <button onClick={handle('permission_slip')}>
           {attendee.permission_slip ? <CheckSquare className="w-5 h-5 text-blue-500 mx-auto" /> : <Square className="w-5 h-5 text-gray-300 mx-auto" />}
         </button>
       </td>
       <td className="py-2 px-3 text-center">
-        <button onClick={() => onCheckIn(attendee)}>
+        <button onClick={handle('paid')}>
           {attendee.paid ? <CheckSquare className="w-5 h-5 text-yellow-500 mx-auto" /> : <Square className="w-5 h-5 text-gray-300 mx-auto" />}
         </button>
       </td>
@@ -553,6 +554,7 @@ export default function OutingManager() {
                               <tr><td colSpan={6} className="bg-gray-100 px-3 py-1 text-xs font-bold text-gray-500 uppercase tracking-wider">{patrol}</td></tr>
                               {scouts.map(a => (
                                 <AttendeeRow key={a.id} attendee={a}
+                                  isAdmin={adminUnlocked}
                                   onToggle={(id, field, val) => updateMutation.mutate({ id, data: { [field]: val } })}
                                   onMessage={setNoteModal}
                                   onCheckIn={setCheckInAttendee}
