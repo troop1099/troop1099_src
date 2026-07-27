@@ -82,7 +82,16 @@ export default function Events() {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Event.delete(id),
-    onSuccess: () => queryClient.invalidateQueries(['events'])
+    onMutate: async (id) => {
+      await queryClient.cancelQueries(['events']);
+      const previous = queryClient.getQueryData(['events']);
+      queryClient.setQueryData(['events'], (old) => (Array.isArray(old) ? old : []).filter(e => e.id !== id));
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      queryClient.setQueryData(['events'], context.previous);
+    },
+    onSuccess: () => queryClient.invalidateQueries(['events']),
   });
 
   // Google Calendar ID — stored in Setting entity so it's shared across all users
