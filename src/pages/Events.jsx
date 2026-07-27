@@ -16,7 +16,7 @@ const typeConfig = {
   special: { color: 'bg-red-100 text-red-700', label: 'Special' },
 };
 
-function AddEventModal({ onClose, onSave }) {
+function AddEventModal({ onClose, onSave, saving }) {
   const [form, setForm] = useState({ title: '', date: '', end_date: '', location: '', type: 'meeting', description: '' });
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
@@ -57,7 +57,7 @@ function AddEventModal({ onClose, onSave }) {
         </div>
         <div className="flex gap-2 mt-5">
           <button onClick={onClose} className="flex-1 py-2 border border-gray-300 rounded text-sm">Cancel</button>
-          <button onClick={() => onSave(form)} disabled={!form.title || !form.date} className="flex-1 py-2 bg-[#1a2744] text-white rounded text-sm font-semibold disabled:opacity-50">Add Event</button>
+          <button onClick={() => onSave(form)} disabled={saving || !form.title || !form.date} className="flex-1 py-2 bg-[#1a2744] text-white rounded text-sm font-semibold disabled:opacity-50">{saving ? 'Adding...' : 'Add Event'}</button>
         </div>
       </div>
     </div>
@@ -277,7 +277,7 @@ export default function Events() {
         )}
       </div>
 
-      {showAdd && <AddEventModal onClose={() => setShowAdd(false)} onSave={(d) => addMutation.mutate(d)} />}
+      {showAdd && <AddEventModal onClose={() => setShowAdd(false)} onSave={(d) => addMutation.mutate(d)} saving={addMutation.isPending} />}
     </div>
   );
 }

@@ -358,9 +358,19 @@ export default function OutingManager() {
       await Promise.all(attendeesToDelete.map(a => base44.entities.OutingAttendee.delete(a.id)));
       await base44.entities.Outing.delete(outingId);
     },
+    onMutate: async (outingId) => {
+      await queryClient.cancelQueries(['outings']);
+      const previousOutings = queryClient.getQueryData(['outings']);
+      queryClient.setQueryData(['outings'], (old) => (Array.isArray(old) ? old : []).filter(o => o.id !== outingId));
+      setSelectedOutingId(null);
+      return { previousOutings };
+    },
+    onError: (err, _outingId, context) => {
+      queryClient.setQueryData(['outings'], context.previousOutings);
+      toast({ title: 'Could not remove outing', description: err?.message || 'Please try again.', variant: 'destructive' });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['outings']);
-      setSelectedOutingId(null);
       toast({ title: 'Outing removed.' });
     },
   });
