@@ -46,10 +46,6 @@ export default async function(req) {
     const { data, id, query, sort, limit } = body;
 
     const READ_OPS = ['list', 'filter', 'get', 'count'];
-    const user = await base44.auth.me().catch(() => null);
-    if (!user && !READ_OPS.includes(operation)) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     if (!entity || !operation) {
       return Response.json({ error: 'Entity and operation required' }, { status: 400 });
@@ -84,11 +80,11 @@ export default async function(req) {
         return Response.json(row);
       }
       case 'create': {
-        const row = await appendRow(accessToken, spreadsheetId, entity, data, user);
+        const row = await appendRow(accessToken, spreadsheetId, entity, data, null);
         return Response.json(row);
       }
       case 'bulkCreate': {
-        const rows = await bulkAppendRows(accessToken, spreadsheetId, entity, data, user);
+        const rows = await bulkAppendRows(accessToken, spreadsheetId, entity, data, null);
         return Response.json(rows);
       }
       case 'update': {
