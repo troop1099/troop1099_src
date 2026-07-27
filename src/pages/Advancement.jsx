@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronRight, Award, User, Users, FileText, Upload, Calendar } from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import SchedulingModal from '@/components/advancement/SchedulingModal';
@@ -10,12 +10,25 @@ import MyReservations from '@/components/advancement/MyReservations';
 import AdminSchedule from '@/components/advancement/AdminSchedule';
 
 function useRankImage(rankName) {
+  const queryClient = useQueryClient();
   const key = `rank_img_${rankName.replace(' ', '_')}`;
-  const [img, setImg] = useState(() => localStorage.getItem(key) || null);
+  const { data: img } = useQuery({
+    queryKey: ['setting', key],
+    queryFn: async () => {
+      const settings = await base44.entities.Setting.filter({ key });
+      return settings[0]?.value || null;
+    },
+  });
   const upload = async (file) => {
-    const res = await base44.integrations.Core.UploadFile({ file });
-    localStorage.setItem(key, res.file_url);
-    setImg(res.file_url);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const existing = await base44.entities.Setting.filter({ key });
+    if (existing[0]) {
+      await base44.entities.Setting.update(existing[0].id, { value: file_url });
+    } else {
+      await base44.entities.Setting.create({ key, value: file_url });
+    }
+    queryClient.invalidateQueries(['setting', key]);
+    return file_url;
   };
   return [img, upload];
 }

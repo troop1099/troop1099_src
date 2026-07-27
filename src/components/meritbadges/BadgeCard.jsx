@@ -4,7 +4,7 @@ import { Star, X } from 'lucide-react';
 export default function BadgeCard({ badge, count, onClick, adminUnlocked, onDelete }) {
   const [imgError, setImgError] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const savedImg = localStorage.getItem(`badge_img_${badge.id}`) || badge.image_url;
+  const savedImg = badge.image_url;
 
   const handleDelete = (e) => {
     e.stopPropagation();

@@ -10,13 +10,23 @@ import { useAdmin } from '@/lib/AdminContext';
 
 // Badge images are stored in localStorage keyed by badge id (client-side upload preview)
 // In a real deployment these would be uploaded to storage
-function useBadgeImage(badgeId, initialUrl) {
-  const key = `badge_img_${badgeId}`;
-  const [img, setImg] = useState(() => localStorage.getItem(key) || initialUrl || null);
+function useBadgeImage(badge) {
+  const queryClient = useQueryClient();
+  const [img, setImg] = useState(badge.image_url || null);
   const upload = async (file) => {
-    const res = await base44.integrations.Core.UploadFile({ file });
-    localStorage.setItem(key, res.file_url);
-    setImg(res.file_url);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setImg(file_url);
+    if (badge.dbId) {
+      await base44.entities.MeritBadge.update(badge.dbId, { image_url: file_url });
+    } else if (badge.bsa_url) {
+      await base44.entities.MeritBadge.create({
+        name: badge.name,
+        bsa_url: badge.bsa_url,
+        image_url: file_url,
+        eagle_required: badge.eagle_required ?? true,
+      });
+    }
+    queryClient.invalidateQueries(['merit-badges']);
   };
   return [img, upload, setImg];
 }
@@ -347,7 +357,7 @@ function CounselorForm({ badge }) {
 function BadgeDetail({ badge, onBack, adminUnlocked, onDelete }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [badgeImg, uploadBadgeImg, setBadgeImg] = useBadgeImage(badge.id, badge.image_url);
+  const [badgeImg, uploadBadgeImg, setBadgeImg] = useBadgeImage(badge);
   const [uploading, setUploading] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
