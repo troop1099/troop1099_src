@@ -33,7 +33,7 @@ export default function UpcomingEvents() {
       source: 'internal',
     }));
 
-  const gcalEvents = (gcalData?.events || []).map(e => ({ ...e, source: 'gcal' }));
+  const gcalEvents = (gcalData?.data?.events || gcalData?.events || []).map(e => ({ ...e, source: 'gcal' }));
 
   const upcomingEvents = [...internalUpcoming, ...gcalEvents]
     .sort((a, b) => new Date(a.start) - new Date(b.start))
