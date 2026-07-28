@@ -383,6 +383,60 @@ export default function CampingChecklist() {
           </div>
         </div>
 
+        {/* Local Gear Stores */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <h2 className="font-bold text-[#1a2744] mb-1 flex items-center gap-2">
+            🛒 Buy Your Gear Locally
+          </h2>
+          <p className="text-sm text-gray-500 mb-4">Scouts can purchase camping gear, clothing, and accessories at these local retailers before any outing.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <a href="https://www.rei.com/stores/alpharetta" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 bg-gray-50 hover:bg-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all group">
+              <div className="w-9 h-9 bg-[#1a2744] rounded-lg flex items-center justify-center shrink-0">
+                <span className="text-[#FFD700] font-bold text-xs">REI</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[#1a2744] text-sm group-hover:text-blue-700">REI — Alpharetta, GA</p>
+                <p className="text-xs text-gray-400">7531 North Point Pkwy, Alpharetta, GA 30022</p>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-gray-400 ml-auto shrink-0" />
+            </a>
+            <a href="https://maps.google.com/?q=REI+7531+North+Point+Pkwy+Alpharetta+GA+30022" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 bg-gray-50 hover:bg-green-50 rounded-lg border border-gray-200 hover:border-green-300 transition-all group">
+              <div className="w-9 h-9 bg-[#1a2744] rounded-lg flex items-center justify-center shrink-0 text-[#FFD700] text-lg">
+                📍
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[#1a2744] text-sm group-hover:text-green-700">REI on Google Maps</p>
+                <p className="text-xs text-gray-400">Directions to Alpharetta store</p>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-gray-400 ml-auto shrink-0" />
+            </a>
+            <a href="https://www.academy.com/?utm_source=Google&utm_medium=SEM-Text&utm_content=Brand&utm_campaign=Brand|Text|General|Trademark&ogmap=SEM|BRA|GOOG|KWD|c||IM|Brand-Text-General-Trademark|Trademark-Exact|69403998|3169965798&activationcode=SEM000000000644&gad_source=1&gad_campaignid=69403998&gbraid=0AAAAADv-p96zx0aO4mEdEXg6sgQx_trIX&gclid=Cj0KCQjwg5zTBhCLARIsAP2AFU7G-6Ni69bzjN9-0MjYuejXPut-X8_s4tVt5FAT4fvz-VwOpE8TU2EaAjIyEALw_wcB" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 bg-gray-50 hover:bg-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all group">
+              <div className="w-9 h-9 bg-[#1a2744] rounded-lg flex items-center justify-center shrink-0">
+                <span className="text-[#FFD700] font-bold text-[10px]">AS</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[#1a2744] text-sm group-hover:text-blue-700">Academic Sports + Outdoors</p>
+                <p className="text-xs text-gray-400">320 Peachtree Pkwy, Cumming, GA 30041</p>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-gray-400 ml-auto shrink-0" />
+            </a>
+            <a href="https://maps.google.com/?q=Academy Sports + Outdoors 320 Peachtree Pkwy Cumming GA 30041" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 bg-gray-50 hover:bg-green-50 rounded-lg border border-gray-200 hover:border-green-300 transition-all group">
+              <div className="w-9 h-9 bg-[#1a2744] rounded-lg flex items-center justify-center shrink-0 text-[#FFD700] text-lg">
+                📍
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-[#1a2744] text-sm group-hover:text-green-700">Academic Sports on Google Maps</p>
+                <p className="text-xs text-gray-400">Directions to Cumming store</p>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-gray-400 ml-auto shrink-0" />
+            </a>
+          </div>
+        </div>
+
         {/* Tabs */}
         <div className="flex gap-2">
           <button
