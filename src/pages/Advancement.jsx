@@ -21,7 +21,18 @@ function useRankImage(rankName) {
     },
   });
   const upload = async (file) => {
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    // Read file as base64 and upload directly to the Troop 1099 Drive folder
+    const file_data = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(file);
+    });
+    const res = await base44.functions.invoke('upload-rank-image', {
+      file_data,
+      mime_type: file.type,
+      filename: file.name,
+    });
+    const file_url = res.data.file_url;
     const existing = await base44.entities.Setting.filter({ key });
     if (existing[0]) {
       await base44.entities.Setting.update(existing[0].id, { value: file_url });
