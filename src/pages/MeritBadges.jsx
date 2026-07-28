@@ -14,7 +14,17 @@ function useBadgeImage(badge) {
   const queryClient = useQueryClient();
   const [img, setImg] = useState(badge.image_url || null);
   const upload = async (file) => {
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const file_data = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(file);
+    });
+    const res = await base44.functions.invoke('upload-rank-image', {
+      file_data,
+      mime_type: file.type,
+      filename: file.name,
+    });
+    const file_url = res.data.file_url;
     setImg(file_url);
     if (badge.dbId) {
       await base44.entities.MeritBadge.update(badge.dbId, { image_url: file_url });
