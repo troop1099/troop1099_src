@@ -448,17 +448,10 @@ function BadgeDetail({ badge, onBack, adminUnlocked, onDelete }) {
             )}
           </div>
           {uploading && <p className="text-center text-xs text-gray-400 mb-1">Uploading...</p>}
-          {adminUnlocked && badgeImg && !imgError && (
+          {adminUnlocked && (
             <div className="flex justify-center mb-2">
               <button onClick={() => fileRef.current.click()} className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
-                <Upload className="w-3 h-3" /> Change Image
-              </button>
-            </div>
-          )}
-          {adminUnlocked && !badgeImg && (
-            <div className="flex justify-center mb-2">
-              <button onClick={() => fileRef.current.click()} className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
-                <Upload className="w-3 h-3" /> Upload Image
+                <Upload className="w-3 h-3" /> {badgeImg ? 'Change Image' : 'Upload Image'}
               </button>
             </div>
           )}
