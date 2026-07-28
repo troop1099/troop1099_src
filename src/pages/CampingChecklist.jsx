@@ -418,19 +418,19 @@ export default function CampingChecklist() {
                 <span className="text-[#FFD700] font-bold text-[10px]">AS</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[#1a2744] text-sm group-hover:text-blue-700">Academic Sports + Outdoors</p>
+                <p className="font-semibold text-[#1a2744] text-sm group-hover:text-blue-700">Academy Sports + Outdoors</p>
                 <p className="text-xs text-gray-400">320 Peachtree Pkwy, Cumming, GA 30041</p>
               </div>
               <ExternalLink className="w-3.5 h-3.5 text-gray-400 ml-auto shrink-0" />
             </a>
-            <a href="https://maps.google.com/?q=Academy Sports + Outdoors 320 Peachtree Pkwy Cumming GA 30041" target="_blank" rel="noopener noreferrer"
+            <a href="https://maps.google.com/?q=Academy Sports 320 Peachtree Pkwy Cumming GA 30041" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 bg-gray-50 hover:bg-green-50 rounded-lg border border-gray-200 hover:border-green-300 transition-all group">
               <div className="w-9 h-9 bg-[#1a2744] rounded-lg flex items-center justify-center shrink-0 text-[#FFD700] text-lg">
                 📍
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[#1a2744] text-sm group-hover:text-green-700">Academic Sports on Google Maps</p>
-                <p className="text-xs text-gray-400">Directions to Cumming store</p>
+                <p className="font-semibold text-[#1a2744] text-sm group-hover:text-green-700">Academy Sports on Google Maps</p>
+                <p className="text-xs text-gray-400">Directions to Academy Sports</p>
               </div>
               <ExternalLink className="w-3.5 h-3.5 text-gray-400 ml-auto shrink-0" />
             </a>
