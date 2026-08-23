@@ -30,7 +30,7 @@ export default function GearCleaningNotice() {
             <Sparkles className="w-4 h-4 text-yellow-700 shrink-0" />
             <div className="min-w-0">
               <p className="font-bold text-[#1a2744] text-sm leading-tight">Gear Cleaning & Return Reminder</p>
-              <p className="text-xs text-yellow-800 truncate">August Scoutland outing — read before returning gear.</p>
+              <p className="text-xs text-yellow-800 truncate">Read before returning troop gear.</p>
             </div>
           </div>
           {open
@@ -41,7 +41,7 @@ export default function GearCleaningNotice() {
         {open && (
           <div className="px-4 pb-3 pt-1 border-t border-yellow-200">
             <p className="text-xs text-gray-700 leading-snug mb-2">
-              Scouts who went on the August Scoutland outing are expected to return the gear they were assigned to clean as soon as possible.
+              Scouts are expected to return the gear they were assigned to clean as soon as possible after any outing.
             </p>
             <p className="text-xs font-semibold text-[#1a2744] mb-1.5">If unfamiliar with the cleaning process:</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
