@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { PackageCheck, PackageOpen, RotateCcw, CheckCircle, X, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
+import GearCleaningNotice from '@/components/gear/GearCleaningNotice';
 
 const GEAR_OPTIONS = [
   'Troop Tent',
@@ -251,6 +252,9 @@ export default function GearCheckout() {
           <p className="text-sm text-gray-500 mt-1">Items Returned</p>
         </div>
       </div>
+
+      {/* Cleaning reminder */}
+      <GearCleaningNotice />
 
       {/* Filter Tabs */}
       <div className="max-w-4xl mx-auto px-4 mb-4">
