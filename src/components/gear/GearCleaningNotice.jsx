@@ -17,7 +17,7 @@ const CLEANING_STEPS = [
 ];
 
 export default function GearCleaningNotice() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   return (
     <div className="max-w-4xl mx-auto px-4 mb-6">
