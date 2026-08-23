@@ -56,6 +56,12 @@ export default function GearCleaningNotice() {
                 </div>
               ))}
             </div>
+            <p className="text-sm text-[#1a2744] mt-3 leading-relaxed">
+              Please return it to one of the quartermasters who are present, so they can mark off that you have cleaned your gear.
+            </p>
+            <p className="text-sm font-bold text-[#1a2744] mt-3 leading-relaxed">
+              Parents must vouch that their scouts have followed the cleaning process and are returning the gear in good condition.
+            </p>
           </div>
         )}
       </div>
