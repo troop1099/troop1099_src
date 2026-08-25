@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Shield, Loader2, Receipt, Eye, Lock, RefreshCw } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useAdmin } from '@/lib/AdminContext';
 import { safeFormatDate } from '@/lib/dateUtils';
 
 const STATUS_CONFIG = {
@@ -70,51 +72,24 @@ function ReimbursementCard({ req, onStatus, onNote, onView, viewing }) {
 }
 
 export default function AdminReimbursement() {
+  const { adminUnlocked } = useAdmin();
   const { toast } = useToast();
-  const [authorized, setAuthorized] = useState(false);
-  const [adminCode, setAdminCode] = useState('');
-  const [verifying, setVerifying] = useState(false);
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [viewing, setViewing] = useState({});
 
-  const verify = async () => {
-    if (!adminCode.trim()) return;
-    setVerifying(true);
-    try {
-      const res = await base44.functions.invoke('verify-reimbursement-admin', { admin_code: adminCode.trim() });
-      if (res.data?.authorized) {
-        setRequests(res.data.requests || []);
-        setAuthorized(true);
-        toast({ title: 'Access granted' });
-      } else {
-        toast({ title: 'Incorrect admin code', variant: 'destructive' });
-      }
-    } catch (err) {
-      toast({ title: 'Incorrect admin code', variant: 'destructive' });
-    }
-    setVerifying(false);
-  };
-
-  const refresh = async () => {
-    setLoading(true);
-    try {
-      const res = await base44.functions.invoke('verify-reimbursement-admin', { admin_code: adminCode.trim() });
-      setRequests(res.data?.requests || []);
-    } catch (e) {
-      toast({ title: 'Refresh failed', variant: 'destructive' });
-    }
-    setLoading(false);
-  };
+  const { data: requests = [], refetch, isFetching } = useQuery({
+    queryKey: ['reimbursements'],
+    queryFn: () => base44.entities.Reimbursement.list('-created_date'),
+    enabled: adminUnlocked,
+  });
 
   const updateStatus = async (id, status) => {
-    setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r));
     try {
       await base44.entities.Reimbursement.update(id, { status });
       toast({ title: 'Status updated' });
+      refetch();
     } catch (err) {
       toast({ title: 'Update failed', variant: 'destructive' });
-      refresh();
+      refetch();
     }
   };
 
@@ -142,20 +117,15 @@ export default function AdminReimbursement() {
     setViewing(v => ({ ...v, [req.id]: null }));
   };
 
-  if (!authorized) {
+  if (!adminUnlocked) {
     return (
       <div className="pt-14 min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-8 max-w-md w-full shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 p-8 max-w-md w-full shadow-sm text-center">
           <div className="w-14 h-14 bg-[#1a2744] rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="w-7 h-7 text-[#FFD700]" />
           </div>
-          <h1 className="text-xl font-bold text-[#1a2744] text-center mb-1 flex items-center justify-center gap-2"><Shield className="w-5 h-5" /> Admin / Scoutmaster Access</h1>
-          <p className="text-gray-500 text-sm text-center mb-5">Enter the admin code to view reimbursement requests and receipts.</p>
-          <input type="password" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#1a2744]" value={adminCode} onChange={e => setAdminCode(e.target.value)} onKeyDown={e => e.key === 'Enter' && verify()} placeholder="Admin code" autoFocus />
-          <button onClick={verify} disabled={!adminCode.trim() || verifying} className="w-full mt-3 bg-[#1a2744] text-white py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
-            {verifying ? <><Loader2 className="w-4 h-4 animate-spin" /> Verifying...</> : 'Unlock'}
-          </button>
-          <p className="text-xs text-gray-400 text-center mt-3">The admin code is never shown publicly on the website.</p>
+          <h1 className="text-xl font-bold text-[#1a2744] mb-2 flex items-center justify-center gap-2"><Shield className="w-5 h-5" /> Reimbursement Dashboard</h1>
+          <p className="text-gray-500 text-sm mb-4">Enter the master admin code using the <strong>Admin</strong> button at the top of the page to access reimbursement requests.</p>
         </div>
       </div>
     );
@@ -176,8 +146,8 @@ export default function AdminReimbursement() {
             <h1 className="text-2xl font-bold flex items-center gap-2"><Receipt className="w-6 h-6 text-[#FFD700]" /> Reimbursement Dashboard</h1>
             <p className="text-white/70 text-sm mt-1">{requests.length} request{requests.length !== 1 ? 's' : ''} submitted</p>
           </div>
-          <button onClick={refresh} disabled={loading} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Refresh
+          <button onClick={() => refetch()} disabled={isFetching} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50">
+            {isFetching ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Refresh
           </button>
         </div>
       </div>
@@ -192,7 +162,11 @@ export default function AdminReimbursement() {
           ))}
         </div>
 
-        {requests.length === 0 ? (
+        {isFetching && requests.length === 0 ? (
+          <div className="flex items-center justify-center py-16 text-gray-400">
+            <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading requests...
+          </div>
+        ) : requests.length === 0 ? (
           <div className="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center text-gray-400">
             <Receipt className="w-10 h-10 mx-auto mb-3 opacity-40" />
             <p>No reimbursement requests yet.</p>
