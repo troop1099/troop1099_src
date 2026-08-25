@@ -19,7 +19,7 @@ export const ENTITY_FIELDS = {
   TroopPhoto: ['image_url', 'caption', 'uploaded_by'],
   PinestrawOrder: ['customer_name', 'address', 'phone', 'email', 'bales', 'special_instructions', 'status'],
   Setting: ['key', 'value'],
-  Reimbursement: ['name', 'purchase_date', 'amount', 'purpose', 'description', 'receipt_file_uri', 'status', 'admin_note'],
+  Reimbursement: ['name', 'phone', 'purchase_date', 'amount', 'purpose', 'description', 'receipt_file_uri', 'status', 'scout_acknowledged', 'admin_note'],
 };
 
 const BUILTIN_FIELDS = ['id', 'created_date', 'updated_date', 'created_by_id'];
@@ -29,6 +29,7 @@ const BOOLEAN_FIELDS = {
   OutingAttendee: ['attending', 'permission_slip', 'paid', 'request_to_attend'],
   Document: ['pinned'],
   MeritBadge: ['eagle_required'],
+  Reimbursement: ['scout_acknowledged'],
 };
 
 const NUMBER_FIELDS = {
@@ -140,20 +141,33 @@ export async function ensureSpreadsheet(accessToken) {
 
 async function ensureSheet(accessToken, spreadsheetId, entityName) {
   const headers = authHeader(accessToken);
-  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(entityName)}!A1:A1`, { headers });
-  if (res.ok) return;
-
-  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({ requests: [{ addSheet: { properties: { title: entityName } } }] }),
-  });
   const fieldList = getHeaders(entityName);
-  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(entityName)}!A1?valueInputOption=RAW`, {
-    method: 'PUT',
-    headers,
-    body: JSON.stringify({ values: [fieldList] }),
-  });
+
+  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(entityName)}!A1:A1`, { headers });
+  if (!res.ok) {
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ requests: [{ addSheet: { properties: { title: entityName } } }] }),
+    });
+  }
+
+  // Reconcile the header row to the current schema so added/renamed
+  // fields stay aligned with the stored columns.
+  const headerRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(entityName)}!1:1`, { headers });
+  let currentHeader = [];
+  if (headerRes.ok) {
+    const hd = await headerRes.json();
+    currentHeader = (hd.values && hd.values[0]) || [];
+  }
+  const matches = currentHeader.length === fieldList.length && fieldList.every((h, i) => String(currentHeader[i]) === String(h));
+  if (!matches) {
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(entityName)}!A1?valueInputOption=RAW`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ values: [fieldList] }),
+    });
+  }
 }
 
 function parseCSV(text) {

@@ -4,7 +4,11 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "Name of the person submitting the reimbursement"
+      "description": "Name of the person submitting the reimbursement (verified from the troop roster)"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Normalized phone number used to verify identity and show only this submitter's queue"
     },
     "purchase_date": {
       "type": "string",
@@ -31,12 +35,16 @@
       "type": "string",
       "enum": [
         "pending",
-        "approved",
-        "reimbursed",
-        "rejected"
+        "accepted",
+        "denied"
       ],
       "default": "pending",
-      "description": "Reimbursement status set by the Scoutmaster"
+      "description": "Decision set by the Scoutmaster"
+    },
+    "scout_acknowledged": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the submitter has dismissed the Scoutmaster's decision"
     },
     "admin_note": {
       "type": "string",
@@ -45,6 +53,7 @@
   },
   "required": [
     "name",
+    "phone",
     "purchase_date",
     "amount",
     "purpose",

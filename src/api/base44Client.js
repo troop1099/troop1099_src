@@ -41,7 +41,7 @@ const ENTITY_SCHEMAS = {
   TroopPhoto: { type: 'object', properties: { image_url: { type: 'string' }, caption: { type: 'string' }, uploaded_by: { type: 'string' } }, required: ['image_url'] },
   PinestrawOrder: { type: 'object', properties: { customer_name: { type: 'string' }, address: { type: 'string' }, phone: { type: 'string' }, email: { type: 'string' }, bales: { type: 'number' }, special_instructions: { type: 'string' }, status: { type: 'string', enum: ['pending', 'scheduled', 'delivered'], default: 'pending' } }, required: ['customer_name', 'address', 'bales'] },
   Setting: { type: 'object', properties: { key: { type: 'string' }, value: { type: 'string' } }, required: ['key', 'value'] },
-  Reimbursement: { type: 'object', properties: { name: { type: 'string' }, purchase_date: { type: 'string', format: 'date' }, amount: { type: 'number' }, purpose: { type: 'string' }, description: { type: 'string' }, receipt_file_uri: { type: 'string' }, status: { type: 'string', enum: ['pending', 'approved', 'reimbursed', 'rejected'], default: 'pending' }, admin_note: { type: 'string' } }, required: ['name', 'purchase_date', 'amount', 'purpose', 'receipt_file_uri'] },
+  Reimbursement: { type: 'object', properties: { name: { type: 'string' }, phone: { type: 'string' }, purchase_date: { type: 'string', format: 'date' }, amount: { type: 'number' }, purpose: { type: 'string' }, description: { type: 'string' }, receipt_file_uri: { type: 'string' }, status: { type: 'string', enum: ['pending', 'accepted', 'denied'], default: 'pending' }, scout_acknowledged: { type: 'boolean', default: false }, admin_note: { type: 'string' } }, required: ['name', 'phone', 'purchase_date', 'amount', 'purpose', 'receipt_file_uri'] },
 };
 
 function createEntityProxy(entityName) {
