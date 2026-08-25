@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { secrets } from 'base44:runtime';
+import { getAdminCode } from '../../shared/adminCodes.ts';
 import { ensureSpreadsheet, readSheet, appendRow, updateRow, deleteRow } from '../../shared/googleSheets.ts';
 
 export default async function(req) {
@@ -7,7 +7,7 @@ export default async function(req) {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
     const adminCode = body?.admin_code;
-    const expectedCode = secrets.get('LEADERSHIP_EDIT_CODE');
+    const expectedCode = await getAdminCode('LEADERSHIP_EDIT_CODE');
     if (!adminCode || adminCode !== expectedCode) {
       return Response.json({ authorized: false, error: 'Invalid admin code' }, { status: 403 });
     }
