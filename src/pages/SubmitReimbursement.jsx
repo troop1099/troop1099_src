@@ -91,6 +91,18 @@ export default function SubmitReimbursement() {
         status: 'pending',
         scout_acknowledged: false,
       });
+      // Notify the Scoutmaster that a new request was submitted
+      try {
+        const s = await base44.entities.Setting.filter({ key: 'scoutmaster_email' });
+        const email = s[0]?.value;
+        if (email) {
+          await base44.integrations.Core.SendEmail({
+            to: email,
+            subject: 'New reimbursement request submitted',
+            body: `${scoutName} submitted a reimbursement request.\n\nAmount: $${Number(form.amount).toFixed(2)}\nPurpose: ${form.purpose.trim()}\nPurchase date: ${form.purchase_date}\n\nOpen the Reimbursement Dashboard (admin) to review it.`,
+          });
+        }
+      } catch (e) { /* notification is best-effort */ }
       toast({ title: 'Reimbursement submitted!' });
       setForm({ purchase_date: '', amount: '', purpose: '', description: '' });
       setFile(null);

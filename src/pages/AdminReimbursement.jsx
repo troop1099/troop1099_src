@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Shield, Loader2, Receipt, Eye, Lock, RefreshCw, Check, X } from 'lucide-react';
+import { Shield, Loader2, Receipt, Eye, Lock, RefreshCw, Check, X, Mail, Clock, History } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAdmin } from '@/lib/AdminContext';
 import { safeFormatDate } from '@/lib/dateUtils';
@@ -73,16 +73,42 @@ function AdminCard({ req, onDecide, onNote, onView, viewing }) {
   );
 }
 
+function RequestList({ items, onDecide, onNote, onView, viewing, emptyText }) {
+  if (items.length === 0) {
+    return <div className="bg-white rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-400 text-sm">{emptyText}</div>;
+  }
+  return (
+    <div className="space-y-4">
+      {items.map(req => (
+        <AdminCard key={req.id} req={req} onDecide={onDecide} onNote={onNote} onView={onView} viewing={viewing[req.id]} />
+      ))}
+    </div>
+  );
+}
+
 export default function AdminReimbursement() {
   const { adminUnlocked } = useAdmin();
   const { toast } = useToast();
+  const qc = useQueryClient();
   const [viewing, setViewing] = useState({});
+  const [notifEmail, setNotifEmail] = useState('');
+  const [savingEmail, setSavingEmail] = useState(false);
 
   const { data: requests = [], refetch, isFetching } = useQuery({
     queryKey: ['reimbursements-admin'],
     queryFn: () => base44.entities.Reimbursement.list('-created_date'),
     enabled: adminUnlocked,
   });
+
+  const { data: notifSetting = [] } = useQuery({
+    queryKey: ['setting', 'scoutmaster_email'],
+    queryFn: () => base44.entities.Setting.filter({ key: 'scoutmaster_email' }),
+    enabled: adminUnlocked,
+  });
+
+  useEffect(() => {
+    if (notifSetting[0]) setNotifEmail(notifSetting[0].value || '');
+  }, [notifSetting]);
 
   const decide = async (id, status) => {
     try {
@@ -119,6 +145,20 @@ export default function AdminReimbursement() {
     setViewing(v => ({ ...v, [req.id]: null }));
   };
 
+  const saveEmail = async () => {
+    setSavingEmail(true);
+    try {
+      const existing = notifSetting[0];
+      if (existing) await base44.entities.Setting.update(existing.id, { value: notifEmail.trim() });
+      else await base44.entities.Setting.create({ key: 'scoutmaster_email', value: notifEmail.trim() });
+      qc.invalidateQueries(['setting', 'scoutmaster_email']);
+      toast({ title: 'Notification email saved' });
+    } catch (e) {
+      toast({ title: 'Could not save email', variant: 'destructive' });
+    }
+    setSavingEmail(false);
+  };
+
   if (!adminUnlocked) {
     return (
       <div className="pt-14 min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -133,10 +173,12 @@ export default function AdminReimbursement() {
     );
   }
 
+  const pending = requests.filter(r => (r.status || 'pending') === 'pending');
+  const history = requests.filter(r => r.status === 'accepted' || r.status === 'denied');
   const counts = {
-    pending: requests.filter(r => (r.status || 'pending') === 'pending').length,
-    accepted: requests.filter(r => r.status === 'accepted').length,
-    denied: requests.filter(r => r.status === 'denied').length,
+    pending: pending.length,
+    accepted: history.filter(r => r.status === 'accepted').length,
+    denied: history.filter(r => r.status === 'denied').length,
   };
 
   return (
@@ -153,8 +195,8 @@ export default function AdminReimbursement() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="max-w-5xl mx-auto px-4 py-6 space-y-8">
+        <div className="grid grid-cols-3 gap-3">
           {Object.entries(counts).map(([k, v]) => (
             <div key={k} className={`rounded-lg p-3 text-center ${STATUS_CONFIG[k].color}`}>
               <p className="text-2xl font-bold">{v}</p>
@@ -163,21 +205,35 @@ export default function AdminReimbursement() {
           ))}
         </div>
 
+        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-2 text-[#1a2744] font-semibold text-sm shrink-0">
+              <Mail className="w-4 h-4" /> Notification email
+            </div>
+            <input type="email" className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#1a2744]" value={notifEmail} onChange={e => setNotifEmail(e.target.value)} placeholder="scoutmaster@troop1099.org" />
+            <button onClick={saveEmail} disabled={savingEmail} className="bg-[#1a2744] text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50 whitespace-nowrap">
+              {savingEmail ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+          <p className="text-xs text-gray-400 mt-2">You'll get an email here whenever someone submits a new reimbursement request.</p>
+        </div>
+
         {isFetching && requests.length === 0 ? (
           <div className="flex items-center justify-center py-16 text-gray-400">
             <Loader2 className="w-6 h-6 animate-spin mr-2" /> Loading requests...
           </div>
-        ) : requests.length === 0 ? (
-          <div className="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center text-gray-400">
-            <Receipt className="w-10 h-10 mx-auto mb-3 opacity-40" />
-            <p>No reimbursement requests yet.</p>
-          </div>
         ) : (
-          <div className="space-y-4">
-            {requests.map(req => (
-              <AdminCard key={req.id} req={req} onDecide={decide} onNote={saveNote} onView={viewReceipt} viewing={viewing[req.id]} />
-            ))}
-          </div>
+          <>
+            <section>
+              <h2 className="text-lg font-bold text-[#1a2744] mb-3 flex items-center gap-2"><Clock className="w-5 h-5" /> Pending Review ({pending.length})</h2>
+              <RequestList items={pending} onDecide={decide} onNote={saveNote} onView={viewReceipt} viewing={viewing} emptyText="No requests waiting for review." />
+            </section>
+
+            <section>
+              <h2 className="text-lg font-bold text-[#1a2744] mb-3 flex items-center gap-2"><History className="w-5 h-5" /> History ({history.length})</h2>
+              <RequestList items={history} onDecide={decide} onNote={saveNote} onView={viewReceipt} viewing={viewing} emptyText="No past requests yet." />
+            </section>
+          </>
         )}
       </div>
     </div>
