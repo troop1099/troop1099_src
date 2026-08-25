@@ -19,6 +19,7 @@ export const ENTITY_FIELDS = {
   TroopPhoto: ['image_url', 'caption', 'uploaded_by'],
   PinestrawOrder: ['customer_name', 'address', 'phone', 'email', 'bales', 'special_instructions', 'status'],
   Setting: ['key', 'value'],
+  Reimbursement: ['name', 'purchase_date', 'amount', 'purpose', 'description', 'receipt_file_uri', 'status', 'admin_note'],
 };
 
 const BUILTIN_FIELDS = ['id', 'created_date', 'updated_date', 'created_by_id'];
@@ -33,6 +34,7 @@ const BOOLEAN_FIELDS = {
 const NUMBER_FIELDS = {
   Leader: ['sort_order'],
   PinestrawOrder: ['bales'],
+  Reimbursement: ['amount'],
 };
 
 function convertValue(entityName, field, value) {

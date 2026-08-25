@@ -35,6 +35,8 @@ import TroopPolicies from './pages/TroopPolicies';
 import SummerCamp from './pages/SummerCamp';
 import CampingChecklist from './pages/CampingChecklist';
 import OutingManager from './pages/OutingManager';
+import SubmitReimbursement from './pages/SubmitReimbursement';
+import AdminReimbursement from './pages/AdminReimbursement';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -84,6 +86,8 @@ const AuthenticatedApp = () => {
         <Route path="/summer-camp" element={<SummerCamp />} />
         <Route path="/camping-checklist" element={<CampingChecklist />} />
         <Route path="/outing-manager" element={<OutingManager />} />
+        <Route path="/submit-reimbursement" element={<SubmitReimbursement />} />
+        <Route path="/admin-reimbursement" element={<AdminReimbursement />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

@@ -46,6 +46,7 @@ const NAV = [
       { label: 'For Parents', path: '/for-parents' },
       { label: 'Dues & Payments', path: '/dues' },
       { label: 'Pine Straw Fundraiser', path: '/pinestraw' },
+      { label: 'Submit Reimbursement', path: '/submit-reimbursement' },
     ],
   },
   {
@@ -55,6 +56,7 @@ const NAV = [
       { label: 'Leader Training', path: '/leader-training' },
       { label: 'Troop Policies', path: '/policies' },
       { label: 'Outing Manager', path: '/outing-manager' },
+      { label: 'Reimbursement Dashboard', path: '/admin-reimbursement' },
     ],
   },
 ];

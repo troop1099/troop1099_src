@@ -1,0 +1,53 @@
+{
+  "name": "Reimbursement",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the person submitting the reimbursement"
+    },
+    "purchase_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the purchase was made"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount spent in dollars"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "What the purchase was for"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of the purchase"
+    },
+    "receipt_file_uri": {
+      "type": "string",
+      "description": "Private file URI of the uploaded receipt"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "reimbursed",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Reimbursement status set by the Scoutmaster"
+    },
+    "admin_note": {
+      "type": "string",
+      "description": "Optional note added by the Scoutmaster"
+    }
+  },
+  "required": [
+    "name",
+    "purchase_date",
+    "amount",
+    "purpose",
+    "receipt_file_uri"
+  ]
+}
