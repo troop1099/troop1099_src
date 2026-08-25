@@ -4,6 +4,8 @@ import { base44 } from '@/api/base44Client';
 import { Receipt, Upload, Loader2, X, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import ScoutPhoneLookup from '@/components/advancement/ScoutPhoneLookup';
+import { useAdmin } from '@/lib/AdminContext';
+import AdminReimbursement from '@/pages/AdminReimbursement';
 import { safeFormatDate } from '@/lib/dateUtils';
 
 function normalizePhone(phone) {
@@ -59,6 +61,7 @@ export default function SubmitReimbursement() {
   const [file, setFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [dismissing, setDismissing] = useState(null);
+  const { adminUnlocked } = useAdmin();
 
   const normPhone = normalizePhone(verifiedPhone);
 
@@ -67,6 +70,8 @@ export default function SubmitReimbursement() {
     queryFn: () => base44.entities.Reimbursement.filter({ phone: normPhone }, '-created_date'),
     enabled: !!normPhone,
   });
+
+  if (adminUnlocked) return <AdminReimbursement />;
 
   const queue = myRequests.filter(r =>
     r.status === 'pending' ||
