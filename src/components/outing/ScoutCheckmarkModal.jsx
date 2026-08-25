@@ -18,7 +18,11 @@ export default function ScoutCheckmarkModal({ attendee, onClose }) {
   });
 
   const saveMutation = useMutation({
-    mutationFn: (data) => base44.entities.OutingAttendee.update(attendee.id, data),
+    mutationFn: (data) => base44.functions.invoke('check-in-outing-attendee', {
+      attendee_id: attendee.id,
+      phone,
+      checks: data,
+    }).then(res => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries(['attendees']);
       toast({ title: 'Saved!', description: 'Your checkmarks have been updated.' });

@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Leaf, Package, MapPin, Phone, Mail, ClipboardList, CheckCircle, Clock, Truck } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAdmin } from '@/lib/AdminContext';
+import { storeActiveAdminCode } from '@/lib/adminCredential';
 
 const LOGO = 'https://media.base44.com/images/public/6a1da1101f26862b7b863a4a/21ffdd64d_Screenshot2026-06-01at100515PM.png';
 
@@ -71,6 +72,7 @@ function AdminView() {
     try {
       const res = await base44.functions.invoke('verify-pinestraw-admin', { admin_code: adminCode.trim() });
       if (res.data?.authorized) {
+        storeActiveAdminCode(adminCode.trim());
         setOrders(res.data.orders || []);
         setAuthorized(true);
         toast({ title: 'Access granted', description: 'Order data loaded.' });

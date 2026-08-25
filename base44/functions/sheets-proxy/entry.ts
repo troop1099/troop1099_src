@@ -1,5 +1,28 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { ensureSpreadsheet, readSheet, readSheetAuth, appendRow, bulkAppendRows, updateRow, deleteRow } from '../../shared/googleSheets.ts';
+import { getAdminCode } from '../../shared/adminCodes.ts';
+
+// Authorization: the sheets-proxy runs as the service role, so every write
+// operation must be explicitly authorized. Single-record creation on the
+// public-form entities below is allowed without a code (pine straw orders,
+// scout reimbursement submissions, scout outing attendance requests);
+// everything else (all updates, deletes, bulk writes, and creates of
+// admin-managed entities) requires a valid troop admin code.
+const WRITE_OPS = new Set(['create', 'bulkCreate', 'update', 'updateMany', 'delete', 'deleteMany', 'bulkUpdate']);
+const PUBLIC_CREATE_ENTITIES = new Set(['PinestrawOrder', 'Reimbursement', 'OutingAttendee']);
+const ADMIN_CODE_NAMES = [
+  'MASTER_ADMIN_CODE', 'MERIT_BADGE_ADMIN_CODE', 'LEADERSHIP_EDIT_CODE',
+  'PINE_STRAW_ADMIN_CODE', 'QUARTERMASTER_RETURN_CODE', 'RESERVATION_ADMIN_CODE',
+];
+
+async function isValidAdminCode(code) {
+  if (!code) return false;
+  for (const name of ADMIN_CODE_NAMES) {
+    const expected = await getAdminCode(name);
+    if (expected && code === expected) return true;
+  }
+  return false;
+}
 
 function matchesQuery(row, query) {
   if (!query) return true;
@@ -47,6 +70,14 @@ export default async function(req) {
 
     if (!entity || !operation) {
       return Response.json({ error: 'Entity and operation required' }, { status: 400 });
+    }
+
+    if (WRITE_OPS.has(operation)) {
+      const isPublicCreate = operation === 'create' && PUBLIC_CREATE_ENTITIES.has(entity);
+      if (!isPublicCreate) {
+        const ok = await isValidAdminCode(body.admin_code);
+        if (!ok) return Response.json({ error: 'Unauthorized: admin code required' }, { status: 403 });
+      }
     }
 
     const conn = await base44.asServiceRole.connectors.getConnection('googledrive');

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
+import { storeActiveAdminCode, clearActiveAdminCode } from '@/lib/adminCredential';
 
 const AdminContext = createContext(null);
 
@@ -11,6 +12,7 @@ export function AdminProvider({ children }) {
   const unlock = useCallback(async (code) => {
     const res = await base44.functions.invoke('verify-master-admin', { admin_code: code });
     if (res.data?.authorized) {
+      storeActiveAdminCode(code);
       setAdminUnlocked(true);
       try { localStorage.setItem('master_admin_unlocked', 'true'); } catch {}
       return true;
@@ -19,6 +21,7 @@ export function AdminProvider({ children }) {
   }, []);
 
   const lock = useCallback(() => {
+    clearActiveAdminCode();
     setAdminUnlocked(false);
     try { localStorage.removeItem('master_admin_unlocked'); } catch {}
   }, []);

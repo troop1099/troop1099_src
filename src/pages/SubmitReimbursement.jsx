@@ -121,7 +121,7 @@ export default function SubmitReimbursement() {
   const dismiss = async (id) => {
     setDismissing(id);
     try {
-      await base44.entities.Reimbursement.update(id, { scout_acknowledged: true });
+      await base44.functions.invoke('acknowledge-reimbursement', { id, phone: normPhone });
       qc.invalidateQueries(['reimbursements', normPhone]);
     } catch (e) {
       toast({ title: 'Could not dismiss', variant: 'destructive' });

@@ -5,6 +5,7 @@ import { PackageCheck, PackageOpen, RotateCcw, CheckCircle, X, Loader2 } from 'l
 import { format } from 'date-fns';
 import { useToast } from '@/components/ui/use-toast';
 import GearCleaningNotice from '@/components/gear/GearCleaningNotice';
+import { storeActiveAdminCode } from '@/lib/adminCredential';
 
 const GEAR_OPTIONS = [
   'Troop Tent',
@@ -70,6 +71,7 @@ function CheckoutForm({ onClose }) {
         setSaving(false);
         return;
       }
+      storeActiveAdminCode(quartermasterCode.trim());
     } catch (err) {
       toast({ title: 'Incorrect Quartermaster code', variant: 'destructive' });
       setSaving(false);

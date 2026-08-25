@@ -49,7 +49,7 @@ export default function MyReservations() {
   );
 
   const cancelMutation = useMutation({
-    mutationFn: (id) => base44.entities.AdvancementRequest.update(id, { status: 'canceled' }),
+    mutationFn: (id) => base44.functions.invoke('cancel-advancement-request', { id }).then(res => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries(['my-reservations']);
       queryClient.invalidateQueries(['advancement-requests']);

@@ -6,6 +6,7 @@ import { ClipboardList, ChevronDown, ChevronRight, FileText } from 'lucide-react
 import { useToast } from '@/components/ui/use-toast';
 import EmailNotificationSettings from '@/components/advancement/EmailNotificationSettings';
 import { useAdmin } from '@/lib/AdminContext';
+import { storeActiveAdminCode } from '@/lib/adminCredential';
 
 const MAX_SLOTS = 2;
 
@@ -42,6 +43,7 @@ export default function AdminSchedule() {
     try {
       const res = await base44.functions.invoke('verify-reservation-admin', { admin_code: adminCode.trim() });
       if (res.data?.authorized) {
+        storeActiveAdminCode(adminCode.trim());
         setAuthorized(true);
         toast({ title: 'Access granted', description: 'Reservation data loaded.' });
       } else {

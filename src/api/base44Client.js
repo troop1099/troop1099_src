@@ -1,5 +1,6 @@
 import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
+import { getActiveAdminCode } from '@/lib/adminCredential';
 
 const { appId, token, functionsVersion, appBaseUrl } = appParams;
 
@@ -44,9 +45,17 @@ const ENTITY_SCHEMAS = {
   Reimbursement: { type: 'object', properties: { name: { type: 'string' }, phone: { type: 'string' }, purchase_date: { type: 'string', format: 'date' }, amount: { type: 'number' }, purpose: { type: 'string' }, description: { type: 'string' }, receipt_file_uri: { type: 'string' }, status: { type: 'string', enum: ['pending', 'accepted', 'denied'], default: 'pending' }, scout_acknowledged: { type: 'boolean', default: false }, admin_note: { type: 'string' } }, required: ['name', 'phone', 'purchase_date', 'amount', 'purpose', 'receipt_file_uri'] },
 };
 
+const WRITE_OPS = new Set(['create', 'bulkCreate', 'update', 'updateMany', 'delete', 'deleteMany', 'bulkUpdate']);
+
 function createEntityProxy(entityName) {
-  const invoke = (operation, params = {}) =>
-    base44.functions.invoke('sheets-proxy', { entity: entityName, operation, ...params }).then(res => res.data);
+  const invoke = (operation, params = {}) => {
+    const payload = { entity: entityName, operation, ...params };
+    if (WRITE_OPS.has(operation)) {
+      const code = getActiveAdminCode();
+      if (code) payload.admin_code = code;
+    }
+    return base44.functions.invoke('sheets-proxy', payload).then(res => res.data);
+  };
 
   return {
     list: (sort, limit) => invoke('list', { sort, limit }),
